@@ -1,0 +1,65 @@
+package com.voyageconnect.controller;
+
+import com.voyageconnect.model.*;
+import com.voyageconnect.repository.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+class ReservationControllerTest {
+
+    @Mock
+    private ReservationRepository reservationRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private FlightRepository flightRepository;
+    @Mock
+    private HotelRepository hotelRepository;
+
+    @InjectMocks
+    private ReservationController controller;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        // set security context principal name
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("bob@example.com", null));
+    }
+
+    @Test
+    void createReservation_decrementsAvailability_andSaves() {
+        User user = User.builder().id(2L).email("bob@example.com").build();
+        when(userRepository.findByEmail("bob@example.com")).thenReturn(Optional.of(user));
+
+        Flight flight = Flight.builder().id(10L).availableSeats(5).price(new BigDecimal("100")).build();
+        when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
+
+        Hotel hotel = Hotel.builder().id(20L).availableRooms(3).pricePerNight(new BigDecimal("50")).build();
+        when(hotelRepository.findById(20L)).thenReturn(Optional.of(hotel));
+
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> i.getArgument(0));
+
+        CreateReservationRequest req = new CreateReservationRequest();
+        req.setFlightId(10L);
+        req.setHotelId(20L);
+        req.setDate(LocalDateTime.now());
+
+        var resp = controller.create(req);
+        assertNotNull(resp);
+        verify(flightRepository, times(1)).save(argThat(f -> f.getAvailableSeats() == 4));
+        verify(hotelRepository, times(1)).save(argThat(h -> h.getAvailableRooms() == 2));
+        verify(reservationRepository, times(1)).save(any(Reservation.class));
+    }
+}
