@@ -17,7 +17,7 @@ import { ReservationService } from '../../services/reservation.service';
         <mat-list-item *ngFor="let r of reservations" class="reservation-item">
           <div class="reservation-info">
             <strong>Reservation #{{ r.id }}</strong>
-            <p>Status: {{ r.status }} | Total: ${{ r.totalPrice }}</p>
+            <p>Status: {{ r.status }} | Total: {{ r.totalPrice }}</p>
           </div>
           <button mat-button color="warn" (click)="onCancel(r.id)">Cancel</button>
         </mat-list-item>

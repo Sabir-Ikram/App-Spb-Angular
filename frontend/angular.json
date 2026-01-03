@@ -57,15 +57,15 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "voyageconnect:build:development",
+            "buildTarget": "voyageconnect:build:development",
             "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "browserTarget": "voyageconnect:build:production"
+              "buildTarget": "voyageconnect:build:production"
             },
             "development": {
-              "browserTarget": "voyageconnect:build:development"
+              "buildTarget": "voyageconnect:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "voyageconnect:build"
+            "buildTarget": "voyageconnect:build"
           }
         },
         "test": {
@@ -110,5 +110,7 @@
       }
     }
   },
-  "defaultProject": "voyageconnect"
+  "cli": {
+    "analytics": false
+  }
 }

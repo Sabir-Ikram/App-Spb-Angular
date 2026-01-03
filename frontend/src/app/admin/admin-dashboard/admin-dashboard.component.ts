@@ -25,7 +25,7 @@ import { ReservationService } from '../../services/reservation.service';
           </ng-container>
           <ng-container matColumnDef="total">
             <th mat-header-cell *matHeaderCellDef>Total</th>
-            <td mat-cell *matCellDef="let r">${{ r.totalPrice }}</td>
+            <td mat-cell *matCellDef="let r">{{ r.totalPrice }}</td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
