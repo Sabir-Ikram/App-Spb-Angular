@@ -1,0 +1,51 @@
+# Backend (Maven/Spring Boot)
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/bin/
+backend/.DS_Store
+backend/*.iml
+
+# Frontend (Angular)
+frontend/dist/
+frontend/out-tsc/
+frontend/node_modules/
+frontend/.angular/cache/
+frontend/.angular/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Dependencies
+node_modules/
+.npm
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System
+.env
+.env.local
+.env.*.local
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+/coverage
+
+# Misc
+.nyc_output/
+dist/
