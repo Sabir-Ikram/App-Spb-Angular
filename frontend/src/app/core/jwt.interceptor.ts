@@ -9,10 +9,13 @@ export class JwtInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.auth.getToken();
+    console.log('JWT Interceptor - URL:', req.url, 'Token:', token ? 'Present' : 'Missing');
     if (token) {
       const cloned = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
+      console.log('JWT Interceptor - Added Authorization header');
       return next.handle(cloned);
     }
+    console.log('JWT Interceptor - No token, passing request unchanged');
     return next.handle(req);
   }
 }

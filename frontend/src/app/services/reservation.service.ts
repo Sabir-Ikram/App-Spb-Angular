@@ -1,30 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CreateReservationRequest, ReservationResponse, ReservationStatus } from '../models/reservation.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ReservationService {
-  private base = '/api/reservations';
+  private apiUrl = '/api/reservations';
 
   constructor(private http: HttpClient) {}
 
-  getMyReservations(): Observable<any[]> {
-    return this.http.get<any[]>(this.base);
+  /**
+   * Create a new reservation for flight, hotel, or both
+   */
+  createReservation(request: CreateReservationRequest): Observable<ReservationResponse> {
+    return this.http.post<ReservationResponse>(this.apiUrl, request);
   }
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/all`);
+  /**
+   * Get current user's reservations
+   */
+  getUserReservations(): Observable<ReservationResponse[]> {
+    return this.http.get<ReservationResponse[]>(`${this.apiUrl}/me`);
   }
 
-  getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.base}/${id}`);
+  /**
+   * Get a specific reservation by ID
+   */
+  getReservation(id: number): Observable<ReservationResponse> {
+    return this.http.get<ReservationResponse>(`${this.apiUrl}/${id}`);
   }
 
-  create(payload: any): Observable<any> {
-    return this.http.post<any>(this.base, payload);
+  /**
+   * Admin: Get all reservations
+   */
+  getAllReservations(): Observable<ReservationResponse[]> {
+    return this.http.get<ReservationResponse[]>(`${this.apiUrl}/admin/all`);
   }
 
-  cancel(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/${id}`);
+  /**
+   * Admin: Update reservation status
+   */
+  updateReservationStatus(id: number, status: ReservationStatus): Observable<ReservationResponse> {
+    return this.http.patch<ReservationResponse>(`${this.apiUrl}/admin/${id}/status`, { status });
   }
 }

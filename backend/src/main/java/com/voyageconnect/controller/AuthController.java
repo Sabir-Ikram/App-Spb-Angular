@@ -37,8 +37,9 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        String token = jwtUtil.generateToken(authentication.getName());
-        return ResponseEntity.ok(new AuthResponse(token));
+        User user = userRepository.findByEmail(authentication.getName()).orElseThrow();
+        String token = jwtUtil.generateToken(authentication.getName(), user.getRole().name());
+        return ResponseEntity.ok(new AuthResponse(token, "Bearer"));
     }
 
     @PostMapping("/register")

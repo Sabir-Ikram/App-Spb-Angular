@@ -4,12 +4,15 @@ import com.voyageconnect.dto.DestinationCreateDTO;
 import com.voyageconnect.dto.DestinationDTO;
 import com.voyageconnect.model.Destination;
 import com.voyageconnect.repository.DestinationRepository;
+import com.voyageconnect.service.AmadeusClientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -17,14 +20,38 @@ import java.util.stream.Collectors;
 public class DestinationController {
 
     private final DestinationRepository destinationRepository;
+    private final AmadeusClientService amadeusClientService;
 
-    public DestinationController(DestinationRepository destinationRepository) {
+    public DestinationController(DestinationRepository destinationRepository, AmadeusClientService amadeusClientService) {
         this.destinationRepository = destinationRepository;
+        this.amadeusClientService = amadeusClientService;
     }
 
     @GetMapping
-    public List<DestinationDTO> list() {
-        return destinationRepository.findAll().stream().map(this::toDto).collect(Collectors.toList());
+    public List<Map<String, Object>> list(@RequestParam(required = false) String keyword) {
+        // Return only Amadeus API destinations
+        if (keyword == null || keyword.isEmpty()) {
+            // Search for popular cities including Moroccan destinations if no keyword provided
+            List<Map<String, Object>> allDestinations = new ArrayList<>();
+            String[] popularCities = {
+                "Paris", "London", "New York", "Tokyo", "Dubai", "Barcelona", "Rome", "Amsterdam", 
+                // Moroccan cities - naturally integrated
+                "Casablanca", "Marrakech", "Rabat", "Fes", "Tangier", "Agadir", 
+                "Madrid", "Berlin", "Singapore"
+            };
+            for (String city : popularCities) {
+                List<Map<String, Object>> cityDests = amadeusClientService.searchDestinations(city);
+                if (!cityDests.isEmpty()) {
+                    allDestinations.addAll(cityDests);
+                }
+                if (allDestinations.size() >= 50) break; // Limit results
+            }
+            return allDestinations;
+        }
+        
+        // For typed searches, query Amadeus API directly
+        // This naturally supports Moroccan cities like "Casa", "Marrakech", etc.
+        return amadeusClientService.searchDestinations(keyword);
     }
 
     @GetMapping("/{id}")

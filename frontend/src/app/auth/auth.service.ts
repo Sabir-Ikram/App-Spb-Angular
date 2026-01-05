@@ -12,6 +12,8 @@ export class AuthService {
   private tokenKey = 'voyage_token';
   private roleKey = 'voyage_role';
   private currentUserSubject = new BehaviorSubject<string | null>(this.getToken());
+  private authStateSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
+  public authState$ = this.authStateSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -31,6 +33,7 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.roleKey);
     this.currentUserSubject.next(null);
+    this.authStateSubject.next(false);
     this.router.navigate(['/auth/login']);
   }
 
@@ -41,6 +44,7 @@ export class AuthService {
     if (payload && payload.role) {
       localStorage.setItem(this.roleKey, payload.role);
     }
+    this.authStateSubject.next(true);
   }
 
   getToken(): string | null {
