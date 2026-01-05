@@ -6,6 +6,7 @@ import com.voyageconnect.model.Destination;
 import com.voyageconnect.model.Flight;
 import com.voyageconnect.repository.DestinationRepository;
 import com.voyageconnect.repository.FlightRepository;
+import com.voyageconnect.service.AmadeusClientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,20 +17,33 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/flights")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class FlightController {
 
     private final FlightRepository flightRepository;
     private final DestinationRepository destinationRepository;
+    private final AmadeusClientService amadeusClientService;
 
-    public FlightController(FlightRepository flightRepository, DestinationRepository destinationRepository) {
+    public FlightController(FlightRepository flightRepository, DestinationRepository destinationRepository, AmadeusClientService amadeusClientService) {
         this.flightRepository = flightRepository;
         this.destinationRepository = destinationRepository;
+        this.amadeusClientService = amadeusClientService;
     }
 
     @GetMapping
-    public List<FlightDTO> list(@RequestParam(required = false) Long destinationId) {
-        List<Flight> flights = (destinationId == null) ? flightRepository.findAll() : flightRepository.findByDestinationId(destinationId);
-        return flights.stream().map(this::toDto).collect(Collectors.toList());
+    public List<FlightDTO> list(
+            @RequestParam(required = false) String origin,
+            @RequestParam(required = false) String destination,
+            @RequestParam(required = false) String departureDate,
+            @RequestParam(required = false) Long destinationId) {
+        
+        // If search parameters provided, fetch from Amadeus API
+        if (origin != null && destination != null && departureDate != null) {
+            return amadeusClientService.searchFlights(origin, destination, departureDate);
+        }
+        
+        // Default: return mock flights for demo
+        return amadeusClientService.searchFlights("ORD", "LAX", "2026-01-25");
     }
 
     @GetMapping("/{id}")
@@ -79,6 +93,16 @@ public class FlightController {
     }
 
     private FlightDTO toDto(Flight f) {
-        return new FlightDTO(f.getId(), f.getDeparture(), f.getArrival(), f.getPrice(), f.getAvailableSeats(), f.getDestination() != null ? f.getDestination().getId() : null);
+        return new FlightDTO(
+            f.getId(), 
+            f.getDeparture(), 
+            f.getArrival(), 
+            f.getPrice(), 
+            f.getAvailableSeats(), 
+            f.getDestination() != null ? f.getDestination().getId() : null,
+            f.getAirline(),
+            f.getFlightNumber(),
+            f.getImageUrl()
+        );
     }
 }

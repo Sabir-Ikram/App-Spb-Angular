@@ -2,6 +2,7 @@ package com.voyageconnect.controller;
 
 import com.voyageconnect.model.*;
 import com.voyageconnect.repository.*;
+import com.voyageconnect.dto.CreateReservationRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

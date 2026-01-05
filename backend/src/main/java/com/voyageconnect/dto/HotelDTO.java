@@ -15,4 +15,8 @@ public class HotelDTO {
     private BigDecimal pricePerNight;
     private Integer availableRooms;
     private Long destinationId;
+    private String address;
+    private Integer rating;
+    private String imageUrl;
+    private String description;
 }

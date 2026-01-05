@@ -22,6 +22,18 @@ public class Hotel {
 
     private Integer availableRooms;
 
+    private String address;
+
+    private Integer rating;
+
+    private String imageUrl;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(length = 50)
+    private String provider; // "AMADEUS" or "BOOKING_COM"
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destination_id")
     @ToString.Exclude

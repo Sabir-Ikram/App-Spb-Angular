@@ -25,6 +25,12 @@ public class Flight {
 
     private Integer availableSeats;
 
+    private String airline;
+
+    private String flightNumber;
+
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "destination_id")
     @ToString.Exclude

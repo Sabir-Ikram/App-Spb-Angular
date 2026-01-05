@@ -8,9 +8,12 @@ export class FlightService {
 
   constructor(private http: HttpClient) {}
 
-  list(destinationId?: number): Observable<any[]> {
+  list(destinationId?: number, origin?: string, destination?: string, departureDate?: string): Observable<any[]> {
     let params = new HttpParams();
     if (destinationId != null) params = params.set('destinationId', destinationId.toString());
+    if (origin) params = params.set('origin', origin);
+    if (destination) params = params.set('destination', destination);
+    if (departureDate) params = params.set('departureDate', departureDate);
     return this.http.get<any[]>(this.base, { params });
   }
 
