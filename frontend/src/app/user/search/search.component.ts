@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormControl } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { DestinationService } from '../../services/destination.service';
 import { FlightService } from '../../services/flight.service';
 import { SearchResultsComponent } from './search-results.component';
@@ -25,6 +27,7 @@ import { of } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     FormsModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -46,9 +49,9 @@ import { of } from 'rxjs';
       <!-- Hero Section -->
       <div class="search-hero">
         <div class="search-hero-content">
-          <mat-icon class="hero-icon">flight_takeoff</mat-icon>
-          <h1 class="hero-title">Find Your Perfect Flight</h1>
-          <p class="hero-subtitle">Search and compare flights from multiple airlines • Powered by Amadeus API</p>
+          <mat-icon class="hero-icon">{{isPackageMode ? 'card_travel' : 'flight_takeoff'}}</mat-icon>
+          <h1 class="hero-title">{{isPackageMode ? 'Find Your Perfect Package' : 'Find Your Perfect Flight'}}</h1>
+          <p class="hero-subtitle">{{isPackageMode ? 'Search flights and hotels for your complete travel package' : 'Search and compare flights from multiple airlines • Powered by Amadeus API'}}</p>
         </div>
       </div>
 
@@ -215,6 +218,59 @@ import { of } from 'rxjs';
       opacity: 0.95;
       margin: 0;
       font-weight: 300;
+    }
+
+    /* Package Notice */
+    .package-notice {
+      max-width: 1000px;
+      margin: -20px auto 24px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 3;
+    }
+
+    .package-notice mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #667eea;
+      flex-shrink: 0;
+    }
+
+    .package-notice-content {
+      flex: 1;
+    }
+
+    .package-notice-content h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .package-notice-content p {
+      margin: 0;
+      color: #546e7a;
+      font-size: 0.95rem;
+    }
+
+    .package-notice-content a {
+      color: #667eea;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+
+    .package-notice-content a:hover {
+      border-bottom-color: #667eea;
     }
 
     /* Search Container */
@@ -460,8 +516,19 @@ export class SearchComponent implements OnInit {
   results: any[] = [];
   filteredResults: any[] = [];
   isSearching: boolean = false;
+  
+  // Package mode
+  isPackageMode: boolean = false;
+  packageDestination: string = '';
+  packageIataCode: string = '';
+  packageDeparture: string = '';
+  packageReturn: string = '';
 
-  constructor(private destSvc: DestinationService, private flightSvc: FlightService) {}
+  constructor(
+    private destSvc: DestinationService, 
+    private flightSvc: FlightService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     // Setup origin autocomplete
@@ -491,6 +558,66 @@ export class SearchComponent implements OnInit {
     ).subscribe(destinations => {
       this.destinationDestinations = destinations;
     });
+
+    // Check for query parameters from home page
+    this.route.queryParams.subscribe(params => {
+      let shouldAutoSearch = false;
+
+      // Check if this is package mode
+      if (params['packageMode'] === 'true') {
+        this.isPackageMode = true;
+        this.packageDestination = params['to'] || params['city'] || '';
+        this.packageIataCode = params['destinationLocationCode'] || params['iataCode'] || '';
+        this.packageDeparture = params['departure'] || '';
+        this.packageReturn = params['return'] || '';
+      }
+
+      // Handle origin
+      if (params['originLocationCode'] || params['from']) {
+        const originCode = params['originLocationCode'];
+        const originName = params['from'];
+        
+        if (originCode) {
+          this.destSvc.search(originName || originCode).subscribe(destinations => {
+            if (destinations && destinations.length > 0) {
+              const matchedDest = destinations.find(d => d.iataCode === originCode) || destinations[0];
+              this.originControl.setValue(matchedDest);
+              this.selectedOrigin = matchedDest;
+              shouldAutoSearch = true;
+            }
+          });
+        }
+      }
+
+      // Handle destination
+      if (params['destinationLocationCode'] || params['to']) {
+        const destCode = params['destinationLocationCode'];
+        const destName = params['to'];
+        
+        if (destCode) {
+          this.destSvc.search(destName || destCode).subscribe(destinations => {
+            if (destinations && destinations.length > 0) {
+              const matchedDest = destinations.find(d => d.iataCode === destCode) || destinations[0];
+              this.destinationControl.setValue(matchedDest);
+              this.selectedDestination = matchedDest;
+              
+              // Trigger search after both origin and destination are set
+              if (shouldAutoSearch) {
+                setTimeout(() => this.onSearch(), 800);
+              }
+            }
+          });
+        }
+      }
+
+      // Handle dates if provided
+      if (params['departure']) {
+        this.departureDate = new Date(params['departure']);
+      }
+      if (params['return']) {
+        this.returnDate = new Date(params['return']);
+      }
+    });
   }
 
   displayDestination(dest: any): string {
@@ -515,6 +642,12 @@ export class SearchComponent implements OnInit {
       this.departureDate.toISOString().split('T')[0] : '2026-02-15';
     
     console.log('Searching flights with:', { origin, destination, departureDate: departureDateStr });
+    
+    // Store origin and destination info for later use in booking
+    sessionStorage.setItem('searchOriginCity', originValue.name);
+    sessionStorage.setItem('searchOriginCode', originValue.iataCode);
+    sessionStorage.setItem('searchDestinationCity', destinationValue.name);
+    sessionStorage.setItem('searchDestinationCode', destinationValue.iataCode);
     
     this.isSearching = true;
     this.flightSvc.list(

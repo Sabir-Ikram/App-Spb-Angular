@@ -28,15 +28,18 @@ public class ApiReservationController {
      * Create a new reservation (flight, hotel, or both)
      */
     @PostMapping
-    public ResponseEntity<ApiReservationResponse> createReservation(
+    public ResponseEntity<?> createReservation(
             @RequestBody CreateApiReservationRequest request) {
         try {
             log.info("Creating reservation - Type: {}", request.getType());
+            log.info("Flight data: {}", request.getFlight());
+            log.info("Hotel data: {}", request.getHotel());
             ApiReservationResponse response = reservationService.createReservation(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             log.error("Error creating reservation", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage(), "message", "Failed to create reservation"));
         }
     }
 

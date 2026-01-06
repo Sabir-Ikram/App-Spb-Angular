@@ -16,6 +16,7 @@ export interface FlightReservationData {
   externalFlightId: string;
   origin: string;
   destination: string;
+  destinationCity?: string; // Full city name for the destination
   departureDate: string;
   returnDate?: string;
   airline: string;

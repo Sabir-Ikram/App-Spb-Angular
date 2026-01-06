@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { RouterModule } from '@angular/router';
 import { DestinationService } from '../../services/destination.service';
 import { HotelService, Hotel } from '../../services/hotel.service';
 import { FlightService } from '../../services/flight.service';
 import { ImageService } from '../../services/image.service';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { of, Observable } from 'rxjs';
 
 interface Destination {
   id: string;
@@ -26,7 +30,7 @@ interface Destination {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatAutocompleteModule, RouterModule],
   template: `
     <!-- PREMIUM HERO SECTION - Booking.com Style with Dynamic Moroccan Monuments -->
     <div class="hero-section" [style.background-image]="heroImage ? 'url(' + heroImage + ')' : 'none'">
@@ -85,17 +89,33 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="Where are you going?"
-                         [(ngModel)]="searchDestination">
+                         [formControl]="hotelDestinationControl"
+                         [matAutocomplete]="autoHotelDest">
                   <label class="floating-label">Destination</label>
+                  <mat-autocomplete #autoHotelDest="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of hotelDestinations" [value]="dest">
+                      <mat-icon>place</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
-                <div class="form-field-premium form-field-dates">
+                <div class="form-field-premium form-field-checkin">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
-                         placeholder="Check in — Check out"
-                         [(ngModel)]="searchDates">
-                  <label class="floating-label">Check-in — Check-out</label>
+                         placeholder="Check-in"
+                         [(ngModel)]="searchCheckIn">
+                  <label class="floating-label">Check-in</label>
+                </div>
+                
+                <div class="form-field-premium form-field-checkout">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-out"
+                         [(ngModel)]="searchCheckOut">
+                  <label class="floating-label">Check-out</label>
                 </div>
                 
                 <div class="form-field-premium form-field-guests">
@@ -122,8 +142,15 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="From: City or airport"
-                         [(ngModel)]="searchFrom">
+                         [formControl]="flightFromControl"
+                         [matAutocomplete]="autoFlightFrom">
                   <label class="floating-label">From</label>
+                  <mat-autocomplete #autoFlightFrom="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of flightFromDestinations" [value]="dest">
+                      <mat-icon>flight_takeoff</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
                 <div class="form-field-premium form-field-to">
@@ -131,13 +158,20 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="To: City or airport"
-                         [(ngModel)]="searchTo">
+                         [formControl]="flightToControl"
+                         [matAutocomplete]="autoFlightTo">
                   <label class="floating-label">To</label>
+                  <mat-autocomplete #autoFlightTo="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of flightToDestinations" [value]="dest">
+                      <mat-icon>flight_land</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
                 <div class="form-field-premium form-field-departure">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
                          placeholder="Departure date"
                          [(ngModel)]="searchDeparture">
@@ -146,7 +180,7 @@ interface Destination {
                 
                 <div class="form-field-premium form-field-return">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
                          placeholder="Return date"
                          [(ngModel)]="searchReturn">
@@ -163,22 +197,54 @@ interface Destination {
             <!-- PACKAGES TAB CONTENT -->
             <div class="search-form-content" *ngIf="activeSearchTab === 'packages'">
               <div class="form-row-premium">
-                <div class="form-field-premium form-field-destination">
-                  <mat-icon class="field-icon">card_travel</mat-icon>
+                <div class="form-field-premium form-field-from">
+                  <mat-icon class="field-icon">flight_takeoff</mat-icon>
                   <input type="text" 
                          class="premium-input" 
-                         placeholder="Where to?"
-                         [(ngModel)]="searchPackageDestination">
-                  <label class="floating-label">Destination</label>
+                         placeholder="From: Your city"
+                         [formControl]="packageFromControl"
+                         [matAutocomplete]="autoPackageFrom">
+                  <label class="floating-label">From</label>
+                  <mat-autocomplete #autoPackageFrom="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of packageFromDestinations" [value]="dest">
+                      <mat-icon>flight_takeoff</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
-                <div class="form-field-premium form-field-dates">
-                  <mat-icon class="field-icon">event</mat-icon>
+                <div class="form-field-premium form-field-destination">
+                  <mat-icon class="field-icon">flight_land</mat-icon>
                   <input type="text" 
                          class="premium-input" 
-                         placeholder="Travel dates"
-                         [(ngModel)]="searchPackageDates">
-                  <label class="floating-label">Dates</label>
+                         placeholder="To: Destination"
+                         [formControl]="packageDestinationControl"
+                         [matAutocomplete]="autoPackageDest">
+                  <label class="floating-label">To</label>
+                  <mat-autocomplete #autoPackageDest="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of packageDestinations" [value]="dest">
+                      <mat-icon>place</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
+                </div>
+                
+                <div class="form-field-premium form-field-departure">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-in / Departure"
+                         [(ngModel)]="searchPackageDepartureDate">
+                  <label class="floating-label">Depart</label>
+                </div>
+                
+                <div class="form-field-premium form-field-return">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-out / Return"
+                         [(ngModel)]="searchPackageReturnDate">
+                  <label class="floating-label">Return</label>
                 </div>
                 
                 <div class="form-field-premium form-field-travelers">
@@ -190,11 +256,11 @@ interface Destination {
                   <label class="floating-label">Travelers</label>
                 </div>
                 
-                <button class="search-btn-premium" routerLink="/search">
+                <button class="search-btn-premium" (click)="onSearchPackages()">
                   <mat-icon>search</mat-icon>
                   <span>Search</span>
                 </button>
-              </div>(click)="onSearchPackages()
+              </div>
             </div>
 
           </div>
@@ -2553,6 +2619,8 @@ export class HomeComponent implements OnInit {
   
   // Search form fields
   searchDestination = '';
+  searchCheckIn = '';
+  searchCheckOut = '';
   searchDates = '';
   searchGuests = '';
   searchFrom = '';
@@ -2561,7 +2629,30 @@ export class HomeComponent implements OnInit {
   searchReturn = '';
   searchPackageDestination = '';
   searchPackageDates = '';
+  searchPackageDepartureDate = '';
+  searchPackageReturnDate = '';
   searchPackageTravelers = '';
+  
+  // Autocomplete FormControls
+  hotelDestinationControl = new FormControl('');
+  flightFromControl = new FormControl('');
+  flightToControl = new FormControl('');
+  packageFromControl = new FormControl('');
+  packageDestinationControl = new FormControl('');
+  
+  // Autocomplete filtered lists
+  hotelDestinations: Destination[] = [];
+  flightFromDestinations: Destination[] = [];
+  flightToDestinations: Destination[] = [];
+  packageFromDestinations: Destination[] = [];
+  packageDestinations: Destination[] = [];
+  
+  // Selected destinations
+  selectedHotelDestination: Destination | null = null;
+  selectedFlightFrom: Destination | null = null;
+  selectedFlightTo: Destination | null = null;
+  selectedPackageFrom: Destination | null = null;
+  selectedPackageDestination: Destination | null = null;
   
   // Trending destinations data
   trendingDestinations = [
@@ -2631,11 +2722,26 @@ export class HomeComponent implements OnInit {
 
   // Search handlers
   onSearchHotels(): void {
-    if (this.searchDestination) {
+    const destination = this.selectedHotelDestination || this.hotelDestinationControl.value;
+    
+    if (destination && typeof destination === 'object') {
+      // Navigate with the destination city name
       this.router.navigate(['/hotels'], { 
         queryParams: { 
-          destination: this.searchDestination,
-          dates: this.searchDates,
+          city: destination.name || destination.city,
+          iataCode: destination.iataCode,
+          checkIn: this.searchCheckIn,
+          checkOut: this.searchCheckOut,
+          guests: this.searchGuests
+        }
+      });
+    } else if (typeof destination === 'string' && destination.trim()) {
+      // User typed a string without selecting from dropdown
+      this.router.navigate(['/hotels'], { 
+        queryParams: { 
+          city: destination.trim(),
+          checkIn: this.searchCheckIn,
+          checkOut: this.searchCheckOut,
           guests: this.searchGuests
         }
       });
@@ -2645,32 +2751,200 @@ export class HomeComponent implements OnInit {
   }
 
   onSearchFlights(): void {
-    if (this.searchFrom || this.searchTo) {
-      this.router.navigate(['/search'], { 
-        queryParams: { 
-          from: this.searchFrom,
-          to: this.searchTo,
-          departure: this.searchDeparture,
-          return: this.searchReturn
-        }
-      });
-    } else {
-      this.router.navigate(['/search']);
+    const fromDest = this.selectedFlightFrom || this.flightFromControl.value;
+    const toDest = this.selectedFlightTo || this.flightToControl.value;
+    
+    let queryParams: any = {
+      departure: this.searchDeparture,
+      return: this.searchReturn
+    };
+    
+    if (fromDest && typeof fromDest === 'object') {
+      queryParams.originLocationCode = fromDest.iataCode;
+      queryParams.from = fromDest.name;
+    } else if (typeof fromDest === 'string' && fromDest.trim()) {
+      queryParams.from = fromDest.trim();
     }
+    
+    if (toDest && typeof toDest === 'object') {
+      queryParams.destinationLocationCode = toDest.iataCode;
+      queryParams.to = toDest.name;
+    } else if (typeof toDest === 'string' && toDest.trim()) {
+      queryParams.to = toDest.trim();
+    }
+    
+    this.router.navigate(['/search'], { queryParams });
   }
 
   onSearchPackages(): void {
-    if (this.searchPackageDestination) {
-      this.router.navigate(['/search'], { 
-        queryParams: { 
-          destination: this.searchPackageDestination,
-          dates: this.searchPackageDates,
-          travelers: this.searchPackageTravelers
-        }
-      });
-    } else {
-      this.router.navigate(['/search']);
+    const origin = this.selectedPackageFrom || this.packageFromControl.value;
+    const destination = this.selectedPackageDestination || this.packageDestinationControl.value;
+    
+    let queryParams: any = {
+      packageMode: 'true',
+      departure: this.searchPackageDepartureDate,
+      return: this.searchPackageReturnDate,
+      travelers: this.searchPackageTravelers
+    };
+    
+    // Add origin parameters
+    if (origin && typeof origin === 'object') {
+      queryParams.originLocationCode = origin.iataCode;
+      queryParams.from = origin.name;
+    } else if (typeof origin === 'string' && origin.trim()) {
+      queryParams.from = origin.trim();
     }
+    
+    // Add destination parameters
+    if (destination && typeof destination === 'object') {
+      queryParams.destinationLocationCode = destination.iataCode;
+      queryParams.to = destination.name;
+      queryParams.city = destination.name;
+      queryParams.iataCode = destination.iataCode;
+    } else if (typeof destination === 'string' && destination.trim()) {
+      queryParams.to = destination.trim();
+      queryParams.city = destination.trim();
+    }
+    
+    this.router.navigate(['/search'], { queryParams });
+  }
+
+  /**
+   * Setup autocomplete for destination search fields
+   */
+  setupAutocomplete(): void {
+    // Hotel destination autocomplete
+    this.hotelDestinationControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.hotelDestinations = destinations;
+        },
+        error: (err) => console.error('Hotel destination search error:', err)
+      });
+
+    // Flight From autocomplete
+    this.flightFromControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.flightFromDestinations = destinations;
+        },
+        error: (err) => console.error('Flight from search error:', err)
+      });
+
+    // Flight To autocomplete
+    this.flightToControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.flightToDestinations = destinations;
+        },
+        error: (err) => console.error('Flight to search error:', err)
+      });
+
+    // Track selected values
+    this.hotelDestinationControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedHotelDestination = value;
+      }
+    });
+
+    this.flightFromControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedFlightFrom = value;
+      }
+    });
+
+    this.flightToControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedFlightTo = value;
+      }
+    });
+
+    // Package from autocomplete
+    this.packageFromControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.packageFromDestinations = destinations;
+        },
+        error: (err) => console.error('Package from search error:', err)
+      });
+
+    this.packageFromControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedPackageFrom = value;
+      }
+    });
+
+    // Package destination autocomplete
+    this.packageDestinationControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.packageDestinations = destinations;
+        },
+        error: (err) => console.error('Package destination search error:', err)
+      });
+
+    this.packageDestinationControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedPackageDestination = value;
+      }
+    });
+  }
+
+  /**
+   * Display function for autocomplete
+   */
+  displayDestination(destination: any): string {
+    return destination && typeof destination === 'object' ? destination.name : '';
   }
 
   /**
@@ -2708,6 +2982,7 @@ export class HomeComponent implements OnInit {
     this.loadFlights();
     this.startImageRotation();
     this.startTextAnimation();
+    this.setupAutocomplete();
   }
   
   private loadHeroImage(): void {

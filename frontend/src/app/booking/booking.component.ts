@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +21,7 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     MatCardModule,
     MatToolbarModule,
     MatFormFieldModule,
@@ -88,6 +90,33 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
             Review Your Booking
           </h1>
           <p class="page-subtitle">Please review your booking details before confirmation</p>
+
+          <!-- Package Suggestion Banner -->
+          <div *ngIf="(hotelData && !flightData) || (flightData && !hotelData)" class="package-suggestion">
+            <mat-icon>card_travel</mat-icon>
+            <div class="suggestion-content">
+              <h3>Complete Your Package!</h3>
+              <p *ngIf="flightData && !hotelData">You've selected a flight. Add a hotel to create a complete travel package and save it together.</p>
+              <p *ngIf="hotelData && !flightData">You've selected a hotel. Add a flight to create a complete travel package and save it together.</p>
+              <button mat-raised-button color="primary" *ngIf="flightData && !hotelData" [routerLink]="['/hotels']" [queryParams]="{city: flightData.destinationCity || flightData.destination, iataCode: flightData.destination, checkIn: flightData.departureDate, checkOut: flightData.returnDate}">
+                <mat-icon>hotel</mat-icon>
+                Add Hotel
+              </button>
+              <button mat-raised-button color="primary" *ngIf="hotelData && !flightData" [routerLink]="['/search']" [queryParams]="{to: hotelData.city, packageMode: 'true', depart: hotelData.checkIn, return: hotelData.checkOut}">
+                <mat-icon>flight</mat-icon>
+                Add Flight
+              </button>
+            </div>
+          </div>
+
+          <!-- Package Confirmation Banner -->
+          <div *ngIf="hotelData && flightData" class="package-confirmation">
+            <mat-icon>check_circle</mat-icon>
+            <div class="confirmation-content">
+              <h3>🎉 Complete Package Selected!</h3>
+              <p>You're booking both flight and hotel together. This will be saved as a travel package.</p>
+            </div>
+          </div>
 
           <!-- Hotel Details -->
           <mat-card *ngIf="hotelData" class="detail-card hotel-card">
@@ -423,6 +452,101 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       font-size: 1.1rem;
       color: #6c757d;
       margin: 0 0 40px 0;
+    }
+
+    /* Package Suggestion Banner */
+    .package-suggestion {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+      border-left: 4px solid #ffc107;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+    }
+
+    .package-suggestion mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #ff8f00;
+      flex-shrink: 0;
+    }
+
+    .suggestion-content {
+      flex: 1;
+    }
+
+    .suggestion-content h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+    }
+
+    .suggestion-content p {
+      font-size: 1rem;
+      color: #495057;
+      margin: 0 0 16px 0;
+    }
+
+    .suggestion-content button {
+      height: 44px;
+      padding: 0 28px !important;
+      font-weight: 600 !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Package Confirmation Banner */
+    .package-confirmation {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border-left: 4px solid #28a745;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+
+    .package-confirmation mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #28a745;
+      flex-shrink: 0;
+      animation: check-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes check-pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    .confirmation-content {
+      flex: 1;
+    }
+
+    .confirmation-content h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+    }
+
+    .confirmation-content p {
+      font-size: 1rem;
+      color: #495057;
+      margin: 0;
     }
 
     /* Detail Cards */
@@ -953,17 +1077,56 @@ export class BookingComponent implements OnInit {
         
         // Show success dialog
         const dialogRef = this.dialog.open(BookingSuccessDialog, {
-          width: '500px',
+          width: '550px',
           data: {
             reservationId: reservation.id,
             totalPrice: reservation.totalPrice,
-            type: type
+            type: type,
+            isPackage: type === ReservationType.BOTH
           },
           disableClose: true
         });
 
-        dialogRef.afterClosed().subscribe(() => {
-          this.router.navigate(['/my-reservations']);
+        dialogRef.afterClosed().subscribe((action) => {
+          if (action === 'add-hotel') {
+            // Pass flight destination and dates to hotel search
+            if (this.flightData) {
+              const queryParams: any = {
+                city: this.flightData.destinationCity || this.flightData.destination,
+                iataCode: this.flightData.destination
+              };
+              // Use departure date as check-in and return date as check-out if available
+              if (this.flightData.departureDate) {
+                queryParams.checkIn = this.flightData.departureDate;
+              }
+              if (this.flightData.returnDate) {
+                queryParams.checkOut = this.flightData.returnDate;
+              }
+              this.router.navigate(['/hotels'], { queryParams });
+            } else {
+              this.router.navigate(['/hotels']);
+            }
+          } else if (action === 'add-flight') {
+            // Pass hotel city and dates to flight search
+            if (this.hotelData) {
+              const queryParams: any = {
+                to: this.hotelData.city,
+                packageMode: 'true'
+              };
+              // Use check-in date as departure and check-out as return
+              if (this.hotelData.checkIn) {
+                queryParams.depart = this.hotelData.checkIn;
+              }
+              if (this.hotelData.checkOut) {
+                queryParams.return = this.hotelData.checkOut;
+              }
+              this.router.navigate(['/search'], { queryParams });
+            } else {
+              this.router.navigate(['/search']);
+            }
+          } else {
+            this.router.navigate(['/my-reservations']);
+          }
         });
       },
       error: (err: any) => {
@@ -976,7 +1139,9 @@ export class BookingComponent implements OnInit {
           this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/booking' } });
         } else {
           console.error('Booking error:', err);
-          alert('Booking failed: ' + (err.error?.message || err.message || 'Unknown error'));
+          console.error('Error response body:', err.error);
+          const errorMsg = err.error?.error || err.error?.message || err.message || 'Unknown error';
+          alert('Booking failed: ' + errorMsg + '\n\nPlease check the browser console and backend logs for details.');
         }
       }
     });
@@ -998,9 +1163,12 @@ export class BookingComponent implements OnInit {
 @Component({
   selector: 'booking-success-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     <div class="success-dialog">
+      <button mat-icon-button class="close-button" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
       <div class="success-icon-wrapper">
         <mat-icon class="success-icon">check_circle</mat-icon>
       </div>
@@ -1030,16 +1198,40 @@ export class BookingComponent implements OnInit {
             </div>
           </div>
         </div>
+        
+        <!-- Package Completion Suggestion -->
+        <div *ngIf="!data.isPackage" class="package-suggestion-dialog">
+          <mat-icon>card_travel</mat-icon>
+          <div class="suggestion-text">
+            <strong>Complete Your Package!</strong>
+            <p *ngIf="data.type === ReservationType.FLIGHT">Add a hotel to create a complete travel package.</p>
+            <p *ngIf="data.type === ReservationType.HOTEL">Add a flight to create a complete travel package.</p>
+          </div>
+        </div>
+        
         <p class="confirmation-text">
           A confirmation email has been sent to your registered email address. 
           You can view all your reservations in the "My Reservations" page.
         </p>
       </mat-dialog-content>
       <mat-dialog-actions>
-        <button mat-raised-button color="accent" (click)="close()" class="view-btn">
-          <mat-icon>visibility</mat-icon>
-          View My Reservations
-        </button>
+        <div class="dialog-actions-wrapper">
+          <!-- Package completion buttons (only show if not a package) -->
+          <button *ngIf="data.type === ReservationType.FLIGHT" mat-raised-button color="primary" (click)="addHotel()" class="add-btn">
+            <mat-icon>hotel</mat-icon>
+            Add Hotel
+          </button>
+          <button *ngIf="data.type === ReservationType.HOTEL" mat-raised-button color="primary" (click)="addFlight()" class="add-btn">
+            <mat-icon>flight</mat-icon>
+            Add Flight
+          </button>
+          
+          <!-- Always show view reservations button -->
+          <button mat-raised-button color="accent" (click)="close()" class="view-btn">
+            <mat-icon>visibility</mat-icon>
+            {{data.isPackage ? 'View My Reservations' : 'View Reservations'}}
+          </button>
+        </div>
       </mat-dialog-actions>
     </div>
   `,
@@ -1047,6 +1239,20 @@ export class BookingComponent implements OnInit {
     .success-dialog {
       text-align: center;
       padding: 20px;
+      position: relative;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: #6c757d;
+      z-index: 10;
+    }
+
+    .close-button:hover {
+      color: #2c3e50;
+      background: rgba(0, 0, 0, 0.05);
     }
 
     .success-icon-wrapper {
@@ -1143,9 +1349,71 @@ export class BookingComponent implements OnInit {
       text-align: center;
     }
 
+    .package-suggestion-dialog {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      border-left: 4px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .package-suggestion-dialog mat-icon {
+      color: #f57c00;
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+
+    .suggestion-text {
+      flex: 1;
+    }
+
+    .suggestion-text strong {
+      color: #e65100;
+      font-size: 1.05rem;
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .suggestion-text p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
     mat-dialog-actions {
       justify-content: center;
       padding: 24px 0 0;
+    }
+
+    .dialog-actions-wrapper {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .add-btn {
+      height: 52px;
+      padding: 0 28px !important;
+      font-size: 1.05rem !important;
+      font-weight: 600 !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .add-btn mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     .view-btn {
@@ -1166,13 +1434,24 @@ export class BookingComponent implements OnInit {
   `]
 })
 export class BookingSuccessDialog {
+  // Expose enum to template
+  ReservationType = ReservationType;
+
   constructor(
     public dialogRef: MatDialogRef<BookingSuccessDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: { reservationId: number; totalPrice: number; type: ReservationType }
+    @Inject(MAT_DIALOG_DATA) public data: { reservationId: number; totalPrice: number; type: ReservationType; isPackage: boolean }
   ) {}
 
   close(): void {
     this.dialogRef.close();
+  }
+
+  addHotel(): void {
+    this.dialogRef.close('add-hotel');
+  }
+
+  addFlight(): void {
+    this.dialogRef.close('add-flight');
   }
 
   getTypeIcon(): string {

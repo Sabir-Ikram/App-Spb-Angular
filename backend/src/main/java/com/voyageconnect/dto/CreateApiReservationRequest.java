@@ -17,6 +17,7 @@ public class CreateApiReservationRequest {
         private String externalFlightId;
         private String origin;
         private String destination;
+        private String destinationCity; // Full city name for the destination
         private LocalDate departureDate;
         private LocalDate returnDate;
         private String airline;
