@@ -107,93 +107,171 @@ import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
   styles: [`
     .payment-page {
       min-height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, #f9f7f4 0%, #ede8e0 100%);
     }
 
     .payment-toolbar {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
       color: white;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 24px rgba(139, 108, 80, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .payment-toolbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { left: -100%; }
+      50% { left: 100%; }
     }
 
     .page-title {
       font-size: 1.5rem;
       font-weight: 600;
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .payment-container {
       max-width: 800px;
-      margin: 32px auto;
+      margin: 40px auto;
       padding: 0 24px;
     }
 
     .loading-state, .error-state {
       text-align: center;
       padding: 100px 24px;
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.15);
+      border: 1px solid rgba(139, 108, 80, 0.08);
     }
 
     .loading-state h3, .error-state h3 {
       font-size: 1.75rem;
-      font-weight: 600;
-      color: #2c3e50;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 32px 0 12px 0;
     }
 
     .loading-state p, .error-state p {
       font-size: 1.1rem;
-      color: #6c757d;
+      color: #6d5d4b;
       margin: 0 0 32px 0;
+      line-height: 1.6;
     }
 
     .error-icon {
       font-size: 80px;
       width: 80px;
       height: 80px;
-      color: #f44336;
+      color: #c4757d;
+      animation: pulse-error 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-error {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
     }
 
     .payment-content {
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 28px;
     }
 
     .booking-summary-card, .payment-card {
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
+      border: 2px solid rgba(139, 108, 80, 0.12);
+      box-shadow: 0 6px 24px rgba(139, 108, 80, 0.12);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
+    }
+
+    .booking-summary-card:hover, .payment-card:hover {
+      box-shadow: 0 10px 40px rgba(139, 108, 80, 0.2);
+      transform: translateY(-3px);
+      border-color: #c4a574;
     }
 
     .card-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 24px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      gap: 16px;
+      padding: 28px 32px;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
       color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .booking-summary-card:hover .card-header::before,
+    .payment-card:hover .card-header::before {
+      left: 100%;
     }
 
     .card-header mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .booking-summary-card:hover .card-header mat-icon,
+    .payment-card:hover .card-header mat-icon {
+      transform: scale(1.1) rotate(5deg);
     }
 
     .card-header h2 {
       font-size: 1.5rem;
       font-weight: 600;
       margin: 0;
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .booking-details {
-      padding: 24px;
+      padding: 28px 32px;
+      background: linear-gradient(135deg, #faf8f5 0%, #f8f6f3 100%);
     }
 
     .detail-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #e9ecef;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(139, 108, 80, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detail-row:hover {
+      padding-left: 8px;
+      background: rgba(196, 165, 116, 0.05);
+      border-radius: 8px;
     }
 
     .detail-row:last-child {
@@ -201,71 +279,160 @@ import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
     }
 
     .detail-row.total {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 2px solid #667eea;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 3px solid rgba(139, 108, 80, 0.2);
       font-weight: 600;
+      background: linear-gradient(135deg, #fff9ed 0%, #ffedd5 100%);
+      padding: 20px 16px;
+      border-radius: 12px;
+      margin-left: -16px;
+      margin-right: -16px;
     }
 
     .label {
-      color: #6c757d;
-      font-weight: 500;
+      color: #6d5d4b;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
     }
 
     .value {
-      color: #2c3e50;
+      color: #2d2416;
       font-weight: 600;
+      font-size: 1.05rem;
     }
 
     .total-amount {
-      font-size: 1.5rem;
-      color: #667eea;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 50%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 8px rgba(139, 108, 80, 0.1);
     }
 
     .payment-form {
-      padding: 24px;
+      padding: 28px 32px;
     }
 
     .card-element {
-      border: 2px solid #e9ecef;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 24px;
-      background: white;
-      min-height: 56px;
+      border: 2px solid rgba(139, 108, 80, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
+      min-height: 60px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(139, 108, 80, 0.08);
+    }
+
+    .card-element:hover {
+      border-color: rgba(139, 108, 80, 0.4);
+      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.15);
+    }
+
+    .card-element:focus-within {
+      border-color: #8b6c50;
+      box-shadow: 0 6px 24px rgba(139, 108, 80, 0.2);
+      border-width: 2.5px;
     }
 
     .payment-actions {
       display: flex;
-      gap: 16px;
+      gap: 20px;
       justify-content: space-between;
       align-items: center;
+      margin-top: 8px;
     }
 
     .cancel-btn, .pay-btn {
-      height: 56px;
-      padding: 0 32px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border-radius: 8px;
+      height: 62px;
+      padding: 0 40px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-radius: 12px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .cancel-btn {
-      border: 2px solid #6c757d;
-      color: #6c757d;
+      border: 2px solid rgba(139, 108, 80, 0.25);
+      color: #8b6c50;
+      background: transparent;
     }
 
     .cancel-btn:hover {
-      border-color: #f44336;
-      color: #f44336;
-      background-color: rgba(244, 67, 54, 0.05);
+      border-color: #c4757d;
+      color: #c4757d;
+      background-color: rgba(196, 117, 125, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 117, 125, 0.15);
+    }
+
+    .cancel-btn mat-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cancel-btn:hover mat-icon {
+      transform: translateX(-3px);
+    }
+
+    .pay-btn {
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
+      box-shadow: 0 8px 28px rgba(139, 108, 80, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      border: none;
+    }
+
+    .pay-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .pay-btn:hover::before {
+      left: 100%;
+    }
+
+    .pay-btn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(139, 108, 80, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .pay-btn:active:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .pay-btn mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .pay-btn:hover:not(:disabled) mat-icon {
+      transform: scale(1.1) rotate(5deg);
     }
 
     .pay-btn:disabled {
       opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
     }
 
     @media (max-width: 768px) {
@@ -536,11 +703,11 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     }
 
     .result-icon-wrapper.success .result-icon {
-      color: #4caf50;
+      color: #6d9f71;
     }
 
     .result-icon-wrapper.error .result-icon {
-      color: #f44336;
+      color: #c4757d;
     }
 
     @keyframes scaleIn {
@@ -567,12 +734,17 @@ export class PaymentComponent implements OnInit, AfterViewInit {
       font-size: 1.8rem;
       font-weight: 700;
       margin: 16px 0;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .result-message {
       font-size: 1rem;
-      color: #6c757d;
+      color: #6d5d4b;
       margin: 16px 0;
+      line-height: 1.6;
     }
 
     mat-dialog-actions {
@@ -581,10 +753,20 @@ export class PaymentComponent implements OnInit, AfterViewInit {
     }
 
     button {
-      height: 48px;
-      padding: 0 24px;
-      font-size: 1rem;
-      font-weight: 600;
+      height: 52px;
+      padding: 0 32px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(139, 108, 80, 0.35);
     }
   `]
 })

@@ -285,7 +285,7 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
   styles: [`
     .booking-page {
       min-height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(135deg, #f9f7f4 0%, #ede8e0 100%);
       padding: 32px 24px 64px;
     }
 
@@ -296,10 +296,11 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       display: flex;
       align-items: center;
       justify-content: center;
-      background: white;
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
       padding: 32px 24px;
       border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 20px rgba(139, 108, 80, 0.12);
+      border: 1px solid rgba(139, 108, 80, 0.08);
     }
 
     .step {
@@ -314,22 +315,26 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: #e9ecef;
+      background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(139, 108, 80, 0.1);
     }
 
     .step-icon mat-icon {
       font-size: 28px;
       width: 28px;
       height: 28px;
-      color: #6c757d;
+      color: #8b8b8b;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .step.completed .step-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%);
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(139, 108, 80, 0.25);
     }
 
     .step.completed .step-icon mat-icon {
@@ -337,9 +342,10 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     }
 
     .step.active .step-icon {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      box-shadow: 0 4px 16px rgba(245, 87, 108, 0.3);
+      background: linear-gradient(135deg, #c4a574 0%, #a8845c 100%);
+      box-shadow: 0 6px 20px rgba(196, 165, 116, 0.4);
       animation: pulse-shadow 2s ease-in-out infinite;
+      border-color: transparent;
     }
 
     .step.active .step-icon mat-icon {
@@ -347,34 +353,37 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     }
 
     @keyframes pulse-shadow {
-      0%, 100% { box-shadow: 0 4px 16px rgba(245, 87, 108, 0.3); }
-      50% { box-shadow: 0 8px 24px rgba(245, 87, 108, 0.5); }
+      0%, 100% { box-shadow: 0 6px 20px rgba(196, 165, 116, 0.4); }
+      50% { box-shadow: 0 8px 28px rgba(196, 165, 116, 0.6); }
     }
 
     .step-label {
       font-size: 0.9rem;
       font-weight: 600;
-      color: #6c757d;
+      color: #8b8b8b;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .step.completed .step-label,
     .step.active .step-label {
-      color: #2c3e50;
+      color: #6d5d4b;
+      font-weight: 700;
     }
 
     .step-line {
       width: 80px;
       height: 3px;
-      background: #e9ecef;
+      background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%);
       margin: 0 12px;
+      border-radius: 2px;
     }
 
     .step-line.completed {
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(90deg, #8b6c50 0%, #6d5d4b 100%);
     }
 
     .step-line.active {
-      background: linear-gradient(90deg, #667eea 0%, #f5576c 50%);
+      background: linear-gradient(90deg, #8b6c50 0%, #c4a574 50%);
     }
 
     /* Main Container */
@@ -382,8 +391,11 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       max-width: 900px;
       margin: 0 auto;
       border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.15);
       padding: 48px 40px;
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
+      border: 1px solid rgba(139, 108, 80, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* No Data State */
@@ -445,7 +457,8 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       font-size: 40px;
       width: 40px;
       height: 40px;
-      color: #667eea;
+      color: #c4a574;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .page-subtitle {
@@ -456,23 +469,36 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
 
     /* Package Suggestion Banner */
     .package-suggestion {
-      background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
-      border-left: 4px solid #ffc107;
-      border-radius: 12px;
-      padding: 24px 28px;
+      background: linear-gradient(135deg, #fff9ed 0%, #ffedd5 100%);
+      border-left: 5px solid #c4a574;
+      border-radius: 14px;
+      padding: 26px 30px;
       margin-bottom: 32px;
       display: flex;
       align-items: center;
       gap: 20px;
-      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+      box-shadow: 0 6px 16px rgba(196, 165, 116, 0.25);
+      border: 1px solid rgba(196, 165, 116, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .package-suggestion:hover {
+      box-shadow: 0 8px 24px rgba(196, 165, 116, 0.35);
+      transform: translateY(-2px);
     }
 
     .package-suggestion mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #ff8f00;
+      color: #a8845c;
       flex-shrink: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .package-suggestion:hover mat-icon {
+      transform: scale(1.1);
+      color: #8b6c50;
     }
 
     .suggestion-content {
@@ -482,43 +508,56 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     .suggestion-content h3 {
       font-size: 1.4rem;
       font-weight: 700;
-      color: #2c3e50;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0 0 8px 0;
     }
 
     .suggestion-content p {
       font-size: 1rem;
-      color: #495057;
+      color: #6d5d4b;
       margin: 0 0 16px 0;
+      line-height: 1.5;
     }
 
     .suggestion-content button {
-      height: 44px;
-      padding: 0 28px !important;
+      height: 46px;
+      padding: 0 32px !important;
       font-weight: 600 !important;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 8px;
+    }
+
+    .suggestion-content button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.3);
     }
 
     /* Package Confirmation Banner */
     .package-confirmation {
-      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-      border-left: 4px solid #28a745;
-      border-radius: 12px;
-      padding: 24px 28px;
+      background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+      border-left: 5px solid #6d9f71;
+      border-radius: 14px;
+      padding: 26px 30px;
       margin-bottom: 32px;
       display: flex;
       align-items: center;
       gap: 20px;
-      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+      box-shadow: 0 6px 16px rgba(109, 159, 113, 0.25);
+      border: 1px solid rgba(109, 159, 113, 0.2);
     }
 
     .package-confirmation mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #28a745;
+      color: #6d9f71;
       flex-shrink: 0;
       animation: check-pulse 2s ease-in-out infinite;
     }
@@ -551,25 +590,44 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
 
     /* Detail Cards */
     .detail-card {
-      margin-bottom: 24px;
-      border-radius: 12px;
+      margin-bottom: 28px;
+      border-radius: 14px;
       overflow: hidden;
-      border: 2px solid #e9ecef;
-      transition: all 0.3s ease;
+      border: 2px solid rgba(139, 108, 80, 0.12);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.08);
     }
 
     .detail-card:hover {
-      border-color: #667eea;
-      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+      border-color: #c4a574;
+      box-shadow: 0 10px 32px rgba(139, 108, 80, 0.2);
+      transform: translateY(-3px);
     }
 
     .card-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
       color: white;
-      padding: 24px 32px;
+      padding: 26px 34px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .detail-card:hover .card-header::before {
+      left: 100%;
     }
 
     .card-icon {
@@ -600,24 +658,31 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       width: 280px;
       height: 210px;
       object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detail-card:hover .hotel-image {
+      box-shadow: 0 8px 28px rgba(139, 108, 80, 0.3);
+      transform: scale(1.02);
     }
 
     .rating-overlay {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-      color: #2c3e50;
-      padding: 8px 16px;
-      border-radius: 20px;
+      top: 14px;
+      right: 14px;
+      background: linear-gradient(135deg, #c4a574 0%, #d4b894 100%);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 22px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       font-weight: 700;
       font-size: 1.1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 16px rgba(196, 165, 116, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
     .rating-overlay mat-icon {
@@ -651,10 +716,16 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     }
 
     .detail-row mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      color: #667eea;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+      color: #c4a574;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .detail-row:hover mat-icon {
+      color: #a8845c;
+      transform: scale(1.1);
     }
 
     .detail-label {
@@ -672,28 +743,36 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     .date-range {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin: 24px 0;
-      padding: 20px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 12px;
+      gap: 18px;
+      margin: 26px 0;
+      padding: 22px;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(139, 108, 80, 0.1);
     }
 
     .date-box {
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: white;
-      border-radius: 8px;
+      gap: 14px;
+      padding: 14px;
+      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(139, 108, 80, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .date-box:hover {
+      box-shadow: 0 5px 16px rgba(139, 108, 80, 0.15);
+      transform: translateY(-2px);
     }
 
     .date-box mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #667eea;
+      font-size: 34px;
+      width: 34px;
+      height: 34px;
+      color: #c4a574;
     }
 
     .date-info {
@@ -709,16 +788,20 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     }
 
     .date-value {
-      font-size: 1.1rem;
-      color: #2c3e50;
+      font-size: 1.15rem;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       font-weight: 700;
     }
 
     .arrow-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-      color: #667eea;
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+      color: #c4a574;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Flight Card */
@@ -729,25 +812,32 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     .flight-route {
       display: flex;
       align-items: center;
-      gap: 24px;
-      margin-bottom: 32px;
-      padding: 24px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 12px;
+      gap: 26px;
+      margin-bottom: 34px;
+      padding: 26px;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(139, 108, 80, 0.1);
     }
 
     .route-point {
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
     .route-point mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
-      color: #667eea;
+      font-size: 42px;
+      width: 42px;
+      height: 42px;
+      color: #c4a574;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .flight-route:hover .route-point mat-icon {
+      color: #a8845c;
+      transform: scale(1.1);
     }
 
     .route-info {
@@ -763,8 +853,11 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
     }
 
     .route-city {
-      font-size: 1.4rem;
-      color: #2c3e50;
+      font-size: 1.45rem;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       font-weight: 700;
     }
 
@@ -772,21 +865,29 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      min-width: 80px;
+      gap: 10px;
+      min-width: 90px;
     }
 
     .route-line {
       width: 100%;
       height: 3px;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(90deg, #8b6c50 0%, #c4a574 50%, #a8845c 100%);
+      border-radius: 2px;
     }
 
     .plane-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-      color: #667eea;
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+      color: #c4a574;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: plane-fly 3s ease-in-out infinite;
+    }
+
+    @keyframes plane-fly {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(8px); }
     }
 
     .flight-details {
@@ -795,114 +896,176 @@ import { CreateReservationRequest, ReservationType, HotelReservationData, Flight
 
     /* Price Breakdown */
     .price-breakdown {
-      margin-top: 24px;
-      padding: 24px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 12px;
+      margin-top: 26px;
+      padding: 26px;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(139, 108, 80, 0.1);
     }
 
     .price-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      font-size: 1rem;
-      color: #495057;
+      padding: 12px 0;
+      font-size: 1.05rem;
+      color: #6d5d4b;
     }
 
     .price-row.total {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 2px solid #dee2e6;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 3px solid rgba(139, 108, 80, 0.2);
     }
 
     .total-amount {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 700;
-      color: #667eea;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 50%, #a8845c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     /* Total Card */
     .total-card {
-      margin-bottom: 32px;
-      border-radius: 12px;
-      border: 3px solid #667eea;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin-bottom: 34px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
       color: white;
+      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .total-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .total-card:hover::before {
+      left: 100%;
+    }
+
+    .total-card:hover {
+      box-shadow: 0 12px 40px rgba(139, 108, 80, 0.4);
+      transform: translateY(-3px);
     }
 
     .grand-total {
-      padding: 32px;
+      padding: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 20px;
     }
 
     .grand-total mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
+      font-size: 44px;
+      width: 44px;
+      height: 44px;
     }
 
     .grand-total-label {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 600;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .grand-total-amount {
-      font-size: 2.5rem;
+      font-size: 2.75rem;
       font-weight: 700;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
     /* Action Buttons */
     .action-buttons {
       display: flex;
-      gap: 16px;
+      gap: 20px;
       justify-content: center;
-      margin-top: 40px;
-      padding-top: 32px;
-      border-top: 2px solid #e9ecef;
+      margin-top: 44px;
+      padding-top: 36px;
+      border-top: 2px solid rgba(139, 108, 80, 0.12);
     }
 
     .cancel-btn,
     .confirm-btn {
-      height: 60px;
-      padding: 0 48px !important;
+      height: 62px;
+      padding: 0 52px !important;
       font-size: 1.15rem !important;
       font-weight: 700 !important;
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      transition: all 0.3s ease;
+      gap: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
     .cancel-btn {
-      border: 2px solid #dee2e6;
-      color: #6c757d;
+      border: 2px solid rgba(139, 108, 80, 0.2);
+      color: #8b6c50;
+      background: transparent;
     }
 
     .cancel-btn:hover {
-      border-color: #f5576c;
-      color: #f5576c;
-      background-color: rgba(245, 87, 108, 0.05);
+      border-color: #c4757d;
+      color: #c4757d;
+      background-color: rgba(196, 117, 125, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(196, 117, 125, 0.15);
     }
 
     .confirm-btn {
-      box-shadow: 0 6px 24px rgba(245, 87, 108, 0.4);
+      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
+      box-shadow: 0 6px 24px rgba(139, 108, 80, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .confirm-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .confirm-btn:hover::before {
+      left: 100%;
     }
 
     .confirm-btn:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(245, 87, 108, 0.5);
+      box-shadow: 0 10px 36px rgba(139, 108, 80, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .confirm-btn:active {
+      transform: translateY(-1px);
     }
 
     .cancel-btn mat-icon,
     .confirm-btn mat-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
+      font-size: 30px;
+      width: 30px;
+      height: 30px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .confirm-btn:hover mat-icon {
+      transform: translateX(4px) scale(1.1);
     }
 
     /* Loading State */
