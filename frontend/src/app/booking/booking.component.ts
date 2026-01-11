@@ -951,6 +951,10 @@ export class BookingComponent implements OnInit {
         sessionStorage.removeItem('pendingFlightReservation');
         this.submitting = false;
         
+<<<<<<< HEAD
+        // Redirect to payment page
+        this.router.navigate(['/payment', reservation.id]);
+=======
         // Show success dialog
         const dialogRef = this.dialog.open(BookingSuccessDialog, {
           width: '500px',
@@ -965,6 +969,7 @@ export class BookingComponent implements OnInit {
         dialogRef.afterClosed().subscribe(() => {
           this.router.navigate(['/my-reservations']);
         });
+>>>>>>> d4ed8123d859983c2ed0c4de08690d9093612894
       },
       error: (err: any) => {
         this.submitting = false;
