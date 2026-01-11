@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/voyage_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+server:
+  port: 8080
+
+voyageconnect:
+  jwt:
+    secret: your-256-bit-secret-key-must-be-at-least-256-bits-long-for-security-compliance-here-we-go
+    expiration-ms: 86400000
+
+amadeus:
+  api:
+    key: Gz7uGPyrV8iCDGydbDGYAvpwaF4Ijwwd
+    secret: nmtZtdM5xcBemRnh
+  test-mode: true
+
+rapidapi:
+  booking:
+    key: f8773763f0msh3f297929be5fb34p1f60f6jsn64bf649558e9
+    host: apidojo-booking-v1.p.rapidapi.com
+    base-url: https://apidojo-booking-v1.p.rapidapi.com
+
+logging:
+  level:
+    root: INFO
+    com.voyageconnect: DEBUG
+    org.springframework.web.client: DEBUG
+    org.apache.http: DEBUG
