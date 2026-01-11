@@ -481,18 +481,25 @@ export class SearchResultsComponent {
   constructor(private router: Router) {}
 
   onBook(flight: any) {
+    // Get origin and destination info from sessionStorage (stored during search)
+    const originCity = sessionStorage.getItem('searchOriginCity') || '';
+    const originCode = sessionStorage.getItem('searchOriginCode') || flight.origin || '';
+    const destinationCity = sessionStorage.getItem('searchDestinationCity') || '';
+    const destinationCode = sessionStorage.getItem('searchDestinationCode') || flight.destination || '';
+    
     // Store flight data in sessionStorage for booking
     const flightData = {
       externalFlightId: flight.id?.toString() || '',
-      origin: flight.origin || '',
-      destination: flight.destination || '',
+      origin: originCode,
+      destination: destinationCode,
+      destinationCity: destinationCity,
       departureDate: flight.departure ? new Date(flight.departure).toISOString().split('T')[0] : '',
       returnDate: flight.return ? new Date(flight.return).toISOString().split('T')[0] : undefined,
       airline: flight.airline || 'Unknown',
       flightNumber: flight.flightNumber || '',
       price: flight.price || 0,
       passengers: 1,
-      itinerary: `${flight.origin || ''} → ${flight.destination || ''}`
+      itinerary: `${originCity || originCode} → ${destinationCity || destinationCode}`
     };
     console.log('Storing flight reservation data:', flightData);
     sessionStorage.setItem('pendingFlightReservation', JSON.stringify(flightData));

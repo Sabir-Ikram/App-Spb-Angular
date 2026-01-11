@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { HotelService, Hotel } from '../../services/hotel.service';
 import { DestinationService } from '../../services/destination.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -793,7 +793,8 @@ export class HotelSearchComponent implements OnInit {
   constructor(
     private hotelService: HotelService,
     private destSvc: DestinationService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -817,6 +818,47 @@ export class HotelSearchComponent implements OnInit {
       })
     ).subscribe(destinations => {
       this.cityDestinations = destinations;
+    });
+
+    // Check for query parameters from home page
+    this.route.queryParams.subscribe(params => {
+      if (params['city'] || params['iataCode']) {
+        const cityName = params['city'];
+        const iataCode = params['iataCode'];
+        
+        // Handle date parameters
+        if (params['checkIn']) {
+          this.checkInDate = new Date(params['checkIn']);
+        }
+        if (params['checkOut']) {
+          this.checkOutDate = new Date(params['checkOut']);
+        }
+        
+        if (iataCode) {
+          // Search for the destination to populate the autocomplete
+          this.destSvc.search(cityName || iataCode).subscribe(destinations => {
+            if (destinations && destinations.length > 0) {
+              const matchedDest = destinations.find(d => d.iataCode === iataCode) || destinations[0];
+              this.cityControl.setValue(matchedDest);
+              this.selectedCity = matchedDest;
+              
+              // Auto-trigger search if city is provided
+              setTimeout(() => this.onSearch(), 500);
+            }
+          });
+        } else if (cityName) {
+          // Just a city name, search for it
+          this.destSvc.search(cityName).subscribe(destinations => {
+            if (destinations && destinations.length > 0) {
+              this.cityControl.setValue(destinations[0]);
+              this.selectedCity = destinations[0];
+              
+              // Auto-trigger search if city is provided
+              setTimeout(() => this.onSearch(), 500);
+            }
+          });
+        }
+      }
     });
   }
 

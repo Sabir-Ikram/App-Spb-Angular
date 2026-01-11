@@ -50,7 +50,10 @@ import { ReservationResponse, ReservationStatus } from '../../models/reservation
               <th mat-header-cell *matHeaderCellDef>Type</th>
               <td mat-cell *matCellDef="let reservation">
                 <mat-chip [class]="'type-' + reservation.type.toLowerCase()">
-                  {{ reservation.type }}
+                  <mat-icon *ngIf="reservation.type === 'BOTH'">card_travel</mat-icon>
+                  <mat-icon *ngIf="reservation.type === 'FLIGHT'">flight</mat-icon>
+                  <mat-icon *ngIf="reservation.type === 'HOTEL'">hotel</mat-icon>
+                  {{ reservation.type === 'BOTH' ? 'PACKAGE' : reservation.type }}
                 </mat-chip>
               </td>
             </ng-container>
@@ -127,6 +130,9 @@ import { ReservationResponse, ReservationStatus } from '../../models/reservation
 
     mat-chip {
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
 
       &.type-flight {
         background-color: #2196f3;
@@ -139,8 +145,19 @@ import { ReservationResponse, ReservationStatus } from '../../models/reservation
       }
 
       &.type-both {
-        background-color: #9c27b0;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
         color: white;
+        font-weight: 700;
+        animation: pulse-chip 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse-chip {
+        0%, 100% {
+          box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+        50% {
+          box-shadow: 0 4px 12px rgba(255, 107, 107, 0.5);
+        }
       }
 
       &.status-pending {

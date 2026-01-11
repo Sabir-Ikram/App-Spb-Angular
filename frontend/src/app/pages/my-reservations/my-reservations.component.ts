@@ -111,6 +111,12 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
         <!-- Reservations Grid -->
         <div class="reservations-grid" *ngIf="!loading && filteredReservations.length > 0">
           <mat-card *ngFor="let reservation of filteredReservations" class="reservation-card">
+            <!-- Package Badge -->
+            <div *ngIf="reservation.type === 'BOTH'" class="package-badge">
+              <mat-icon>card_travel</mat-icon>
+              <span>PACKAGE DEAL</span>
+            </div>
+            
             <!-- Card Header with Type and Status -->
             <div class="card-header">
               <div class="type-section">
@@ -449,12 +455,50 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
       overflow: hidden;
       border: 2px solid #e9ecef;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .reservation-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
       border-color: #667eea;
+    }
+
+    /* Package Badge */
+    .package-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+      z-index: 10;
+      animation: pulse-badge 2s ease-in-out infinite;
+    }
+
+    .package-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(255, 107, 107, 0.6);
+      }
     }
 
     /* Card Header */
