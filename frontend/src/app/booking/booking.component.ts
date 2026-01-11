@@ -1075,64 +1075,8 @@ export class BookingComponent implements OnInit {
         sessionStorage.removeItem('pendingFlightReservation');
         this.submitting = false;
         
-<<<<<<< HEAD
         // Redirect to payment page
         this.router.navigate(['/payment', reservation.id]);
-=======
-        // Show success dialog
-        const dialogRef = this.dialog.open(BookingSuccessDialog, {
-          width: '550px',
-          data: {
-            reservationId: reservation.id,
-            totalPrice: reservation.totalPrice,
-            type: type,
-            isPackage: type === ReservationType.BOTH
-          },
-          disableClose: true
-        });
-
-        dialogRef.afterClosed().subscribe((action) => {
-          if (action === 'add-hotel') {
-            // Pass flight destination and dates to hotel search
-            if (this.flightData) {
-              const queryParams: any = {
-                city: this.flightData.destinationCity || this.flightData.destination,
-                iataCode: this.flightData.destination
-              };
-              // Use departure date as check-in and return date as check-out if available
-              if (this.flightData.departureDate) {
-                queryParams.checkIn = this.flightData.departureDate;
-              }
-              if (this.flightData.returnDate) {
-                queryParams.checkOut = this.flightData.returnDate;
-              }
-              this.router.navigate(['/hotels'], { queryParams });
-            } else {
-              this.router.navigate(['/hotels']);
-            }
-          } else if (action === 'add-flight') {
-            // Pass hotel city and dates to flight search
-            if (this.hotelData) {
-              const queryParams: any = {
-                to: this.hotelData.city,
-                packageMode: 'true'
-              };
-              // Use check-in date as departure and check-out as return
-              if (this.hotelData.checkIn) {
-                queryParams.depart = this.hotelData.checkIn;
-              }
-              if (this.hotelData.checkOut) {
-                queryParams.return = this.hotelData.checkOut;
-              }
-              this.router.navigate(['/search'], { queryParams });
-            } else {
-              this.router.navigate(['/search']);
-            }
-          } else {
-            this.router.navigate(['/my-reservations']);
-          }
-        });
->>>>>>> d4ed8123d859983c2ed0c4de08690d9093612894
       },
       error: (err: any) => {
         this.submitting = false;

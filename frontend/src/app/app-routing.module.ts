@@ -4,10 +4,7 @@ import { RegisterComponent } from './auth/register/register.component';
 import { SearchComponent } from './user/search/search.component';
 import { HotelSearchComponent } from './user/hotel-search/hotel-search.component';
 import { BookingComponent } from './booking/booking.component';
-<<<<<<< HEAD
 import { PaymentComponent } from './payment/payment.component';
-=======
->>>>>>> d4ed8123d859983c2ed0c4de08690d9093612894
 import { UserDashboardComponent } from './user/dashboard/user-dashboard.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
 import { MyReservationsComponent } from './pages/my-reservations/my-reservations.component';
@@ -23,10 +20,7 @@ export const routes: Routes = [
   { path: 'search', component: SearchComponent },
   { path: 'hotels', component: HotelSearchComponent },
   { path: 'booking', component: BookingComponent, canActivate: [AuthGuard] },
-<<<<<<< HEAD
   { path: 'payment/:id', component: PaymentComponent, canActivate: [AuthGuard] },
-=======
->>>>>>> d4ed8123d859983c2ed0c4de08690d9093612894
   { path: 'dashboard', redirectTo: 'my-reservations', pathMatch: 'full' },
   { path: 'my-reservations', component: MyReservationsComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
