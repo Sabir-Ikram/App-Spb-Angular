@@ -20,11 +20,14 @@ public class ApiReservationService {
 
     private final ApiReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final PaymentService paymentService;
 
     public ApiReservationService(ApiReservationRepository reservationRepository, 
-                                 UserRepository userRepository) {
+                                 UserRepository userRepository,
+                                 PaymentService paymentService) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
     @Transactional
@@ -47,7 +50,7 @@ public class ApiReservationService {
         ApiReservation reservation = ApiReservation.builder()
                 .user(user)
                 .type(request.getType())
-                .status(ReservationStatus.PENDING)
+                .status(ReservationStatus.PENDING_PAYMENT)
                 .totalPrice(totalPrice)
                 .build();
 
@@ -67,6 +70,9 @@ public class ApiReservationService {
 
         // Save reservation
         reservation = reservationRepository.save(reservation);
+
+        // Create payment intent
+        paymentService.createPaymentIntent(reservation);
         
         log.info("✓ Created reservation {} for user {} - Type: {}, Total: ${}", 
                 reservation.getId(), user.getEmail(), reservation.getType(), totalPrice);
