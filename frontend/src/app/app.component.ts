@@ -12,277 +12,500 @@ import { AuthService } from './auth/auth.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterModule, MatToolbarModule, MatButtonModule, MatIconModule, LoadingComponent],
   template: `
-    <header class="app-header">
-      <mat-toolbar class="app-toolbar">
-        <a routerLink="/" class="logo-container">
+    <nav class="premium-navbar">
+      <div class="navbar-container">
+        <a routerLink="/" class="navbar-logo">
           <mat-icon class="logo-icon">flight_takeoff</mat-icon>
-          <span class="logo-text">
-            <span class="logo-voyage">Voyage</span><span class="logo-connect">Connect</span>
-          </span>
+          <span class="logo-text">Voyage<span class="logo-accent">Connect</span></span>
         </a>
-        <span class="spacer"></span>
-        <nav class="nav-menu">
-          <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+
+        <div class="navbar-menu">
+          <a routerLink="/" 
+             routerLinkActive="active" 
+             [routerLinkActiveOptions]="{exact: true}"
+             class="nav-link">
             <mat-icon>home</mat-icon>
             <span>Home</span>
           </a>
-          <a mat-button routerLink="/search" routerLinkActive="active" class="nav-link">
+          
+          <a routerLink="/search" 
+             routerLinkActive="active"
+             class="nav-link">
             <mat-icon>search</mat-icon>
             <span>Search</span>
           </a>
-          <a mat-button routerLink="/my-reservations" *ngIf="isAuthenticated" routerLinkActive="active" class="nav-link">
+          
+          <a *ngIf="isAuthenticated" 
+             routerLink="/my-reservations" 
+             routerLinkActive="active"
+             class="nav-link">
             <mat-icon>event_note</mat-icon>
             <span>My Reservations</span>
           </a>
-          <a mat-button routerLink="/admin" *ngIf="isAdmin" routerLinkActive="active" class="nav-link">
+          
+          <a *ngIf="isAdmin" 
+             routerLink="/admin" 
+             routerLinkActive="active"
+             class="nav-link">
             <mat-icon>admin_panel_settings</mat-icon>
             <span>Admin</span>
           </a>
-        </nav>
-        <div class="toolbar-actions">
-          <button mat-raised-button routerLink="/auth/login" *ngIf="!isAuthenticated" class="login-btn">
+        </div>
+
+        <div class="navbar-actions">
+          <ng-container *ngIf="!isAuthenticated">
+            <button mat-button routerLink="/auth/login" class="login-button">
+              <mat-icon>login</mat-icon>
+              <span>Sign In</span>
+            </button>
+            <button mat-stroked-button routerLink="/auth/register" class="register-button">
+              Get Started
+            </button>
+          </ng-container>
+          
+          <ng-container *ngIf="isAuthenticated">
+            <button mat-button class="user-profile-button">
+              <div class="profile-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+            </button>
+            <button mat-stroked-button (click)="logout()" class="logout-button">
+              <mat-icon>logout</mat-icon>
+              <span>Logout</span>
+            </button>
+          </ng-container>
+        </div>
+
+        <button mat-icon-button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+          <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+        </button>
+      </div>
+
+      <div class="mobile-menu" [class.open]="mobileMenuOpen">
+        <a routerLink="/" 
+           (click)="closeMobileMenu()"
+           routerLinkActive="active" 
+           [routerLinkActiveOptions]="{exact: true}"
+           class="mobile-nav-link">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </a>
+        
+        <a routerLink="/search" 
+           (click)="closeMobileMenu()"
+           routerLinkActive="active"
+           class="mobile-nav-link">
+          <mat-icon>search</mat-icon>
+          <span>Search</span>
+        </a>
+        
+        <a *ngIf="isAuthenticated" 
+           routerLink="/my-reservations" 
+           (click)="closeMobileMenu()"
+           routerLinkActive="active"
+           class="mobile-nav-link">
+          <mat-icon>event_note</mat-icon>
+          <span>My Reservations</span>
+        </a>
+        
+        <a *ngIf="isAdmin" 
+           routerLink="/admin" 
+           (click)="closeMobileMenu()"
+           routerLinkActive="active"
+           class="mobile-nav-link">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Admin</span>
+        </a>
+
+        <div class="mobile-menu-divider"></div>
+
+        <ng-container *ngIf="!isAuthenticated">
+          <button mat-button routerLink="/auth/login" (click)="closeMobileMenu()" class="mobile-login-button">
             <mat-icon>login</mat-icon>
-            <span>Login</span>
+            <span>Sign In</span>
           </button>
-          <button mat-raised-button routerLink="/auth/register" *ngIf="!isAuthenticated" class="register-btn">
-            <mat-icon>person_add</mat-icon>
-            <span>Sign Up</span>
+          <button mat-stroked-button routerLink="/auth/register" (click)="closeMobileMenu()" class="mobile-register-button">
+            Get Started
           </button>
-          <button mat-stroked-button (click)="logout()" *ngIf="isAuthenticated" class="logout-btn">
+        </ng-container>
+        
+        <ng-container *ngIf="isAuthenticated">
+          <button mat-stroked-button (click)="logout(); closeMobileMenu()" class="mobile-logout-button">
             <mat-icon>logout</mat-icon>
             <span>Logout</span>
           </button>
-        </div>
-      </mat-toolbar>
-    </header>
+        </ng-container>
+      </div>
+    </nav>
+    
     <app-loading></app-loading>
     <main class="main-content">
       <router-outlet></router-outlet>
     </main>
   `,
   styles: [`
-    /* ============================================
-       PREMIUM HEADER - Booking.com/Airbnb Style
-       ============================================ */
-    .app-header {
-      position: sticky;
+    .premium-navbar {
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
-      box-shadow: var(--shadow-sm);
-      background: var(--white);
+      background: rgba(248, 246, 242, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .app-toolbar {
-      background: var(--white) !important;
-      color: var(--text-primary) !important;
-      height: 72px !important;
-      padding: 0 var(--space-xl) !important;
-      border-bottom: 1px solid var(--gray-200);
+    .navbar-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 48px;
+      height: 72px;
       display: flex;
       align-items: center;
-      gap: var(--space-lg);
+      justify-content: space-between;
+      gap: 48px;
     }
 
-    /* Logo Design */
-    .logo-container {
+    .navbar-logo {
       display: flex;
       align-items: center;
-      gap: var(--space-md);
+      gap: 12px;
+      cursor: pointer;
       text-decoration: none;
-      color: var(--text-primary);
-      padding: var(--space-sm) var(--space-md);
-      border-radius: var(--radius-md);
-      transition: all var(--transition-fast);
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
     }
 
-    .logo-container:hover {
-      background: var(--gray-50);
-      transform: translateY(-1px);
+    .navbar-logo:hover {
+      transform: scale(1.02);
     }
 
     .logo-icon {
-      font-size: 32px !important;
-      width: 32px !important;
-      height: 32px !important;
-      color: var(--primary-color);
-      transform: rotate(-15deg);
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #d4af37;
+      filter: drop-shadow(0 2px 6px rgba(212, 175, 55, 0.25));
     }
 
     .logo-text {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.5rem;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      color: #1f2937;
+      letter-spacing: -0.5px;
+      font-family: 'Roboto', 'Helvetica', sans-serif;
     }
 
-    .logo-voyage {
-      color: var(--primary-color);
+    .logo-accent {
+      color: #d4af37;
     }
 
-    .logo-connect {
-      color: var(--accent-color);
-    }
-
-    .spacer {
-      flex: 1 1 auto;
-    }
-
-    /* Navigation Menu */
-    .nav-menu {
+    .navbar-menu {
       display: flex;
       align-items: center;
-      gap: var(--space-xs);
+      gap: 6px;
+      flex: 1;
+      justify-content: center;
     }
 
     .nav-link {
-      height: 48px !important;
-      padding: 0 var(--space-lg) !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: var(--space-sm);
-      color: var(--text-secondary) !important;
-      font-weight: 500 !important;
-      border-radius: var(--radius-md) !important;
-      transition: all var(--transition-fast) !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #1f2937;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-link mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #6b7280;
+      transition: color 0.25s ease;
     }
 
     .nav-link:hover {
-      background: var(--gray-50) !important;
-      color: var(--primary-color) !important;
+      background: rgba(212, 175, 55, 0.08);
+      color: #d4af37;
+    }
+
+    .nav-link:hover mat-icon {
+      color: #d4af37;
     }
 
     .nav-link.active {
-      color: var(--primary-color) !important;
-      background: var(--gray-50) !important;
+      color: #d4af37;
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .nav-link.active mat-icon {
+      color: #d4af37;
     }
 
     .nav-link.active::after {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 3px;
-      background: var(--primary-color);
-      border-radius: var(--radius-full);
+      bottom: 2px;
+      left: 18px;
+      right: 18px;
+      height: 2px;
+      background: #d4af37;
+      border-radius: 2px;
     }
 
-    .nav-link mat-icon {
-      font-size: 20px !important;
-      width: 20px !important;
-      height: 20px !important;
-    }
-
-    /* Toolbar Actions */
-    .toolbar-actions {
+    .navbar-actions {
       display: flex;
       align-items: center;
-      gap: var(--space-md);
+      gap: 12px;
+      flex-shrink: 0;
     }
 
-    .login-btn,
-    .register-btn,
-    .logout-btn {
-      height: 44px !important;
-      padding: 0 var(--space-lg) !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      gap: var(--space-sm);
-      font-weight: 600 !important;
-      border-radius: var(--radius-full) !important;
-      transition: all var(--transition-base) !important;
-      font-size: 0.9375rem !important;
+    .user-profile-button {
+      display: flex;
+      align-items: center;
+      padding: 6px;
+      border-radius: 50%;
+      transition: all 0.25s ease;
+      height: 44px;
+      width: 44px;
+      min-width: 44px;
     }
 
-    .login-btn {
-      background: transparent !important;
-      color: var(--text-primary) !important;
-      border: 1px solid var(--gray-300) !important;
+    .user-profile-button:hover {
+      background: rgba(212, 175, 55, 0.08);
     }
 
-    .login-btn:hover {
-      background: var(--gray-50) !important;
-      border-color: var(--primary-color) !important;
-      color: var(--primary-color) !important;
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.25) 100%);
+      border: 2px solid #d4af37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .register-btn {
-      background: var(--primary-color) !important;
-      color: var(--white) !important;
-      box-shadow: none !important;
+    .profile-avatar mat-icon {
+      color: #d4af37;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
-    .register-btn:hover {
-      background: var(--primary-dark) !important;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md) !important;
+    .login-button {
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: all 0.25s ease;
     }
 
-    .logout-btn {
-      color: var(--text-primary) !important;
-      border-color: var(--gray-300) !important;
+    .login-button:hover {
+      background: rgba(212, 175, 55, 0.08);
+      color: #d4af37;
     }
 
-    .logout-btn:hover {
-      background: var(--error-light) !important;
-      color: var(--error) !important;
-      border-color: var(--error) !important;
+    .register-button,
+    .logout-button {
+      height: 44px;
+      padding: 0 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #d4af37;
+      border: 2px solid #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      transition: all 0.25s ease;
     }
 
-    .toolbar-actions button mat-icon {
-      font-size: 20px !important;
-      width: 20px !important;
-      height: 20px !important;
+    .register-button:hover,
+    .logout-button:hover {
+      background: rgba(212, 175, 55, 0.08);
+      border-color: #c9a030;
+      color: #c9a030;
     }
 
-    /* Main Content */
+    .mobile-menu-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .mobile-menu-toggle:hover {
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    .mobile-menu-toggle mat-icon {
+      color: #1f2937;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+
+    .mobile-menu {
+      display: none;
+      position: absolute;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: rgba(248, 246, 242, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      padding: 16px;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mobile-menu.open {
+      max-height: calc(100vh - 72px);
+      opacity: 1;
+      overflow-y: auto;
+    }
+
+    .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #1f2937;
+      font-size: 16px;
+      font-weight: 600;
+      margin: 4px 0;
+      transition: all 0.25s ease;
+    }
+
+    .mobile-nav-link:hover,
+    .mobile-nav-link.active {
+      background: rgba(212, 175, 55, 0.1);
+      color: #d4af37;
+    }
+
+    .mobile-nav-link mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: #6b7280;
+    }
+
+    .mobile-nav-link:hover mat-icon,
+    .mobile-nav-link.active mat-icon {
+      color: #d4af37;
+    }
+
+    .mobile-menu-divider {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.06);
+      margin: 16px 0;
+    }
+
+    .mobile-logout-button,
+    .mobile-login-button,
+    .mobile-register-button {
+      width: 100%;
+      height: 52px;
+      margin: 8px 0;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      color: #d4af37;
+      border: 2px solid #d4af37;
+    }
+
+    .mobile-logout-button:hover,
+    .mobile-login-button:hover,
+    .mobile-register-button:hover {
+      background: rgba(212, 175, 55, 0.08);
+      border-color: #c9a030;
+      color: #c9a030;
+    }
+
     .main-content {
+      margin-top: 72px;
       min-height: calc(100vh - 72px);
     }
 
-    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .navbar-container {
+        padding: 0 32px;
+        gap: 24px;
+      }
+
+      .navbar-menu {
+        gap: 4px;
+      }
+
+      .nav-link {
+        padding: 9px 14px;
+        font-size: 13px;
+      }
+    }
+
     @media (max-width: 768px) {
-      .app-toolbar {
-        padding: 0 var(--space-md) !important;
-        height: 64px !important;
+      .navbar-container {
+        padding: 0 24px;
       }
 
-      .logo-text {
-        font-size: 1.25rem;
-      }
-
-      .nav-menu {
+      .navbar-menu,
+      .navbar-actions {
         display: none;
       }
 
-      .nav-link span,
-      .toolbar-actions button span {
-        display: none;
+      .mobile-menu-toggle {
+        display: flex;
       }
 
-      .toolbar-actions {
-        gap: var(--space-sm);
-      }
-
-      .login-btn,
-      .register-btn,
-      .logout-btn {
-        width: 44px !important;
-        min-width: 44px !important;
-        padding: 0 !important;
-        justify-content: center;
+      .mobile-menu {
+        display: block;
       }
     }
 
     @media (max-width: 480px) {
-      .logo-text {
-        display: none;
+      .navbar-container {
+        padding: 0 16px;
+        height: 64px;
       }
 
-      .app-toolbar {
-        padding: 0 var(--space-sm) !important;
+      .logo-text {
+        font-size: 20px;
+      }
+
+      .logo-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+
+      .mobile-menu {
+        top: 64px;
+      }
+
+      .main-content {
+        margin-top: 64px;
       }
     }
   `]
@@ -290,6 +513,7 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent {
   isAuthenticated = false;
   isAdmin = false;
+  mobileMenuOpen = false;
 
   constructor(private authService: AuthService) {
     this.updateAuthStatus();
@@ -308,5 +532,13 @@ export class AppComponent {
   logout() {
     this.authService.logout();
     this.updateAuthStatus();
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    this.mobileMenuOpen = false;
   }
 }

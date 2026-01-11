@@ -285,98 +285,112 @@ interface Destination {
       </div>
     </div>
 
-    <div class="container features-section">
-      <h2 class="section-title text-center mb-4">Why Travelers Choose Us</h2>
-      <div class="features-grid">
-        <mat-card class="feature-card fade-in">
-          <div class="feature-icon-wrapper">
-            <mat-icon class="feature-icon">flight_takeoff</mat-icon>
-          </div>
-          <h3>Best Flight Prices</h3>
-          <p>Real-time flight search powered by Amadeus API with competitive prices from major airlines</p>
-        </mat-card>
+    <!-- SECTION 1: Discover Morocco - 4 Premium Visual Cards -->
+    <section class="discover-morocco-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Discover Morocco</h2>
+          <p class="section-subtitle">Experience the Kingdom's rich heritage, culture, and modern vision</p>
+        </div>
         
-        <mat-card class="feature-card fade-in">
-          <div class="feature-icon-wrapper">
-            <mat-icon class="feature-icon">apartment</mat-icon>
+        <div class="discover-grid">
+          <!-- Card 1: Heritage & History -->
+          <div class="discover-card" style="background-image: url('https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800&h=600&fit=crop');">
+            <div class="card-overlay"></div>
+            <div class="card-content">
+              <mat-icon class="card-icon">account_balance</mat-icon>
+              <h3 class="card-title">Moroccan Heritage & History</h3>
+              <p class="card-subtitle">Ancient medinas, imperial cities, and UNESCO World Heritage sites</p>
+            </div>
           </div>
-          <h3>Verified Hotels</h3>
-          <p>Over 2,800+ hotels in every major city, powered by Booking.com with verified reviews</p>
-        </mat-card>
-        
-        <mat-card class="feature-card fade-in">
-          <div class="feature-icon-wrapper">
-            <mat-icon class="feature-icon">lock</mat-icon>
+          
+          <!-- Card 2: Gastronomy -->
+          <div class="discover-card" style="background-image: url('https://images.unsplash.com/photo-1596040033229-a0b3b69cc3f4?w=800&h=600&fit=crop');">
+            <div class="card-overlay"></div>
+            <div class="card-content">
+              <mat-icon class="card-icon">restaurant</mat-icon>
+              <h3 class="card-title">Moroccan Gastronomy</h3>
+              <p class="card-subtitle">Tajine, couscous, mint tea - a culinary journey through authentic flavors</p>
+            </div>
           </div>
-          <h3>Secure Booking</h3>
-          <p>Your reservations and payment information are protected with industry-standard encryption</p>
-        </mat-card>
-        
-        <mat-card class="feature-card fade-in">
-          <div class="feature-icon-wrapper">
-            <mat-icon class="feature-icon">support_agent</mat-icon>
+          
+          <!-- Card 3: Destinations -->
+          <div class="discover-card" style="background-image: url('https://images.unsplash.com/photo-1569944913699-56d90126ba4d?w=800&h=600&fit=crop');">
+            <div class="card-overlay"></div>
+            <div class="card-content">
+              <mat-icon class="card-icon">landscape</mat-icon>
+              <h3 class="card-title">Moroccan Destinations</h3>
+              <p class="card-subtitle">From Sahara dunes to Atlantic coasts, explore diverse landscapes</p>
+            </div>
           </div>
-          <h3>Easy Management</h3>
-          <p>Track all your reservations in one place with real-time status updates</p>
-        </mat-card>
+          
+          <!-- Card 4: FIFA 2030 -->
+          <div class="discover-card fifa-card" style="background-image: url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop');">
+            <div class="card-overlay"></div>
+            <div class="card-content">
+              <mat-icon class="card-icon">sports_soccer</mat-icon>
+              <h3 class="card-title">Morocco 2030 World Cup</h3>
+              <p class="card-subtitle">World-class stadiums and the future of Moroccan football</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Popular Destinations Section -->
-    <div class="container destinations-section">
-      <h2 class="section-title text-center mb-4">
-        <mat-icon class="section-icon">explore</mat-icon>
-        Popular Destinations
-      </h2>
-      <p class="section-subtitle">Explore trending cities and start planning your next trip</p>
+    <!-- SECTION 2: Destinations Gallery -->
+    <section class="destinations-gallery-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Explore Destinations</h2>
+          <p class="section-subtitle">Discover Morocco and international travel destinations</p>
+        </div>
+        
+        <div *ngIf="loadingDestinations" class="loading-center">
+          <mat-spinner diameter="50" color="primary"></mat-spinner>
+          <p class="loading-text">Loading destinations...</p>
+        </div>
       
-      <div *ngIf="loadingDestinations" class="loading-center">
-        <mat-spinner diameter="50" color="primary"></mat-spinner>
-        <p class="loading-text">Discovering amazing destinations...</p>
-      </div>
-      
-      <div class="destinations-grid" *ngIf="!loadingDestinations && destinations.length > 0">
-        <mat-card class="destination-card fade-in" 
-                  [class.morocco]="isMorocco(dest)" 
+      <div class="destinations-mosaic-grid" *ngIf="!loadingDestinations && destinations.length > 0">
+        <mat-card class="destination-mosaic-card fade-in" 
+                  [class.morocco-large]="isMorocco(dest)" 
+                  [class.standard-card]="!isMorocco(dest)"
                   *ngFor="let dest of destinations">
-          <div class="destination-image-container">
+          <div class="mosaic-image-container">
             <img *ngIf="dest.imageUrl" 
                  [src]="dest.imageUrl" 
                  [alt]="dest.imageAlt || (dest.city || dest.name)"
-                 class="destination-image"
+                 class="mosaic-image"
                  loading="lazy">
-            <div *ngIf="!dest.imageUrl" class="destination-image-placeholder">
+            <div *ngIf="!dest.imageUrl" class="mosaic-image-placeholder">
               <mat-icon class="placeholder-icon">location_city</mat-icon>
             </div>
-            <div class="destination-overlay">
-              <h3 class="destination-name">{{ dest.city || dest.name }}</h3>
-              <p class="destination-country-overlay">
-                <mat-icon class="inline-icon">flag</mat-icon>
-                {{ dest.country }}
-              </p>
+            <div class="mosaic-gradient-overlay"></div>
+            <div class="mosaic-content">
+              <div class="mosaic-top-badges">
+                <span *ngIf="isMorocco(dest)" class="national-treasure-badge">
+                  <mat-icon>account_balance</mat-icon>
+                  Trésor National
+                </span>
+                <span class="iata-badge">{{ dest.iataCode || dest.id }}</span>
+              </div>
+              <div class="mosaic-main-info">
+                <h3 class="mosaic-city-name">{{ dest.city || dest.name }}</h3>
+                <p class="mosaic-country" *ngIf="!isMorocco(dest)">
+                  <mat-icon class="inline-icon">place</mat-icon>
+                  {{ dest.country }}
+                </p>
+                <p class="mosaic-poetic-subtitle" *ngIf="isMorocco(dest)">
+                  {{ getMoroccanPoetry(dest) }}
+                </p>
+              </div>
+              <div class="mosaic-actions">
+                <button mat-flat-button color="primary" routerLink="/search" class="mosaic-action-btn">
+                  <mat-icon>explore</mat-icon>
+                  Discover
+                </button>
+              </div>
             </div>
-            <span *ngIf="isMorocco(dest)" class="morocco-badge">
-              <mat-icon style="font-size: 12px; width: 12px; height: 12px;">star</mat-icon>
-              Morocco
-            </span>
-            <span class="destination-code-badge">{{ dest.iataCode || dest.id }}</span>
           </div>
-          <mat-card-content>
-            <div class="destination-info-compact">
-              <mat-icon class="info-icon">explore</mat-icon>
-              <span class="info-text">Explore flights & hotels</span>
-            </div>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-stroked-button color="primary" routerLink="/search" class="action-btn">
-              <mat-icon>flight_takeoff</mat-icon>
-              View Flights
-            </button>
-            <button mat-stroked-button color="accent" routerLink="/hotels" class="action-btn">
-              <mat-icon>hotel</mat-icon>
-              View Hotels
-            </button>
-          </mat-card-actions>
         </mat-card>
       </div>
       
@@ -387,120 +401,215 @@ interface Destination {
       </div>
     </div>
 
-    <!-- Trending Destinations Carousel -->
-    <div class="trending-section">
+    <!-- Trending Destinations - Moroccan Experiences Timeline -->
+    <div class="trending-section moroccan-timeline">
       <div class="container">
-        <h2 class="section-title text-center mb-4">
-          <mat-icon class="section-icon">trending_up</mat-icon>
-          Trending This Month
-        </h2>
-        <p class="section-subtitle">Discover where travelers are heading right now</p>
+        <div class="timeline-header">
+          <span class="timeline-badge">
+            <mat-icon>auto_stories</mat-icon>
+            Authentic Experiences
+          </span>
+          <h2 class="section-title text-center">
+            <mat-icon class="section-icon">trending_up</mat-icon>
+            Moroccan Experiences Timeline
+          </h2>
+          <p class="section-subtitle">Journey through Morocco's most captivating cultural moments</p>
+        </div>
         
-        <div class="trending-carousel">
-          <div class="trending-card" *ngFor="let trend of trendingDestinations">
-            <div class="trending-image" [style.background-image]="'url(' + trend.image + ')'">
-              <div class="trending-badge">{{ trend.badge }}</div>
+        <div class="timeline-scroll-container">
+          <div class="timeline-track">
+            <div class="timeline-chapter" *ngFor="let trend of trendingDestinations">
+              <div class="chapter-card">
+                <div class="chapter-date">
+                  <span class="month-badge">{{ trend.month || 'Now' }}</span>
+                  <mat-icon class="chapter-icon">{{ trend.icon || 'place' }}</mat-icon>
+                </div>
+                <div class="chapter-image" [style.background-image]="'url(' + trend.image + ')'">
+                  <div class="chapter-badge">{{ trend.badge }}</div>
+                  <div class="growth-indicator">
+                    <mat-icon>trending_up</mat-icon>
+                    <span>{{ trend.growth }}</span>
+                  </div>
+                </div>
+                <div class="chapter-content">
+                  <h3 class="chapter-title">{{ trend.city }}</h3>
+                  <p class="chapter-subtitle">{{ trend.country }}</p>
+                  <div class="chapter-experience">
+                    <mat-icon class="experience-icon">{{ getExperienceIcon(trend.city) }}</mat-icon>
+                    <span class="experience-text">{{ getExperienceText(trend.city) }}</span>
+                  </div>
+                  <div class="chapter-footer">
+                    <span class="chapter-price">From {{ trend.price }}</span>
+                    <button mat-icon-button class="explore-chapter-btn" routerLink="/search">
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="trending-info">
-              <h3 class="trending-title">{{ trend.city }}</h3>
-              <p class="trending-country">{{ trend.country }}</p>
-              <div class="trending-stats">
-                <span class="trending-stat">
-                  <mat-icon>trending_up</mat-icon>
-                  {{ trend.growth }}
-                </span>
-                <span class="trending-price">From {{ trend.price }}</span>
+            <!-- Special 2030 FIFA World Cup Card -->
+            <div class="timeline-chapter special-chapter">
+              <div class="chapter-card world-cup-card">
+                <div class="chapter-date">
+                  <span class="month-badge fifa-badge">2030</span>
+                  <mat-icon class="chapter-icon">sports_soccer</mat-icon>
+                </div>
+                <div class="chapter-image world-cup-bg">
+                  <div class="chapter-badge">HISTORIC EVENT</div>
+                  <div class="animated-ball">
+                    <mat-icon>sports_soccer</mat-icon>
+                  </div>
+                </div>
+                <div class="chapter-content">
+                  <h3 class="chapter-title">2030 FIFA World Cup</h3>
+                  <p class="chapter-subtitle">Morocco Host Nation</p>
+                  <div class="chapter-experience">
+                    <mat-icon class="experience-icon">stadium</mat-icon>
+                    <span class="experience-text">World-Class Football</span>
+                  </div>
+                  <div class="chapter-footer">
+                    <span class="chapter-price">Experience History</span>
+                    <button mat-icon-button class="explore-chapter-btn">
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- Scroll Navigation Hint -->
+        <div class="timeline-scroll-hint">
+          <mat-icon>swipe</mat-icon>
+          <span>Swipe to explore more experiences</span>
+        </div>
       </div>
     </div>
 
-    <!-- Featured Flights Section -->
-    <div class="container flights-section">
-      <h2 class="section-title text-center mb-4">
-        <mat-icon class="section-icon">flight</mat-icon>
-        Featured Flights
-      </h2>
-      <p class="section-subtitle">Best deals on popular routes</p>
+    <!-- Featured Flights Section - Flight Navigator Premium -->
+    <div class="container flights-section flight-navigator-premium">
+      <div class="flight-header-premium">
+        <span class="navigator-badge">
+          <mat-icon>connecting_airports</mat-icon>
+          Flight Network
+        </span>
+        <h2 class="section-title text-center">
+          <mat-icon class="section-icon">flight</mat-icon>
+          Flight Network to Morocco
+        </h2>
+        <p class="section-subtitle">Best routes connecting the world to the Kingdom</p>
+      </div>
+      
+      <!-- Morocco Map Background -->
+      <div class="morocco-map-background">
+        <div class="airport-dot cmn-dot" title="Casablanca">
+          <span class="dot-pulse"></span>
+          <span class="dot-label">CMN</span>
+        </div>
+        <div class="airport-dot rak-dot" title="Marrakech">
+          <span class="dot-pulse"></span>
+          <span class="dot-label">RAK</span>
+        </div>
+        <div class="airport-dot fez-dot" title="Fes">
+          <span class="dot-pulse"></span>
+          <span class="dot-label">FEZ</span>
+        </div>
+        <div class="airport-dot aga-dot" title="Agadir">
+          <span class="dot-pulse"></span>
+          <span class="dot-label">AGA</span>
+        </div>
+      </div>
       
       <div *ngIf="loadingFlights" class="loading-center">
         <mat-spinner diameter="50" color="primary"></mat-spinner>
-        <p class="loading-text">Finding best flight deals...</p>
+        <p class="loading-text">Finding best flight paths...</p>
       </div>
       
-      <div class="flights-grid" *ngIf="!loadingFlights && flights.length > 0">
-        <mat-card class="flight-card fade-in" *ngFor="let flight of flights">
-          <div class="flight-header">
-            <div class="flight-airline" *ngIf="flight.airline">
-              <mat-icon class="airline-icon">local_airport</mat-icon>
-              <span class="airline-name">{{ flight.airline }}</span>
-              <span class="flight-number" *ngIf="flight.flightNumber">{{ flight.flightNumber }}</span>
+      <div class="flights-premium-grid" *ngIf="!loadingFlights && flights.length > 0">
+        <mat-card class="flight-path-card fade-in" *ngFor="let flight of flights">
+          <div class="flight-path-header">
+            <div class="airline-logo-section" *ngIf="flight.airline">
+              <div class="airline-logo-circle" [class.ram-airline]="flight.airline.includes('Air Maroc')">
+                <mat-icon class="airline-icon">airlines</mat-icon>
+              </div>
+              <div class="airline-details">
+                <span class="airline-name-premium">{{ flight.airline }}</span>
+                <span class="flight-number-premium" *ngIf="flight.flightNumber">{{ flight.flightNumber }}</span>
+              </div>
             </div>
-            <div class="route">
-              <div class="route-point">
-                <mat-icon class="route-icon">flight_takeoff</mat-icon>
-                <span class="airport">{{ flight.origin || flight.departure }}</span>
-                <span class="airport-label" *ngIf="flight.originCity">{{ flight.originCity }}</span>
+            <span *ngIf="isDirectFlight(flight)" class="direct-route-badge">
+              <mat-icon>done</mat-icon>
+              Best Direct Route
+            </span>
+          </div>
+          
+          <div class="flight-route-visual">
+            <div class="route-point-premium origin">
+              <mat-icon class="route-icon-premium">flight_takeoff</mat-icon>
+              <div class="route-info">
+                <span class="airport-code">{{ flight.origin || getFlightOrigin(flight.departure) }}</span>
+                <span class="airport-city" *ngIf="flight.originCity">{{ flight.originCity }}</span>
               </div>
-              <div class="route-divider">
-                <mat-icon class="plane-icon">flight</mat-icon>
-                <span class="duration" *ngIf="flight.duration">{{ flight.duration }}</span>
+            </div>
+            <div class="flight-path-line">
+              <div class="animated-plane">
+                <mat-icon>flight</mat-icon>
               </div>
-              <div class="route-point">
-                <mat-icon class="route-icon">flight_land</mat-icon>
-                <span class="airport">{{ flight.destination || flight.arrival }}</span>
-                <span class="airport-label" *ngIf="flight.destinationCity">{{ flight.destinationCity }}</span>
+              <span class="flight-duration" *ngIf="flight.duration">{{ flight.duration }}</span>
+            </div>
+            <div class="route-point-premium destination morocco-destination">
+              <mat-icon class="route-icon-premium">flight_land</mat-icon>
+              <div class="route-info">
+                <span class="airport-code">{{ flight.destination || getFlightDestination(flight.arrival) }}</span>
+                <span class="airport-city" *ngIf="flight.destinationCity">{{ flight.destinationCity }}</span>
               </div>
             </div>
           </div>
+          
           <mat-card-content>
-            <div class="flight-details">
-              <div class="detail-row">
-                <div class="detail-item">
-                  <div class="detail-label">
-                    <mat-icon class="detail-icon">schedule</mat-icon>
-                    <span>Departure</span>
+            <div class="flight-details-premium">
+              <div class="detail-row-premium">
+                <div class="detail-item-premium">
+                  <mat-icon class="detail-icon-premium">schedule</mat-icon>
+                  <div class="detail-content">
+                    <span class="detail-label-premium">Departure</span>
+                    <span class="detail-value-premium">{{ flight.departure | date:'short' }}</span>
                   </div>
-                  <span class="value">{{ flight.departure | date:'short' }}</span>
                 </div>
-                <div class="detail-item">
-                  <div class="detail-label">
-                    <mat-icon class="detail-icon">schedule</mat-icon>
-                    <span>Arrival</span>
+                <div class="detail-item-premium">
+                  <mat-icon class="detail-icon-premium">schedule</mat-icon>
+                  <div class="detail-content">
+                    <span class="detail-label-premium">Arrival</span>
+                    <span class="detail-value-premium">{{ flight.arrival | date:'short' }}</span>
                   </div>
-                  <span class="value">{{ flight.arrival | date:'short' }}</span>
                 </div>
               </div>
-              <div class="flight-info-grid">
-                <div class="info-box">
-                  <mat-icon class="info-icon">airline_seat_recline_normal</mat-icon>
-                  <div class="info-content">
-                    <span class="info-label">Available Seats</span>
-                    <span class="info-value">{{ flight.availableSeats }}</span>
-                  </div>
+              <div class="flight-meta-info">
+                <div class="meta-badge">
+                  <mat-icon>airline_seat_recline_normal</mat-icon>
+                  <span>{{ flight.availableSeats }} seats</span>
                 </div>
-                <div class="info-box" *ngIf="flight.class">
-                  <mat-icon class="info-icon">class</mat-icon>
-                  <div class="info-content">
-                    <span class="info-label">Class</span>
-                    <span class="info-value">{{ flight.class || 'Economy' }}</span>
-                  </div>
+                <div class="meta-badge" *ngIf="flight.class">
+                  <mat-icon>class</mat-icon>
+                  <span>{{ flight.class || 'Economy' }}</span>
                 </div>
               </div>
             </div>
-            <div class="flight-price-section">
-              <div class="price-label">Price per person</div>
-              <div class="flight-price">{{ flight.price | currency }}</div>
-              <div class="price-note" *ngIf="flight.availableSeats < 5">
-                <mat-icon class="warning-icon">warning</mat-icon>
-                <span>Only {{ flight.availableSeats }} seats left!</span>
+            <div class="flight-price-premium">
+              <div class="price-tag">
+                <span class="price-label-premium">From</span>
+                <span class="price-value-premium">{{ flight.price | currency }}</span>
+                <span class="price-unit-premium">per person</span>
+              </div>
+              <div class="urgency-badge" *ngIf="flight.availableSeats < 5">
+                <mat-icon>warning</mat-icon>
+                <span>{{ flight.availableSeats }} seats left</span>
               </div>
             </div>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-raised-button color="primary" routerLink="/search" class="book-button">
+            <button mat-raised-button color="primary" routerLink="/search" class="book-flight-premium">
               <mat-icon>flight_takeoff</mat-icon>
               <span>Book This Flight</span>
             </button>
@@ -519,57 +628,86 @@ interface Destination {
       </div>
     </div>
 
-    <!-- Featured Hotels Section -->
-    <div class="container hotels-section">
-      <h2 class="section-title text-center mb-4">
-        <mat-icon class="section-icon">apartment</mat-icon>
-        Featured Hotels
-      </h2>
-      <p class="section-subtitle">Handpicked accommodations for your perfect stay</p>
+    <!-- Featured Hotels Section - Riad & Palace Collection -->
+    <div class="container hotels-section riad-palace-collection">
+      <div class="collection-header">
+        <span class="collection-badge">
+          <mat-icon>castle</mat-icon>
+          Authentic Accommodations
+        </span>
+        <h2 class="section-title text-center">
+          <mat-icon class="section-icon">apartment</mat-icon>
+          Riad & Palace Collection
+        </h2>
+        <p class="section-subtitle">Handpicked heritage properties showcasing Moroccan architectural excellence</p>
+      </div>
       
       <div *ngIf="loadingHotels" class="loading-center">
         <mat-spinner diameter="50" color="primary"></mat-spinner>
-        <p class="loading-text">Discovering amazing hotels...</p>
+        <p class="loading-text">Curating exclusive properties...</p>
       </div>
       
-      <div class="hotels-grid" *ngIf="!loadingHotels && hotels.length > 0">
-        <mat-card class="hotel-card fade-in" *ngFor="let hotel of hotels">
-          <div class="hotel-image-container">
-            <img *ngIf="hotel.imageUrl" [src]="hotel.imageUrl" alt="{{ hotel.name }}" class="hotel-image">
-            <div *ngIf="!hotel.imageUrl" class="hotel-image-placeholder">
-              <mat-icon class="placeholder-icon">apartment</mat-icon>
+      <div class="hotels-carousel-3d" *ngIf="!loadingHotels && hotels.length > 0">
+        <div class="carousel-track">
+          <mat-card class="hotel-collection-card fade-in" *ngFor="let hotel of hotels">
+            <div class="hotel-category-badge">
+              <mat-icon>{{ getCategoryIcon(getHotelCategory(hotel)) }}</mat-icon>
+              <span>{{ getCategoryLabel(getHotelCategory(hotel)) }}</span>
             </div>
-            <div class="hotel-rating-badge" *ngIf="hotel.rating">
-              <mat-icon class="star-icon">star</mat-icon>
-              <span>{{ hotel.rating }}</span>
-            </div>
-          </div>
-          <mat-card-content>
-            <h3 class="hotel-name">{{ hotel.name }}</h3>
-            <div class="hotel-location">
-              <mat-icon class="location-icon">location_on</mat-icon>
-              <span>{{ hotel.address }}</span>
-            </div>
-            <p class="hotel-description">{{ hotel.description || 'Comfortable accommodation with modern amenities' }}</p>
-            <div class="hotel-details">
-              <div class="hotel-price">
-                <div class="price-label">From</div>
-                <div class="price-value">{{ hotel.pricePerNight | currency }}</div>
-                <div class="price-unit">per night</div>
+            <div class="hotel-image-wrapper">
+              <img *ngIf="hotel.imageUrl" [src]="hotel.imageUrl" alt="{{ hotel.name }}" class="hotel-collection-image">
+              <div *ngIf="!hotel.imageUrl" class="hotel-image-placeholder">
+                <mat-icon class="placeholder-icon">apartment</mat-icon>
               </div>
-              <div class="hotel-availability">
-                <mat-icon class="availability-icon">meeting_room</mat-icon>
-                <span>{{ hotel.availableRooms }} rooms</span>
+              <div class="hotel-image-overlay"></div>
+              <div class="hotel-rating-premium" *ngIf="hotel.rating">
+                <div class="rating-stars">
+                  <mat-icon *ngFor="let i of [1,2,3,4,5]" [class.filled]="i <= hotel.rating">star</mat-icon>
+                </div>
+                <span class="rating-value">{{ hotel.rating }}/5</span>
               </div>
             </div>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-raised-button color="accent" routerLink="/hotels" class="book-button">
-              <mat-icon>hotel</mat-icon>
-              <span>View Details</span>
-            </button>
-          </mat-card-actions>
-        </mat-card>
+            <mat-card-content>
+              <h3 class="hotel-name-premium">{{ hotel.name }}</h3>
+              <div class="hotel-location-premium">
+                <mat-icon class="location-icon-premium">location_on</mat-icon>
+                <span>{{ hotel.address }}</span>
+              </div>
+              <div class="hotel-features">
+                <div class="feature-pill">
+                  <mat-icon>architecture</mat-icon>
+                  <span>Authentique</span>
+                </div>
+                <div class="feature-pill" *ngIf="hotel.rating && hotel.rating >= 4">
+                  <mat-icon>verified</mat-icon>
+                  <span>Excellence</span>
+                </div>
+                <div class="feature-pill">
+                  <mat-icon>explore</mat-icon>
+                  <span>UNESCO Nearby</span>
+                </div>
+              </div>
+              <p class="hotel-description-premium">{{ hotel.description || 'Experience authentic Moroccan hospitality in a beautifully restored heritage property' }}</p>
+              <div class="hotel-footer-premium">
+                <div class="price-block-premium">
+                  <span class="price-from">From</span>
+                  <span class="price-amount">{{ hotel.pricePerNight | currency }}</span>
+                  <span class="price-period">per night</span>
+                </div>
+                <div class="availability-info">
+                  <mat-icon>meeting_room</mat-icon>
+                  <span>{{ hotel.availableRooms }} rooms</span>
+                </div>
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="accent" routerLink="/hotels" class="view-property-btn">
+                <mat-icon>visibility</mat-icon>
+                <span>View Property</span>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
       </div>
       
       <div *ngIf="!loadingHotels && hotels.length === 0" class="empty-state">
@@ -583,35 +721,209 @@ interface Destination {
       </div>
     </div>
 
-    <!-- Customer Reviews Section -->
-    <div class="reviews-section">
+    <!-- NEW: Moroccan Gastronomy Journey Section -->
+    <div class="gastronomy-section">
       <div class="container">
-        <h2 class="section-title text-center mb-4">
-          <mat-icon class="section-icon">star</mat-icon>
-          What Travelers Say
-        </h2>
-        <p class="section-subtitle">Join thousands of satisfied customers</p>
+        <div class="gastronomy-header">
+          <span class="gastronomy-badge">
+            <mat-icon>restaurant</mat-icon>
+            Culinary Heritage
+          </span>
+          <h2 class="section-title text-center">
+            <mat-icon class="section-icon">restaurant_menu</mat-icon>
+            Moroccan Gastronomy Journey
+          </h2>
+          <p class="section-subtitle">Discover the rich flavors and culinary traditions of Morocco</p>
+        </div>
         
-        <div class="reviews-grid">
-          <mat-card class="review-card" *ngFor="let review of customerReviews">
-            <div class="review-header">
-              <div class="review-avatar">{{ review.initials }}</div>
-              <div class="review-author-info">
-                <h4 class="review-author">{{ review.name }}</h4>
-                <div class="review-rating">
-                  <mat-icon *ngFor="let star of [1,2,3,4,5]" class="star-icon">star</mat-icon>
+        <div class="gastronomy-timeline">
+          <div class="gastronomy-item">
+            <div class="gastronomy-card">
+              <div class="gastronomy-image" style="background-image: url('https://images.unsplash.com/photo-1596040033229-a0b3b69cc3f4?w=600&h=400&fit=crop');">
+                <div class="gastronomy-overlay"></div>
+              </div>
+              <div class="gastronomy-icon">
+                <mat-icon>restaurant</mat-icon>
+              </div>
+              <div class="gastronomy-content">
+                <h3 class="dish-name">Tagine</h3>
+                <p class="dish-origin">Marrakech</p>
+                <p class="dish-description">Slow-cooked savory stew with aromatic spices</p>
+                <button mat-stroked-button class="food-tour-btn">
+                  <mat-icon>explore</mat-icon>
+                  Food Tours
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="gastronomy-item">
+            <div class="gastronomy-card">
+              <div class="gastronomy-image" style="background-image: url('https://images.unsplash.com/photo-1645810722108-998f6e88c2c7?w=600&h=400&fit=crop');">
+                <div class="gastronomy-overlay"></div>
+              </div>
+              <div class="gastronomy-icon">
+                <mat-icon>cake</mat-icon>
+              </div>
+              <div class="gastronomy-content">
+                <h3 class="dish-name">Couscous</h3>
+                <p class="dish-origin">Fes</p>
+                <p class="dish-description">Traditional Friday dish with seven vegetables</p>
+                <button mat-stroked-button class="food-tour-btn">
+                  <mat-icon>explore</mat-icon>
+                  Food Tours
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="gastronomy-item">
+            <div class="gastronomy-card">
+              <div class="gastronomy-image" style="background-image: url('https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&h=400&fit=crop');">
+                <div class="gastronomy-overlay"></div>
+              </div>
+              <div class="gastronomy-icon">
+                <mat-icon>bakery_dining</mat-icon>
+              </div>
+              <div class="gastronomy-content">
+                <h3 class="dish-name">Pastilla</h3>
+                <p class="dish-origin">Rabat</p>
+                <p class="dish-description">Sweet and savory pigeon pie with almonds</p>
+                <button mat-stroked-button class="food-tour-btn">
+                  <mat-icon>explore</mat-icon>
+                  Food Tours
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="gastronomy-item">
+            <div class="gastronomy-card">
+              <div class="gastronomy-image" style="background-image: url('https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=600&h=400&fit=crop');">
+                <div class="gastronomy-overlay"></div>
+              </div>
+              <div class="gastronomy-icon">
+                <mat-icon>local_cafe</mat-icon>
+              </div>
+              <div class="gastronomy-content">
+                <h3 class="dish-name">Mint Tea Ritual</h3>
+                <p class="dish-origin">Nationwide</p>
+                <p class="dish-description">The art of Moroccan hospitality in a cup</p>
+                <button mat-stroked-button class="food-tour-btn">
+                  <mat-icon>explore</mat-icon>
+                  Food Tours
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="gastronomy-item">
+            <div class="gastronomy-card">
+              <div class="gastronomy-image" style="background-image: url('https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&h=400&fit=crop');">
+                <div class="gastronomy-overlay"></div>
+              </div>
+              <div class="gastronomy-icon">
+                <mat-icon>fastfood</mat-icon>
+              </div>
+              <div class="gastronomy-content">
+                <h3 class="dish-name">Street Food</h3>
+                <p class="dish-origin">Jemaa el-Fna</p>
+                <p class="dish-description">Authentic flavors from Marrakech's iconic square</p>
+                <button mat-stroked-button class="food-tour-btn">
+                  <mat-icon>explore</mat-icon>
+                  Food Tours
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Reviews Section - Traveler Stories from Morocco -->
+    <div class="reviews-section moroccan-stories">
+      <div class="container">
+        <div class="stories-header">
+          <span class="stories-badge">
+            <mat-icon>auto_stories</mat-icon>
+            Authentic Experiences
+          </span>
+          <h2 class="section-title text-center">
+            <mat-icon class="section-icon">star</mat-icon>
+            Traveler Stories from Morocco
+          </h2>
+          <p class="section-subtitle">Join thousands of satisfied travelers discovering the magic of Morocco</p>
+        </div>
+        
+        <div class="reviews-grid-premium">
+          <mat-card class="review-card-premium" *ngFor="let review of customerReviews">
+            <div class="review-moroccan-pattern"></div>
+            <div class="review-header-premium">
+              <div class="review-avatar-premium">{{ review.initials }}</div>
+              <div class="review-author-info-premium">
+                <h4 class="review-author-premium">{{ review.name }}</h4>
+                <div class="review-rating-premium">
+                  <mat-icon *ngFor="let star of [1,2,3,4,5]" class="star-icon-premium">star</mat-icon>
                 </div>
               </div>
             </div>
-            <p class="review-text">"{{ review.text }}"</p>
-            <div class="review-footer">
-              <mat-icon class="verified-icon">verified</mat-icon>
-              <span class="verified-text">Verified Traveler</span>
+            <p class="review-text-premium">"{{ review.text }}"</p>
+            <div class="review-footer-premium">
+              <mat-icon class="verified-icon-premium">verified</mat-icon>
+              <span class="verified-text-premium">Verified Traveler</span>
+            </div>
+            <div class="review-destination-badge">
+              <mat-icon>explore</mat-icon>
+              <span>Morocco Explorer</span>
             </div>
           </mat-card>
         </div>
       </div>
     </div>
+
+    <!-- Why Choose Us - Commercial Features -->
+    <section class="why-choose-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Why Choose VoyageConnect</h2>
+          <p class="section-subtitle">Your trusted partner for unforgettable travel experiences</p>
+        </div>
+        
+        <div class="features-commercial-grid">
+          <div class="feature-commercial-card">
+            <div class="feature-commercial-icon">
+              <mat-icon>verified_user</mat-icon>
+            </div>
+            <h3>Secure Booking</h3>
+            <p>Bank-level encryption and secure payment processing for your peace of mind</p>
+          </div>
+          
+          <div class="feature-commercial-card">
+            <div class="feature-commercial-icon">
+              <mat-icon>support_agent</mat-icon>
+            </div>
+            <h3>24/7 Support</h3>
+            <p>Multilingual customer service team available around the clock</p>
+          </div>
+          
+          <div class="feature-commercial-card">
+            <div class="feature-commercial-icon">
+              <mat-icon>payments</mat-icon>
+            </div>
+            <h3>Best Price Guarantee</h3>
+            <p>Find a lower price? We'll match it and give you 10% off</p>
+          </div>
+          
+          <div class="feature-commercial-card">
+            <div class="feature-commercial-icon">
+              <mat-icon>event_available</mat-icon>
+            </div>
+            <h3>Free Cancellation</h3>
+            <p>Cancel up to 24 hours before your trip for a full refund</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Newsletter Signup Section -->
     <div class="newsletter-section">
@@ -1222,20 +1534,86 @@ interface Destination {
     .container {
       max-width: 1280px;
       margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1.5rem;
+      }
+    }
+
+    .loading-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 0;
+      gap: 1rem;
+    }
+
+    .loading-text {
+      color: var(--deep-blue);
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 0;
+      color: var(--gray-900);
+    }
+
+    .empty-state .empty-icon {
+      font-size: 64px !important;
+      width: 64px !important;
+      height: 64px !important;
+      color: var(--sand);
+      opacity: 0.5;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--deep-blue);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--gray-900);
+      opacity: 0.7;
     }
 
     .section-title {
       font-family: 'Playfair Display', 'Georgia', serif;
-      font-size: 2.75rem;
+      font-size: 3rem;
       font-weight: 700;
       color: var(--navy-primary);
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 1.25rem;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.02em;
       line-height: 1.2;
+      position: relative;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--gold-accent);
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--gold-accent);
+      display: inline-block;
     }
 
     .section-icon {
@@ -1257,6 +1635,615 @@ interface Destination {
       line-height: 1.7;
       letter-spacing: 0.01em;
       font-family: 'Inter', sans-serif;
+    }
+
+    /* ============================================
+       DISCOVER MOROCCO SECTION - 4 Premium Cards
+       ============================================ */
+    .discover-morocco-section {
+      padding: 5rem 0;
+      background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+      position: relative;
+    }
+
+    .section-header::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+      margin: 1.5rem auto 0;
+      border-radius: 2px;
+    }
+
+    .discover-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .discover-card {
+      position: relative;
+      height: 450px;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .discover-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25), 0 0 0 2px var(--gold-accent);
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+      transition: background 0.4s;
+    }
+
+    .discover-card:hover .card-overlay {
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+    }
+
+    .card-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      color: white;
+      z-index: 2;
+    }
+
+    .card-icon {
+      font-size: 48px !important;
+      width: 48px !important;
+      height: 48px !important;
+      margin-bottom: 1rem;
+      color: var(--gold-accent);
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: white;
+      text-shadow: 0 3px 16px rgba(0,0,0,0.6);
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .card-subtitle {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.95);
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    @media (max-width: 1200px) {
+      .discover-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .discover-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================
+       DESTINATIONS GALLERY - Clean Grid
+       ============================================ */
+    .destinations-gallery-section {
+      padding: 5rem 0;
+      background: white;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+      .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .destination-card {
+      cursor: pointer;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      width: 100%;
+      min-height: 220px;
+    }
+
+    .destination-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold-accent), #f4d03f);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: 10;
+    }
+
+    .destination-card:hover::before {
+      opacity: 1;
+    }
+
+    .destination-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(212, 175, 55, 0.2);
+    }
+
+    .destination-image {
+      height: 220px;
+      width: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: relative;
+      transition: transform 0.4s;
+    }
+
+    .destination-card:hover .destination-image {
+      transform: scale(1.05);
+    }
+
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%);
+      transition: background 0.4s;
+    }
+
+    .destination-card:hover .image-overlay {
+      background: linear-gradient(180deg, rgba(212,175,55,0.2) 0%, rgba(0,0,0,0.75) 100%);
+    }
+
+    .destination-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.25rem;
+      color: white;
+      transform: translateY(0);
+      transition: transform 0.4s;
+    }
+
+    .destination-card:hover .destination-info {
+      transform: translateY(-4px);
+    }
+
+    .destination-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: white;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      letter-spacing: -0.01em;
+    }
+
+    .destination-country {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.95);
+      font-weight: 500;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+    }
+
+    .destination-country mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--gold-accent);
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* ============================================
+       TRAVEL SERVICES - Premium Blocks
+       ============================================ */
+    .travel-services-section {
+      padding: 6rem 0;
+      background: var(--gray-100);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+    }
+
+    .service-block {
+      background: var(--white-clean);
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-soft);
+      transition: var(--transition-smooth);
+      border-top: 4px solid var(--terracotta);
+    }
+
+    .service-block:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-medium);
+      border-top-color: var(--emerald);
+    }
+
+    .service-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .service-block:hover .service-icon-wrapper {
+      background: linear-gradient(135deg, var(--emerald) 0%, var(--emerald-light) 100%);
+    }
+
+    .service-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+      color: white;
+    }
+
+    .service-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      margin: 0 0 1rem 0;
+    }
+
+    .service-description {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--gray-900);
+      margin-bottom: 1.5rem;
+      opacity: 0.85;
+    }
+
+    .service-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+    }
+
+    .service-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      font-size: 0.95rem;
+      color: var(--gray-900);
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .service-features li:last-child {
+      border-bottom: none;
+    }
+
+    .service-features mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--emerald);
+    }
+
+    .service-cta {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+
+    /* ============================================
+       TRAVEL SERVICES - Flights & Hotels Blocks
+       ============================================ */
+    .travel-services-section {
+      padding: 5rem 0;
+      background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 968px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .service-block {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .service-block:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .service-icon-wrapper {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .flights-block .service-icon-wrapper {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .hotels-block .service-icon-wrapper {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .service-icon {
+      font-size: 32px !important;
+      width: 32px !important;
+      height: 32px !important;
+      color: white;
+    }
+
+    .service-title-wrapper h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin: 0 0 0.25rem 0;
+    }
+
+    .service-description {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .service-items {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .service-item {
+      padding: 1.25rem;
+      background: #f8f9fa;
+      border-radius: 12px;
+      transition: background 0.3s;
+    }
+
+    .service-item:hover {
+      background: #e9ecef;
+    }
+
+    .item-route {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .route-point {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--navy-primary);
+    }
+
+    .route-arrow {
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      color: var(--gold-accent);
+    }
+
+    .item-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-airline {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .item-price {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--gold-accent);
+    }
+
+    .item-info h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy-primary);
+      margin: 0 0 0.5rem 0;
+    }
+
+    .item-location {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .location-icon {
+      font-size: 16px !important;
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    .item-pricing {
+      text-align: right;
+    }
+
+    .item-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy-primary);
+      margin: 0 0 0.5rem 0;
+    }
+
+    .price-unit {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .service-cta {
+      width: 100%;
+      height: 48px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    /* ============================================
+       WHY CHOOSE US - Commercial Features
+       ============================================ */
+    .why-choose-section {
+      padding: 6rem 0;
+      background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    }
+
+    .features-commercial-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 1024px) {
+      .features-commercial-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .features-commercial-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-commercial-card {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      transition: all 0.3s;
+    }
+
+    .feature-commercial-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    .feature-commercial-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+    }
+
+    .feature-commercial-icon mat-icon {
+      font-size: 40px !important;
+      width: 40px !important;
+      height: 40px !important;
+      color: white;
+    }
+
+    .feature-commercial-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin-bottom: 1rem;
+    }
+
+    .feature-commercial-card p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin: 0;
     }
 
     /* ============================================
@@ -1519,13 +2506,13 @@ interface Destination {
        CTA SECTION - Call To Action
        ============================================ */
     .cta-section {
-      background: linear-gradient(135deg, var(--accent-color) 0%, var(--primary-color) 100%);
-      color: var(--white);
-      padding: var(--space-3xl) var(--space-lg);
+      background: linear-gradient(135deg, var(--terracotta) 0%, var(--deep-blue) 100%);
+      color: white;
+      padding: 5rem 2rem;
       text-align: center;
       position: relative;
       overflow: hidden;
-      margin-top: var(--space-3xl);
+      margin-top: 4rem;
     }
 
     .cta-section::before {
@@ -1544,65 +2531,67 @@ interface Destination {
     }
 
     .cta-content h2 {
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Playfair Display', serif;
       font-size: 2.75rem;
       font-weight: 700;
-      margin-bottom: var(--space-lg);
+      margin-bottom: 1.5rem;
       letter-spacing: -0.02em;
       text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
     .cta-content p {
       font-size: 1.25rem;
-      margin-bottom: var(--space-2xl);
+      margin-bottom: 2.5rem;
       opacity: 0.95;
       line-height: 1.6;
     }
 
+    .cta-buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
     .cta-btn {
-      padding: 0 var(--space-3xl) !important;
+      padding: 0 2.5rem !important;
       font-size: 1.125rem !important;
       height: 56px !important;
-      border-radius: var(--radius-full) !important;
+      border-radius: 50px !important;
       font-weight: 700 !important;
-      transition: all var(--transition-base) !important;
+      transition: var(--transition-smooth) !important;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 8px !important;
+      background: var(--emerald) !important;
     }
 
     .cta-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
-    }
-
-    .cta-buttons {
-      display: flex;
-      gap: var(--space-lg);
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: var(--space-2xl);
+      background: var(--emerald-light) !important;
     }
 
     .cta-btn-secondary {
-      padding: 0 var(--space-3xl) !important;
+      padding: 0 2.5rem !important;
       font-size: 1.125rem !important;
       height: 56px !important;
-      border-radius: var(--radius-full) !important;
+      border-radius: 50px !important;
       font-weight: 600 !important;
       background: transparent !important;
-      border: 2px solid var(--white) !important;
-      color: var(--white) !important;
-      transition: all var(--transition-base) !important;
+      border: 2px solid white !important;
+      color: white !important;
+      transition: var(--transition-smooth) !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 8px !important;
     }
 
     .cta-btn-secondary:hover {
-      background: var(--white) !important;
-      color: var(--primary-color) !important;
+      background: white !important;
+      color: var(--deep-blue) !important;
       transform: translateY(-3px);
     }
 
@@ -2545,6 +3534,1656 @@ interface Destination {
       }
     }
 
+    /* ============================================
+       MOROCCAN HERITAGE MOSAIC - DESTINATIONS
+       ============================================ */
+    .moroccan-heritage-mosaic {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .heritage-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .heritage-badge,
+    .navigator-badge,
+    .collection-badge,
+    .timeline-badge,
+    .gastronomy-badge,
+    .excellence-badge,
+    .stories-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      color: var(--navy-primary);
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    
+    .heritage-badge mat-icon,
+    .navigator-badge mat-icon,
+    .collection-badge mat-icon,
+    .timeline-badge mat-icon,
+    .gastronomy-badge mat-icon,
+    .excellence-badge mat-icon,
+    .stories-badge mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .destinations-mosaic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .destination-mosaic-card.morocco-large {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    
+    .destination-mosaic-card {
+      border-radius: 16px !important;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0 !important;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .destination-mosaic-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+      z-index: 10;
+    }
+    
+    .mosaic-image-container {
+      position: relative;
+      height: 100%;
+      min-height: 320px;
+    }
+    
+    .destination-mosaic-card.morocco-large .mosaic-image-container {
+      min-height: 500px;
+    }
+    
+    .mosaic-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .destination-mosaic-card:hover .mosaic-image {
+      transform: scale(1.1);
+    }
+    
+    .mosaic-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(10, 25, 47, 0.3) 50%,
+        rgba(10, 25, 47, 0.9) 100%
+      );
+      transition: opacity 0.4s;
+    }
+    
+    .destination-mosaic-card:hover .mosaic-gradient-overlay {
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(10, 25, 47, 0.5) 40%,
+        rgba(10, 25, 47, 0.95) 100%
+      );
+    }
+    
+    .mosaic-content {
+      position: absolute;
+      inset: 0;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 2;
+    }
+    
+    .mosaic-top-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .national-treasure-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      color: var(--navy-primary);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+    }
+    
+    .national-treasure-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .iata-badge {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    
+    .mosaic-main-info {
+      text-align: center;
+      color: white;
+    }
+    
+    .mosaic-city-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .destination-mosaic-card:hover .mosaic-city-name {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .mosaic-poetic-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--gold-accent);
+      margin: 0;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+    }
+    
+    .destination-mosaic-card:hover .mosaic-poetic-subtitle {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .mosaic-country {
+      font-size: 1rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .mosaic-actions {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+    }
+    
+    .destination-mosaic-card:hover .mosaic-actions {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .mosaic-action-btn {
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%) !important;
+      color: var(--navy-primary) !important;
+      font-weight: 600 !important;
+      padding: 12px 28px !important;
+      border-radius: 30px !important;
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4) !important;
+    }
+
+    /* ============================================
+       MOROCCAN EXPERIENCES TIMELINE - TRENDING
+       ============================================ */
+    .moroccan-timeline {
+      background: linear-gradient(135deg, var(--navy-primary) 0%, #0f3460 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .moroccan-timeline::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212, 175, 55, 0.03) 40px, rgba(212, 175, 55, 0.03) 80px),
+        repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(166, 75, 42, 0.02) 40px, rgba(166, 75, 42, 0.02) 80px);
+      opacity: 0.5;
+    }
+    
+    .timeline-header {
+      text-align: center;
+      padding: 3rem 0;
+      color: white;
+    }
+    
+    .timeline-header .section-title {
+      color: white;
+    }
+    
+    .timeline-header .section-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .timeline-scroll-container {
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-accent) rgba(255, 255, 255, 0.1);
+      padding: 2rem 0;
+    }
+    
+    .timeline-scroll-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .timeline-scroll-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .timeline-scroll-container::-webkit-scrollbar-thumb {
+      background: var(--gold-accent);
+      border-radius: 4px;
+    }
+    
+    .timeline-track {
+      display: flex;
+      gap: 2rem;
+      padding: 0 2rem 2rem;
+      min-width: min-content;
+    }
+    
+    .timeline-chapter {
+      flex: 0 0 320px;
+      position: relative;
+    }
+    
+    .timeline-chapter.special-chapter {
+      flex: 0 0 340px;
+    }
+    
+    .chapter-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      height: 100%;
+    }
+    
+    .chapter-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .chapter-card.world-cup-card {
+      background: linear-gradient(135deg, #1a365d 0%, #0f3460 100%);
+      border: 2px solid var(--gold-accent);
+    }
+    
+    .chapter-date {
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .month-badge {
+      background: var(--gold-accent);
+      color: var(--navy-primary);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    
+    .month-badge.fifa-badge {
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      font-size: 1rem;
+      padding: 8px 20px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .chapter-icon {
+      color: var(--navy-primary);
+    }
+    
+    .chapter-image {
+      position: relative;
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .chapter-image.world-cup-bg {
+      background: linear-gradient(135deg, rgba(26, 54, 93, 0.9) 0%, rgba(15, 52, 96, 0.8) 100%),
+                  url('https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=600&h=400&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .chapter-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--navy-primary);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .growth-indicator {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(0, 200, 100, 0.95);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .growth-indicator mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .animated-ball {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: ballBounce 2s infinite ease-in-out;
+    }
+    
+    .animated-ball mat-icon {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+      color: var(--gold-accent);
+      filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.5));
+    }
+    
+    @keyframes ballBounce {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+      50% { transform: translate(-50%, -50%) translateY(-20px) rotate(180deg); }
+    }
+    
+    .chapter-content {
+      padding: 1.5rem;
+    }
+    
+    .world-cup-card .chapter-content {
+      color: white;
+    }
+    
+    .chapter-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .chapter-subtitle {
+      color: var(--text-secondary);
+      margin: 0 0 1rem 0;
+    }
+    
+    .world-cup-card .chapter-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .chapter-experience {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1rem;
+      padding: 8px 12px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 12px;
+    }
+    
+    .world-cup-card .chapter-experience {
+      background: rgba(212, 175, 55, 0.2);
+    }
+    
+    .experience-icon {
+      color: var(--gold-accent);
+    }
+    
+    .experience-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .chapter-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .world-cup-card .chapter-footer {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .chapter-price {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy-primary);
+    }
+    
+    .world-cup-card .chapter-price {
+      color: var(--gold-accent);
+    }
+    
+    .explore-chapter-btn {
+      background: var(--gold-accent) !important;
+      color: var(--navy-primary) !important;
+    }
+    
+    .timeline-scroll-hint {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 1rem 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+    
+    .timeline-scroll-hint mat-icon {
+      animation: swipeHint 2s infinite ease-in-out;
+    }
+    
+    @keyframes swipeHint {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(10px); }
+    }
+
+    /* ============================================
+       FLIGHT NAVIGATOR PREMIUM
+       ============================================ */
+    .flight-navigator-premium {
+      position: relative;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    .flight-header-premium {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .morocco-map-background {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 600px;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><path d="M50,50 L150,50 L160,100 L150,200 L100,250 L50,200 Z" fill="%231a365d" opacity="0.05"/></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .airport-dot {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cmn-dot { top: 20%; left: 40%; }
+    .rak-dot { top: 50%; left: 35%; }
+    .fez-dot { top: 35%; left: 55%; }
+    .aga-dot { top: 70%; left: 30%; }
+    
+    .dot-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--gold-accent);
+      opacity: 0.6;
+      animation: dotPulse 2s infinite;
+    }
+    
+    @keyframes dotPulse {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 0.3; }
+      100% { transform: scale(0.8); opacity: 0.6; }
+    }
+    
+    .dot-label {
+      position: relative;
+      z-index: 2;
+      background: var(--navy-primary);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .flights-premium-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .flight-path-card {
+      border-radius: 20px !important;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent !important;
+      background: white !important;
+    }
+    
+    .flight-path-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+      border-color: var(--gold-accent) !important;
+    }
+    
+    .flight-path-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .airline-logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .airline-logo-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--navy-primary) 0%, #0f3460 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(26, 54, 93, 0.3);
+    }
+    
+    .airline-logo-circle.ram-airline {
+      background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+    }
+    
+    .airline-icon {
+      color: white;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    .airline-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .airline-name-premium {
+      font-weight: 600;
+      color: var(--navy-primary);
+    }
+    
+    .flight-number-premium {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .direct-route-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #00c896 0%, #00a876 100%);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 200, 150, 0.3);
+    }
+    
+    .direct-route-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .flight-route-visual {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 50%, rgba(212, 175, 55, 0.05) 100%);
+    }
+    
+    .route-point-premium {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .route-point-premium.morocco-destination {
+      position: relative;
+    }
+    
+    .route-point-premium.morocco-destination::after {
+      content: '🇲🇦';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 1.2rem;
+    }
+    
+    .route-icon-premium {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--gold-accent);
+    }
+    
+    .route-info {
+      text-align: center;
+    }
+    
+    .airport-code {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+    }
+    
+    .airport-city {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .flight-path-line {
+      flex: 1;
+      position: relative;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        var(--navy-primary) 0%, 
+        var(--gold-accent) 50%, 
+        var(--navy-primary) 100%
+      );
+      margin: 0 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .animated-plane {
+      position: relative;
+      animation: flyPlane 3s infinite ease-in-out;
+    }
+    
+    .animated-plane mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: var(--gold-accent);
+      transform: rotate(90deg);
+    }
+    
+    @keyframes flyPlane {
+      0%, 100% { transform: translateX(-50px); }
+      50% { transform: translateX(50px); }
+    }
+    
+    .flight-duration {
+      position: absolute;
+      top: -24px;
+      background: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--navy-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+    }
+    
+    .flight-details-premium {
+      padding: 1.5rem;
+    }
+    
+    .detail-row-premium {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .detail-item-premium {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(212, 175, 55, 0.05);
+      border-radius: 12px;
+    }
+    
+    .detail-icon-premium {
+      color: var(--gold-accent);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .detail-content {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .detail-label-premium {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .detail-value-premium {
+      font-weight: 600;
+      color: var(--navy-primary);
+    }
+    
+    .flight-meta-info {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .meta-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(26, 54, 93, 0.05);
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+    
+    .meta-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--navy-primary);
+    }
+    
+    .flight-price-premium {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .price-tag {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .price-label-premium {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    
+    .price-value-premium {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      line-height: 1;
+    }
+    
+    .price-unit-premium {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .urgency-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #ff6b6b;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .urgency-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .book-flight-premium {
+      width: 100%;
+      height: 52px !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%) !important;
+      color: var(--navy-primary) !important;
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4) !important;
+      transition: all 0.3s !important;
+    }
+    
+    .book-flight-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(212, 175, 55, 0.5) !important;
+    }
+
+    /* ============================================
+       RIAD & PALACE COLLECTION - HOTELS
+       ============================================ */
+    .riad-palace-collection {
+      background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    }
+    
+    .collection-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .hotels-carousel-3d {
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 2rem 0;
+    }
+    
+    .hotels-carousel-3d::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .hotels-carousel-3d::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+    
+    .hotels-carousel-3d::-webkit-scrollbar-thumb {
+      background: var(--gold-accent);
+      border-radius: 4px;
+    }
+    
+    .carousel-track {
+      display: flex;
+      gap: 2rem;
+      padding: 0 2rem;
+      min-width: min-content;
+    }
+    
+    .hotel-collection-card {
+      flex: 0 0 360px;
+      border-radius: 20px !important;
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      background: white !important;
+      border: 2px solid transparent !important;
+      position: relative;
+    }
+    
+    .hotel-collection-card:hover {
+      transform: translateY(-12px) rotateY(2deg);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2) !important;
+      border-color: var(--gold-accent) !important;
+    }
+    
+    .hotel-category-badge {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      color: var(--navy-primary);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+    }
+    
+    .hotel-category-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .hotel-image-wrapper {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+    }
+    
+    .hotel-collection-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hotel-collection-card:hover .hotel-collection-image {
+      transform: scale(1.1);
+    }
+    
+    .hotel-image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(10, 25, 47, 0.2) 70%,
+        rgba(10, 25, 47, 0.6) 100%
+      );
+    }
+    
+    .hotel-rating-premium {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(10px);
+      padding: 10px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .rating-stars {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .rating-stars mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: #e0e0e0;
+    }
+    
+    .rating-stars mat-icon.filled {
+      color: var(--gold-accent);
+    }
+    
+    .rating-value {
+      font-weight: 600;
+      color: var(--navy-primary);
+      font-size: 0.9rem;
+    }
+    
+    .hotel-name-premium {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .hotel-location-premium {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .location-icon-premium {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--gold-accent);
+    }
+    
+    .hotel-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(212, 175, 55, 0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--navy-primary);
+    }
+    
+    .feature-pill mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: var(--gold-accent);
+    }
+    
+    .hotel-description-premium {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    
+    .hotel-footer-premium {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .price-block-premium {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .price-from {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+    
+    .price-amount {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      line-height: 1;
+    }
+    
+    .price-period {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .availability-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .availability-info mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--gold-accent);
+    }
+    
+    .view-property-btn {
+      width: 100%;
+      height: 48px !important;
+      font-weight: 600 !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%) !important;
+      color: var(--navy-primary) !important;
+      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3) !important;
+    }
+    
+    .view-property-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(212, 175, 55, 0.4) !important;
+    }
+
+    /* ============================================
+       MOROCCAN GASTRONOMY JOURNEY
+       ============================================ */
+    .gastronomy-section {
+      background: linear-gradient(135deg, #0f3460 0%, var(--navy-primary) 100%);
+      position: relative;
+      padding: 5rem 0;
+      overflow: hidden;
+    }
+    
+    .gastronomy-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        repeating-linear-gradient(60deg, transparent, transparent 30px, rgba(212, 175, 55, 0.02) 30px, rgba(212, 175, 55, 0.02) 60px),
+        repeating-linear-gradient(-60deg, transparent, transparent 30px, rgba(166, 75, 42, 0.015) 30px, rgba(166, 75, 42, 0.015) 60px);
+      opacity: 0.6;
+    }
+    
+    .gastronomy-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .gastronomy-header .section-title,
+    .gastronomy-header .section-subtitle {
+      color: white;
+    }
+    
+    .gastronomy-header .section-subtitle {
+      opacity: 0.9;
+    }
+    
+    .gastronomy-timeline {
+      display: flex;
+      gap: 2rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 2rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-accent) rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .gastronomy-timeline::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .gastronomy-timeline::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .gastronomy-timeline::-webkit-scrollbar-thumb {
+      background: var(--gold-accent);
+      border-radius: 4px;
+    }
+    
+    .gastronomy-item {
+      flex: 0 0 300px;
+    }
+    
+    .gastronomy-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    .gastronomy-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .gastronomy-image {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    
+    .gastronomy-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(10, 25, 47, 0.3) 70%,
+        rgba(10, 25, 47, 0.8) 100%
+      );
+    }
+    
+    .gastronomy-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s;
+    }
+    
+    .gastronomy-card:hover .gastronomy-icon {
+      transform: translate(-50%, -50%) scale(1.15) rotate(360deg);
+    }
+    
+    .gastronomy-icon mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: var(--gold-accent);
+    }
+    
+    .gastronomy-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .dish-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .dish-origin {
+      color: var(--gold-accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .dish-origin::before {
+      content: '📍';
+      font-size: 1rem;
+    }
+    
+    .dish-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0 0 1.5rem 0;
+      flex: 1;
+    }
+    
+    .food-tour-btn {
+      width: 100%;
+      border-color: var(--gold-accent) !important;
+      color: var(--gold-accent) !important;
+      font-weight: 600 !important;
+      transition: all 0.3s !important;
+    }
+    
+    .food-tour-btn:hover {
+      background: var(--gold-accent) !important;
+      color: var(--navy-primary) !important;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       MOROCCAN EXCELLENCE - FEATURES ENHANCED
+       ============================================ */
+    .moroccan-excellence {
+      position: relative;
+      background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    }
+    
+    .moroccan-pattern-bg {
+      position: absolute;
+      inset: 0;
+      background: 
+        repeating-linear-gradient(45deg, transparent, transparent 60px, rgba(212, 175, 55, 0.02) 60px, rgba(212, 175, 55, 0.02) 120px),
+        repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(166, 75, 42, 0.015) 60px, rgba(166, 75, 42, 0.015) 120px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .excellence-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .features-grid-premium {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card-premium {
+      padding: 2rem !important;
+      border-radius: 20px !important;
+      border: 2px solid transparent !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      background: white !important;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card-premium::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold-accent) 0%, #f4d03f 100%);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .feature-card-premium:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .feature-card-premium:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+      border-color: var(--gold-accent) !important;
+    }
+    
+    .feature-card-premium.feature-card-highlight {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, white 100%) !important;
+      border-color: var(--gold-accent) !important;
+    }
+    
+    .feature-icon-wrapper-premium {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+    }
+    
+    .feature-card-premium:hover .feature-icon-wrapper-premium {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 12px 28px rgba(212, 175, 55, 0.4);
+    }
+    
+    .feature-card-premium h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .feature-card-premium p {
+      text-align: center;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    
+    .traveler-quote {
+      background: rgba(212, 175, 55, 0.08);
+      padding: 1rem;
+      border-radius: 12px;
+      border-left: 3px solid var(--gold-accent);
+      margin-top: 1rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .feature-card-premium:hover .traveler-quote {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .traveler-quote mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--gold-accent);
+      vertical-align: text-top;
+    }
+    
+    .traveler-quote p {
+      margin: 0;
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--navy-primary);
+      text-align: left;
+    }
+
+    /* ============================================
+       MOROCCAN STORIES - REVIEWS ENHANCED
+       ============================================ */
+    .moroccan-stories {
+      background: linear-gradient(135deg, #0a192f 0%, #0f3460 100%);
+      position: relative;
+    }
+    
+    .moroccan-stories::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        repeating-linear-gradient(30deg, transparent, transparent 40px, rgba(212, 175, 55, 0.03) 40px, rgba(212, 175, 55, 0.03) 80px);
+      opacity: 0.4;
+    }
+    
+    .stories-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .stories-header .section-title,
+    .stories-header .section-subtitle {
+      color: white;
+    }
+    
+    .reviews-grid-premium {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .review-card-premium {
+      padding: 2rem !important;
+      border-radius: 20px !important;
+      background: white !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent !important;
+    }
+    
+    .review-moroccan-pattern {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(212, 175, 55, 0.05) 10px, rgba(212, 175, 55, 0.05) 20px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    
+    .review-card-premium:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+      border-color: var(--gold-accent) !important;
+    }
+    
+    .review-header-premium {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .review-avatar-premium {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--navy-primary);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    
+    .review-author-info-premium {
+      flex: 1;
+    }
+    
+    .review-author-premium {
+      font-weight: 700;
+      color: var(--navy-primary);
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+    }
+    
+    .review-rating-premium {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .star-icon-premium {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--gold-accent);
+    }
+    
+    .review-text-premium {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .review-footer-premium {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .verified-icon-premium {
+      color: #00c896;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .verified-text-premium {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .review-destination-badge {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(212, 175, 55, 0.1);
+      color: var(--gold-accent);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      z-index: 1;
+    }
+    
+    .review-destination-badge mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
     @media (max-width: 768px) {
       .hero-section {
         min-height: 90vh;
@@ -2836,6 +5475,83 @@ interface Destination {
       .cta-content h2 {
         font-size: 1.75rem;
       }
+      
+      /* Moroccan Heritage Mosaic - Mobile */
+      .destinations-mosaic-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .destination-mosaic-card.morocco-large {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+      
+      .mosaic-city-name {
+        font-size: 1.75rem;
+      }
+      
+      /* Timeline - Mobile */
+      .timeline-chapter {
+        flex: 0 0 280px;
+      }
+      
+      .timeline-chapter.special-chapter {
+        flex: 0 0 300px;
+      }
+      
+      /* Flights Navigator - Mobile */
+      .flights-premium-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .morocco-map-background {
+        width: 300px;
+        height: 400px;
+      }
+      
+      .flight-route-visual {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .flight-path-line {
+        width: 2px;
+        height: 60px;
+        margin: 0;
+      }
+      
+      .animated-plane mat-icon {
+        transform: rotate(180deg);
+      }
+      
+      @keyframes flyPlane {
+        0%, 100% { transform: translateY(-20px); }
+        50% { transform: translateY(20px); }
+      }
+      
+      /* Hotels Collection - Mobile */
+      .hotel-collection-card {
+        flex: 0 0 300px;
+      }
+      
+      /* Gastronomy - Mobile */
+      .gastronomy-item {
+        flex: 0 0 280px;
+      }
+      
+      /* Features Grid - Mobile */
+      .features-grid-premium {
+        grid-template-columns: 1fr;
+      }
+      
+      .feature-card-premium.feature-card-highlight {
+        grid-column: 1;
+      }
+      
+      /* Reviews - Mobile */
+      .reviews-grid-premium {
+        grid-template-columns: 1fr;
+      }
     }
   `]
 })
@@ -2948,7 +5664,9 @@ export class HomeComponent implements OnInit {
       image: 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=600&h=400&fit=crop',
       badge: 'HOT DEAL',
       growth: '+45%',
-      price: '$299'
+      price: '$299',
+      month: 'Janvier',
+      icon: 'mosque'
     },
     { 
       city: 'Dubai', 
@@ -2956,7 +5674,9 @@ export class HomeComponent implements OnInit {
       image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&h=400&fit=crop',
       badge: 'POPULAR',
       growth: '+38%',
-      price: '$599'
+      price: '$599',
+      month: 'Février',
+      icon: 'apartment'
     },
     { 
       city: 'Paris', 
@@ -2964,7 +5684,9 @@ export class HomeComponent implements OnInit {
       image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&h=400&fit=crop',
       badge: 'TRENDING',
       growth: '+32%',
-      price: '$499'
+      price: '$499',
+      month: 'Mars',
+      icon: 'museum'
     },
     { 
       city: 'Tokyo', 
@@ -2972,7 +5694,9 @@ export class HomeComponent implements OnInit {
       image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&h=400&fit=crop',
       badge: 'NEW',
       growth: '+29%',
-      price: '$799'
+      price: '$799',
+      month: 'Avril',
+      icon: 'temple_buddhist'
     }
   ];
   
@@ -3455,5 +6179,105 @@ export class HomeComponent implements OnInit {
         this.loadingHotels = false;
       }
     });
+  }
+  
+  // Helper functions for Moroccan Heritage Redesign
+  getMoroccanPoetry(dest: Destination): string {
+    const poetryMap: { [key: string]: string } = {
+      'Casablanca': 'La Perle de l\'Atlantique',
+      'Marrakech': 'La Perle du Sud - Ville Impériale',
+      'Rabat': 'Capitale Lumière et Modernité',
+      'Fes': 'Capitale Spirituelle - Cité Millénaire',
+      'Tangier': 'Porte de l\'Afrique sur la Méditerranée',
+      'Agadir': 'Perle du Souss - Plage et Soleil',
+      'Chefchaouen': 'La Perle Bleue du Rif',
+      'Essaouira': 'Cité des Alizés - Charme Atlantique',
+      'Meknes': 'Cité Impériale - Héritage Ismaïlien'
+    };
+    const cityName = dest.city || dest.name;
+    return poetryMap[cityName] || 'Joyau du Royaume Chérifien';
+  }
+  
+  getExperienceIcon(city: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Marrakech': 'mosque',
+      'Dubai': 'apartment',
+      'Paris': 'museum',
+      'Tokyo': 'temple_buddhist',
+      'Casablanca': 'account_balance',
+      'Fes': 'auto_stories',
+      'Rabat': 'monument',
+      'Tangier': 'sailing',
+      'Agadir': 'beach_access'
+    };
+    return iconMap[city] || 'explore';
+  }
+  
+  getExperienceText(city: string): string {
+    const textMap: { [key: string]: string } = {
+      'Marrakech': 'Medina & Souks Experience',
+      'Dubai': 'Modern Luxury',
+      'Paris': 'Art & Culture',
+      'Tokyo': 'Zen & Technology',
+      'Casablanca': 'Hassan II Mosque',
+      'Fes': 'Medieval Medina',
+      'Rabat': 'Royal Heritage',
+      'Tangier': 'Mediterranean Gateway',
+      'Agadir': 'Beach Paradise'
+    };
+    return textMap[city] || 'Cultural Discovery';
+  }
+  
+  isDirectFlight(flight: any): boolean {
+    // Check if flight has direct route indicator or no stops
+    return !flight.stops || flight.stops === 0 || flight.duration?.includes('direct');
+  }
+  
+  getFlightOrigin(departure: any): string {
+    // Extract airport code from departure time string or return default
+    if (typeof departure === 'string' && departure.length === 3) {
+      return departure;
+    }
+    return 'INT';
+  }
+  
+  getFlightDestination(arrival: any): string {
+    // Extract airport code from arrival time string or return Morocco code
+    if (typeof arrival === 'string' && arrival.length === 3) {
+      return arrival;
+    }
+    return 'CMN';
+  }
+  
+  getHotelCategory(hotel: Hotel): string {
+    const name = hotel.name.toLowerCase();
+    if (name.includes('riad') || name.includes('dar')) {
+      return 'riad';
+    } else if (name.includes('palace') || name.includes('royal') || hotel.rating && hotel.rating >= 4.5) {
+      return 'palace';
+    } else if (name.includes('eco') || name.includes('desert') || name.includes('kasbah')) {
+      return 'ecolodge';
+    }
+    return 'hotel';
+  }
+  
+  getCategoryIcon(category: string): string {
+    const icons: { [key: string]: string } = {
+      'riad': 'water_drop',
+      'palace': 'castle',
+      'ecolodge': 'nature',
+      'hotel': 'hotel'
+    };
+    return icons[category] || 'hotel';
+  }
+  
+  getCategoryLabel(category: string): string {
+    const labels: { [key: string]: string } = {
+      'riad': 'Riad Traditionnel',
+      'palace': 'Palais Royal',
+      'ecolodge': 'Éco-Lodge Désert',
+      'hotel': 'Hôtel Premium'
+    };
+    return labels[category] || 'Premium Hotel';
   }
 }
