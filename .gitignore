@@ -1,0 +1,57 @@
+# Backend (Maven/Spring Boot)
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/bin/
+backend/.DS_Store
+backend/*.iml
+
+# Sensitive Configuration Files (IMPORTANT: Never commit with real API keys!)
+backend/src/main/resources/application.yml
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-*.yml
+**/application-secrets.yml
+
+# Frontend (Angular)
+frontend/dist/
+frontend/out-tsc/
+frontend/node_modules/
+frontend/.angular/cache/
+frontend/.angular/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Dependencies
+node_modules/
+.npm
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System
+.env
+.env.local
+.env.*.local
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+/coverage
+
+# Misc
+.nyc_output/
+dist/
