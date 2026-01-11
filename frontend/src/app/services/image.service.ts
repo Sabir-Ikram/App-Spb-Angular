@@ -273,7 +273,8 @@ export class ImageService {
         map(response => {
           if (response.results && response.results.length > 0) {
             const photo = response.results[0];
-            const url = this.getOptimizedUrl(photo.urls[size], imageType);
+            // Use raw URL for maximum quality and apply our own optimization
+            const url = this.getOptimizedUrl(photo.urls.raw, imageType);
             const altText = photo.alt_description || query;
             
             // Cache the result
@@ -303,29 +304,32 @@ export class ImageService {
    * Optimize Unsplash URL with quality and size parameters
    */
   private getOptimizedUrl(url: string, imageType: 'destination' | 'hotel' | 'hero' | 'general' = 'general'): string {
-    // Add Unsplash optimization parameters with higher quality
+    // Add Unsplash optimization parameters for crystal clear images
     const optimizedUrl = new URL(url);
     
-    // Set quality and format
-    optimizedUrl.searchParams.set('q', '90'); // Higher quality (was 80)
-    optimizedUrl.searchParams.set('fm', 'jpg'); // Format
-    optimizedUrl.searchParams.set('fit', 'crop'); // Fit
+    // Set quality to maximum
+    optimizedUrl.searchParams.set('q', '100'); // Maximum quality
+    optimizedUrl.searchParams.set('fm', 'jpg'); // JPEG format
+    optimizedUrl.searchParams.set('fit', 'max'); // Maximum fit without cropping quality
     
-    // Set appropriate width based on image type
+    // Set appropriate width based on image type - maximum resolutions
     const widths = {
-      destination: '1200',  // Destination cards
-      hotel: '1200',        // Hotel cards - higher resolution
-      hero: '1920',         // Hero images
-      general: '1000'       // General images
+      destination: '2400',  // Destination cards - maximum quality
+      hotel: '2400',        // Hotel cards - maximum quality
+      hero: '3840',         // Hero images - 4K quality
+      general: '2000'       // General images
     };
     
     optimizedUrl.searchParams.set('w', widths[imageType]);
     
-    // Add auto format for best quality/size ratio
-    optimizedUrl.searchParams.set('auto', 'format');
+    // Remove any existing height to maintain aspect ratio
+    optimizedUrl.searchParams.delete('h');
     
-    // Add sharpness for crisp images
-    optimizedUrl.searchParams.set('sharp', '10');
+    // Add auto format for best quality
+    optimizedUrl.searchParams.set('auto', 'format,compress');
+    
+    // No sharpening - let the original image quality shine
+    optimizedUrl.searchParams.delete('sharp');
     
     return optimizedUrl.toString();
   }

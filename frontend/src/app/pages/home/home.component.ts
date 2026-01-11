@@ -1,16 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { RouterModule } from '@angular/router';
 import { DestinationService } from '../../services/destination.service';
 import { HotelService, Hotel } from '../../services/hotel.service';
 import { FlightService } from '../../services/flight.service';
 import { ImageService } from '../../services/image.service';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { of, Observable } from 'rxjs';
 
 interface Destination {
   id: string;
@@ -26,7 +30,7 @@ interface Destination {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatIconModule, MatProgressSpinnerModule, MatAutocompleteModule, RouterModule],
   template: `
     <!-- PREMIUM HERO SECTION - Booking.com Style with Dynamic Moroccan Monuments -->
     <div class="hero-section" [style.background-image]="heroImage ? 'url(' + heroImage + ')' : 'none'">
@@ -46,8 +50,8 @@ interface Destination {
             <span class="title-static">Find Your Perfect</span>
             <span class="title-animated">{{ displayedText }}<span class="cursor">|</span></span>
           </h1>
-          <p class="hero-main-subtitle">Search hotels, flights and packages across Morocco • Compare prices • Book instantly</p>
         </div>
+        <p class="hero-main-subtitle">Search hotels, flights and packages across Morocco • Compare prices • Book instantly</p>
 
         <!-- PREMIUM SEARCH WIDGET - Booking.com Style -->
         <div class="search-widget-premium">
@@ -85,17 +89,33 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="Where are you going?"
-                         [(ngModel)]="searchDestination">
+                         [formControl]="hotelDestinationControl"
+                         [matAutocomplete]="autoHotelDest">
                   <label class="floating-label">Destination</label>
+                  <mat-autocomplete #autoHotelDest="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of hotelDestinations" [value]="dest">
+                      <mat-icon>place</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
-                <div class="form-field-premium form-field-dates">
+                <div class="form-field-premium form-field-checkin">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
-                         placeholder="Check in — Check out"
-                         [(ngModel)]="searchDates">
-                  <label class="floating-label">Check-in — Check-out</label>
+                         placeholder="Check-in"
+                         [(ngModel)]="searchCheckIn">
+                  <label class="floating-label">Check-in</label>
+                </div>
+                
+                <div class="form-field-premium form-field-checkout">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-out"
+                         [(ngModel)]="searchCheckOut">
+                  <label class="floating-label">Check-out</label>
                 </div>
                 
                 <div class="form-field-premium form-field-guests">
@@ -122,8 +142,15 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="From: City or airport"
-                         [(ngModel)]="searchFrom">
+                         [formControl]="flightFromControl"
+                         [matAutocomplete]="autoFlightFrom">
                   <label class="floating-label">From</label>
+                  <mat-autocomplete #autoFlightFrom="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of flightFromDestinations" [value]="dest">
+                      <mat-icon>flight_takeoff</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
                 <div class="form-field-premium form-field-to">
@@ -131,13 +158,20 @@ interface Destination {
                   <input type="text" 
                          class="premium-input" 
                          placeholder="To: City or airport"
-                         [(ngModel)]="searchTo">
+                         [formControl]="flightToControl"
+                         [matAutocomplete]="autoFlightTo">
                   <label class="floating-label">To</label>
+                  <mat-autocomplete #autoFlightTo="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of flightToDestinations" [value]="dest">
+                      <mat-icon>flight_land</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
                 <div class="form-field-premium form-field-departure">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
                          placeholder="Departure date"
                          [(ngModel)]="searchDeparture">
@@ -146,7 +180,7 @@ interface Destination {
                 
                 <div class="form-field-premium form-field-return">
                   <mat-icon class="field-icon">event</mat-icon>
-                  <input type="text" 
+                  <input type="date" 
                          class="premium-input" 
                          placeholder="Return date"
                          [(ngModel)]="searchReturn">
@@ -163,22 +197,54 @@ interface Destination {
             <!-- PACKAGES TAB CONTENT -->
             <div class="search-form-content" *ngIf="activeSearchTab === 'packages'">
               <div class="form-row-premium">
-                <div class="form-field-premium form-field-destination">
-                  <mat-icon class="field-icon">card_travel</mat-icon>
+                <div class="form-field-premium form-field-from">
+                  <mat-icon class="field-icon">flight_takeoff</mat-icon>
                   <input type="text" 
                          class="premium-input" 
-                         placeholder="Where to?"
-                         [(ngModel)]="searchPackageDestination">
-                  <label class="floating-label">Destination</label>
+                         placeholder="From: Your city"
+                         [formControl]="packageFromControl"
+                         [matAutocomplete]="autoPackageFrom">
+                  <label class="floating-label">From</label>
+                  <mat-autocomplete #autoPackageFrom="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of packageFromDestinations" [value]="dest">
+                      <mat-icon>flight_takeoff</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
                 </div>
                 
-                <div class="form-field-premium form-field-dates">
-                  <mat-icon class="field-icon">event</mat-icon>
+                <div class="form-field-premium form-field-destination">
+                  <mat-icon class="field-icon">flight_land</mat-icon>
                   <input type="text" 
                          class="premium-input" 
-                         placeholder="Travel dates"
-                         [(ngModel)]="searchPackageDates">
-                  <label class="floating-label">Dates</label>
+                         placeholder="To: Destination"
+                         [formControl]="packageDestinationControl"
+                         [matAutocomplete]="autoPackageDest">
+                  <label class="floating-label">To</label>
+                  <mat-autocomplete #autoPackageDest="matAutocomplete" [displayWith]="displayDestination">
+                    <mat-option *ngFor="let dest of packageDestinations" [value]="dest">
+                      <mat-icon>place</mat-icon>
+                      {{dest.name}} ({{dest.iataCode}}) - {{dest.country}}
+                    </mat-option>
+                  </mat-autocomplete>
+                </div>
+                
+                <div class="form-field-premium form-field-departure">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-in / Departure"
+                         [(ngModel)]="searchPackageDepartureDate">
+                  <label class="floating-label">Depart</label>
+                </div>
+                
+                <div class="form-field-premium form-field-return">
+                  <mat-icon class="field-icon">event</mat-icon>
+                  <input type="date" 
+                         class="premium-input" 
+                         placeholder="Check-out / Return"
+                         [(ngModel)]="searchPackageReturnDate">
+                  <label class="floating-label">Return</label>
                 </div>
                 
                 <div class="form-field-premium form-field-travelers">
@@ -190,11 +256,11 @@ interface Destination {
                   <label class="floating-label">Travelers</label>
                 </div>
                 
-                <button class="search-btn-premium" routerLink="/search">
+                <button class="search-btn-premium" (click)="onSearchPackages()">
                   <mat-icon>search</mat-icon>
                   <span>Search</span>
                 </button>
-              </div>(click)="onSearchPackages()
+              </div>
             </div>
 
           </div>
@@ -202,15 +268,15 @@ interface Destination {
 
         <!-- Feature Badges - Booking.com Style -->
         <div class="hero-trust-badges">
-          <div class="trust-badge">
+          <div class="trust-badge trust-badge-glass">
             <mat-icon>verified</mat-icon>
             <span>Best Price Guarantee</span>
           </div>
-          <div class="trust-badge">
+          <div class="trust-badge trust-badge-glass">
             <mat-icon>schedule</mat-icon>
             <span>Free Cancellation</span>
           </div>
-          <div class="trust-badge">
+          <div class="trust-badge trust-badge-glass">
             <mat-icon>support_agent</mat-icon>
             <span>24/7 Customer Support</span>
           </div>
@@ -592,37 +658,48 @@ interface Destination {
   `,
   styles: [`
     /* ============================================
-       PREMIUM HOME PAGE STYLES
-       Modern, Clean, Professional Design
+       LUXURY TRAVEL PLATFORM - PREMIUM REDESIGN
+       Elegant Booking Experience - Gold & Navy
        ============================================ */
     
     :host {
       display: block;
       background: var(--gray-50);
+      --gold-accent: #d4af37;
+      --navy-primary: #0a192f;
+      --navy-secondary: #172a45;
+      --white-glass: rgba(255, 255, 255, 0.92);
+      --shadow-luxury: 0 32px 64px rgba(0, 0, 0, 0.12);
+      --shadow-hover: 0 40px 80px rgba(0, 0, 0, 0.18);
+      --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     /* ============================================
-       PREMIUM HERO SECTION - Booking.com Style
-       PROFESSIONAL COMMERCIAL-GRADE DESIGN
+       LUXURY HERO SECTION - PREMIUM ELEVATION
        ============================================ */
     .hero-section {
       position: relative;
-      min-height: 100vh;
+      min-height: 85vh;
       display: flex;
       align-items: center;
       justify-content: center;
       background-size: cover;
       background-position: center center;
       background-repeat: no-repeat;
-      background-color: #003b95;
+      background-color: var(--navy-primary);
       overflow: hidden;
-      transition: background-image 1.5s ease-in-out;
+      transition: background-image 2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+      background: linear-gradient(
+        135deg,
+        rgba(10, 25, 47, 0.35) 0%,
+        rgba(15, 52, 96, 0.45) 50%,
+        rgba(10, 25, 47, 0.55) 100%
+      );
       z-index: 1;
     }
 
@@ -630,16 +707,20 @@ interface Destination {
       position: relative;
       z-index: 2;
       width: 100%;
-      max-width: 1140px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: var(--space-3xl) var(--space-lg);
-      animation: slideUp 1s ease-out;
+      padding: 4rem 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @keyframes slideUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
       }
       to {
         opacity: 1;
@@ -647,49 +728,94 @@ interface Destination {
       }
     }
 
-    /* Hero Headline - Premium Typography */
+    /* Monument Info Badge - Semi-Transparent Glass */
+    .monument-info-badge {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      padding: 14px 28px;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.02em;
+      z-index: 10;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .monument-info-badge mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #ffffff;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Hero Headline - Luxury Typography */
     .hero-headline {
       text-align: center;
-      margin-bottom: var(--space-2xl);
-      animation: fadeInUp 1s ease-out;
+      margin-bottom: 0;
     }
 
     .hero-main-title {
-      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 3.5rem;
-      font-weight: 800;
-      line-height: 1.2;
+      font-family: 'Playfair Display', 'Georgia', serif;
+      font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1.15;
       color: #ffffff;
-      margin: 0 0 var(--space-md) 0;
-      letter-spacing: -0.02em;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      margin: 1rem 0 0.5rem 0;
+      letter-spacing: -0.025em;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .title-static {
       display: block;
-      font-size: 2.5rem;
-      font-weight: 600;
+      font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+      font-weight: 400;
       opacity: 0.95;
+      font-style: italic;
     }
 
     .title-animated {
       display: block;
-      font-size: 3.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #f4d03f 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      min-height: 80px;
+      min-height: clamp(60px, 10vw, 100px);
     }
 
     .cursor {
-      color: #ffd700;
+      color: var(--gold-accent);
       animation: blink 1s step-end infinite;
-      -webkit-text-fill-color: #ffd700;
+      -webkit-text-fill-color: var(--gold-accent);
     }
 
     @keyframes blink {
@@ -700,7 +826,7 @@ interface Destination {
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
       }
       to {
         opacity: 1;
@@ -708,78 +834,58 @@ interface Destination {
       }
     }
 
-    /* Monument Info Badge */
-    .monument-info-badge {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      padding: 8px 16px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 0.875rem;
-      z-index: 2;
-      animation: slideInLeft 1s ease-out;
-    }
-
-    .monument-info-badge mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    @keyframes slideInLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
     .hero-main-subtitle {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 300;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: clamp(1.125rem, 2.25vw, 1.375rem);
+      font-weight: 400;
       color: rgba(255, 255, 255, 0.95);
-      margin: 0;
-      letter-spacing: 0.01em;
-      text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+      margin: 0.5rem auto 0;
+      letter-spacing: 0.025em;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+      line-height: 1.7;
+      max-width: 700px;
+      text-align: center;
+      animation: none !important;
+      transform: none !important;
     }
 
-    /* PREMIUM SEARCH WIDGET - Booking.com Exact Style */
+    /* LUXURY SEARCH WIDGET - Premium Booking.com Style */
     .search-widget-premium {
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 1180px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1);
       overflow: hidden;
-      animation: scaleIn 0.6s ease-out 0.3s both;
+      animation: scaleInLuxury 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+      transition: var(--transition-smooth);
     }
 
-    @keyframes scaleIn {
+    .search-widget-premium:hover {
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18), 0 10px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    @keyframes scaleInLuxury {
       from {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.92) translateY(30px);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) translateY(0);
       }
     }
 
-    /* Tabbed Navigation - Premium */
+    /* Premium Tabs - Booking.com Style */
     .search-tabs-premium {
       display: flex;
-      background: #f7f9fa;
-      border-bottom: 1px solid #e7e8e9;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border-bottom: 2px solid #e2e8f0;
+      padding: 0;
     }
 
     .search-tab-premium {
@@ -792,23 +898,25 @@ interface Destination {
       background: transparent;
       border: none;
       border-bottom: 3px solid transparent;
-      color: #6b6c6f;
+      color: #64748b;
       font-size: 1rem;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       position: relative;
     }
 
     .search-tab-premium:hover {
-      color: #003b95;
-      background: rgba(0, 59, 149, 0.03);
+      color: #1e293b;
+      background: rgba(226, 232, 240, 0.3);
     }
 
     .search-tab-premium.active {
-      color: #003b95;
+      color: var(--gold-accent);
+      font-weight: 700;
+      border-bottom-color: var(--gold-accent);
       background: #ffffff;
-      border-bottom-color: #006ce4;
     }
 
     .search-tab-premium mat-icon {
@@ -817,9 +925,9 @@ interface Destination {
       height: 22px;
     }
 
-    /* Search Form Container */
+    /* Premium Form Container */
     .search-form-premium {
-      padding: 32px;
+      padding: 1.75rem 1.5rem;
       background: #ffffff;
     }
 
@@ -827,146 +935,262 @@ interface Destination {
       animation: fadeIn 0.3s ease-out;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .form-row-premium {
       display: grid;
-      grid-template-columns: 2fr 2fr 1.5fr auto;
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
       align-items: end;
     }
 
-    /* Premium Form Fields */
+    @media (min-width: 1024px) {
+      .form-row-premium {
+        grid-template-columns: repeat(4, 1fr) auto;
+        gap: 1rem;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .form-row-premium {
+        grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr auto;
+        gap: 1rem;
+      }
+    }
+
+    /* Premium Form Fields - Booking.com Style */
     .form-field-premium {
       position: relative;
       background: #ffffff;
-      border: 2px solid #e7e8e9;
-      border-radius: 6px;
-      padding: 20px 16px 8px 48px;
-      transition: all 0.2s ease;
-      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 12px 8px 44px;
+      transition: all 0.3s ease;
+      cursor: text;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .form-field-premium:hover {
-      border-color: #003b95;
-      box-shadow: 0 2px 8px rgba(0, 59, 149, 0.1);
+      border-color: #94a3b8;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .form-field-premium:focus-within {
-      border-color: #006ce4;
-      box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.15);
+      border-color: var(--gold-accent);
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+      background: #ffffff;
     }
 
     .form-field-premium .field-icon {
       position: absolute;
-      left: 16px;
+      left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: #6b6c6f;
+      color: var(--gold-accent);
       font-size: 20px;
       width: 20px;
       height: 20px;
-      transition: color 0.2s ease;
-    }
-
-    .form-field-premium:focus-within .field-icon {
-      color: #006ce4;
+      transition: all 0.3s ease;
     }
 
     .premium-input {
       width: 100%;
       border: none;
       outline: none;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #262626;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      color: #1e293b;
       background: transparent;
       padding: 0;
+      margin-top: 2px;
     }
 
     .premium-input::placeholder {
-      color: #bbb;
+      color: #94a3b8;
       font-weight: 400;
+    }
+
+    .premium-input:focus {
+      color: #0f172a;
+    }
+
+    /* Modern date inputs */
+    .premium-input[type="date"] {
+      font-family: 'Inter', sans-serif;
+      color: #1e293b;
+      cursor: pointer;
+    }
+
+    .premium-input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .premium-input[type="date"]:hover::-webkit-calendar-picker-indicator {
+      opacity: 1;
     }
 
     .floating-label {
       position: absolute;
-      left: 48px;
-      top: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b6c6f;
+      left: 44px;
+      top: 6px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.08em;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+      pointer-events: none;
     }
 
-    /* Search Button - Premium Gradient */
+    .form-field-premium:focus-within .floating-label {
+      color: var(--gold-accent);
+    }
+
+    /* Premium Search Button - Booking.com Style */
     .search-btn-premium {
-      background: linear-gradient(135deg, #006ce4 0%, #003b95 100%);
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #b8941f 100%);
       color: #ffffff;
       border: none;
-      border-radius: 6px;
-      padding: 0 48px;
-      height: 64px;
-      font-size: 1.125rem;
+      border-radius: 8px;
+      padding: 0 2rem;
+      min-height: 56px;
+      font-size: 1rem;
       font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.02em;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 108, 228, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
       white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-btn-premium::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .search-btn-premium:hover::before {
+      left: 100%;
     }
 
     .search-btn-premium:hover {
-      transform: scale(1.02);
-      box-shadow: 0 6px 20px rgba(0, 108, 228, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.45);
     }
 
     .search-btn-premium:active {
-      transform: scale(0.98);
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35);
     }
 
     .search-btn-premium mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
-    /* Trust Badges - Booking.com Style */
+    /* Trust Badges - Elegant Redesign */
     .hero-trust-badges {
       display: flex;
+      gap: 16px;
       justify-content: center;
-      gap: var(--space-xl);
-      margin-top: var(--space-2xl);
       flex-wrap: wrap;
-      animation: fadeIn 0.8s ease-out 0.6s both;
+      animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
     }
 
     .trust-badge {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 24px;
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
       border-radius: 50px;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
       color: #ffffff;
-      font-size: 0.9375rem;
       font-weight: 600;
-      transition: all 0.2s ease;
+      font-size: 0.875rem;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.02em;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: var(--transition-smooth);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .trust-badge:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
     .trust-badge mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
+      color: #ffffff;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+
+    /* Luxury Autocomplete Dropdown Styling */
+    ::ng-deep .mat-mdc-autocomplete-panel {
+      margin-top: 10px;
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+    }
+
+    ::ng-deep .mat-mdc-option {
+      padding: 20px 28px;
+      min-height: 68px;
+      border-bottom: 1px solid rgba(10, 25, 47, 0.05);
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--navy-primary);
+      transition: var(--transition-smooth);
+      letter-spacing: 0.01em;
+    }
+
+    ::ng-deep .mat-mdc-option:last-child {
+      border-bottom: none;
+    }
+
+    ::ng-deep .mat-mdc-option:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--navy-primary);
+      font-weight: 700;
     }
 
     /* ============================================
@@ -976,7 +1200,7 @@ interface Destination {
     .destinations-section,
     .flights-section,
     .hotels-section {
-      padding: var(--space-3xl) var(--space-lg);
+      padding: 5rem 2rem;
     }
 
     .features-section {
@@ -1001,33 +1225,38 @@ interface Destination {
     }
 
     .section-title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 2.25rem;
+      font-family: 'Playfair Display', 'Georgia', serif;
+      font-size: 2.75rem;
       font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: var(--space-md);
+      color: var(--navy-primary);
+      margin-bottom: 2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-md);
-      letter-spacing: -0.02em;
+      gap: 1.25rem;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
     }
 
     .section-icon {
-      font-size: 36px !important;
-      width: 36px !important;
-      height: 36px !important;
-      color: var(--primary-color);
+      font-size: 40px !important;
+      width: 40px !important;
+      height: 40px !important;
+      color: var(--gold-accent);
     }
 
     .section-subtitle {
       text-align: center;
-      font-size: 1.125rem;
+      font-size: 1.25rem;
+      font-weight: 400;
       color: var(--text-secondary);
-      margin-bottom: var(--space-2xl);
-      max-width: 600px;
+      margin-bottom: 3.5rem;
+      max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      line-height: 1.7;
+      letter-spacing: 0.01em;
+      font-family: 'Inter', sans-serif;
     }
 
     /* ============================================
@@ -1163,6 +1392,12 @@ interface Destination {
       object-fit: cover;
       transition: all 0.5s ease;
       filter: grayscale(30%);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
     
     .destination-card:hover .destination-image {
@@ -1760,6 +1995,12 @@ interface Destination {
       height: 100%;
       object-fit: cover;
       transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
 
     .hotel-image-placeholder {
@@ -2283,7 +2524,7 @@ interface Destination {
     }
 
     /* ============================================
-       RESPONSIVE DESIGN
+       RESPONSIVE DESIGN - LUXURY MAINTAINED
        ============================================ */
     @media (max-width: 1024px) {
       .destinations-grid, .flights-grid, .hotels-grid {
@@ -2293,71 +2534,181 @@ interface Destination {
       .features-grid {
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       }
+
+      .hero-content-wrapper {
+        padding: 3rem var(--space-lg);
+        gap: 2.5rem;
+      }
+
+      .search-widget-premium {
+        max-width: 95%;
+      }
     }
 
     @media (max-width: 768px) {
       .hero-section {
-        min-height: 80vh;
+        min-height: 90vh;
       }
 
       .hero-content-wrapper {
-        padding: var(--space-xl) var(--space-md);
+        padding: 2.5rem var(--space-md);
+        gap: 2rem;
       }
 
       .hero-main-title {
-        font-size: 2rem;
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
       }
 
       .title-static {
-        font-size: 1.5rem;
+        font-size: clamp(1.25rem, 4vw, 1.75rem);
       }
 
       .title-animated {
-        font-size: 2rem;
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
         min-height: 50px;
       }
 
       .hero-main-subtitle {
         font-size: 1rem;
+        padding: 0 1rem;
       }
 
       .monument-info-badge {
-        font-size: 0.75rem;
-        padding: 6px 12px;
-        top: 10px;
-        left: 10px;
+        font-size: 0.7rem;
+        padding: 10px 16px;
+        top: 12px;
+        left: 12px;
+        border-radius: 24px;
       }
 
-      /* Premium search widget responsive */
+      /* Luxury search widget responsive */
       .search-widget-premium {
-        border-radius: 8px;
+        border-radius: 16px;
+        max-width: 98%;
       }
 
       .search-tabs-premium {
         overflow-x: auto;
+        padding: 8px 20px;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
       }
 
       .search-tab-premium {
-        padding: 14px 16px;
-        font-size: 0.9375rem;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        min-width: max-content;
       }
 
       .search-form-premium {
-        padding: 20px;
+        padding: 28px 20px;
       }
 
       .form-row-premium {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 14px;
       }
 
       .form-field-premium {
-        padding: 18px 16px 8px 48px;
+        padding: 20px 16px 10px 52px;
+        min-height: 68px;
+      }
+
+      .premium-input {
+        font-size: 1rem;
       }
 
       .search-btn-premium {
         width: 100%;
+        padding: 0 32px;
+        min-height: 68px;
+        font-size: 1rem;
+      }
+
+      .hero-trust-badges {
+        gap: 16px;
+      }
+
+      .trust-badge {
+        padding: 14px 22px;
+        font-size: 0.85rem;
+        gap: 10px;
+      }
+
+      .trust-badge mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-section {
+        min-height: 100vh;
+      }
+
+      .hero-content-wrapper {
+        padding: 2rem 1rem;
+        gap: 1.5rem;
+      }
+
+      .monument-info-badge {
+        font-size: 0.65rem;
+        padding: 8px 12px;
+        top: 8px;
+        left: 8px;
+      }
+
+      .search-widget-premium {
+        border-radius: 12px;
+      }
+
+      .search-form-premium {
+        padding: 20px 16px;
+      }
+
+      .form-field-premium {
+        min-height: 64px;
+        padding: 18px 12px 8px 48px;
+      }
+
+      .form-field-premium .field-icon {
+        left: 14px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .floating-label {
+        left: 48px;
+        font-size: 0.65rem;
+      }
+
+      .search-btn-premium {
+        min-height: 64px;
         padding: 0 24px;
+        font-size: 0.95rem;
+      }
+
+      .trust-badge {
+        padding: 12px 18px;
+        font-size: 0.8rem;
+        gap: 8px;
+        border-radius: 40px;
+      }
+
+      .trust-badge mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      .section-title {
+        font-size: 1.75rem;
+      }
+
+      .section-subtitle {
+        font-size: 1rem;
       }
 
       .hero-trust-badges {
@@ -2367,10 +2718,6 @@ interface Destination {
       .trust-badge {
         font-size: 0.875rem;
         padding: 10px 18px;
-      }
-
-      .section-title {
-        font-size: 1.875rem;
       }
 
       .destinations-grid, .flights-grid, .hotels-grid {
@@ -2553,6 +2900,8 @@ export class HomeComponent implements OnInit {
   
   // Search form fields
   searchDestination = '';
+  searchCheckIn = '';
+  searchCheckOut = '';
   searchDates = '';
   searchGuests = '';
   searchFrom = '';
@@ -2561,7 +2910,35 @@ export class HomeComponent implements OnInit {
   searchReturn = '';
   searchPackageDestination = '';
   searchPackageDates = '';
+  searchPackageDepartureDate = '';
+  searchPackageReturnDate = '';
   searchPackageTravelers = '';
+  
+  // Date defaults for proper display
+  todayDate = new Date().toISOString().split('T')[0];
+  tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  nextWeekDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  // Autocomplete FormControls
+  hotelDestinationControl = new FormControl('');
+  flightFromControl = new FormControl('');
+  flightToControl = new FormControl('');
+  packageFromControl = new FormControl('');
+  packageDestinationControl = new FormControl('');
+  
+  // Autocomplete filtered lists
+  hotelDestinations: Destination[] = [];
+  flightFromDestinations: Destination[] = [];
+  flightToDestinations: Destination[] = [];
+  packageFromDestinations: Destination[] = [];
+  packageDestinations: Destination[] = [];
+  
+  // Selected destinations
+  selectedHotelDestination: Destination | null = null;
+  selectedFlightFrom: Destination | null = null;
+  selectedFlightTo: Destination | null = null;
+  selectedPackageFrom: Destination | null = null;
+  selectedPackageDestination: Destination | null = null;
   
   // Trending destinations data
   trendingDestinations = [
@@ -2631,11 +3008,26 @@ export class HomeComponent implements OnInit {
 
   // Search handlers
   onSearchHotels(): void {
-    if (this.searchDestination) {
+    const destination = this.selectedHotelDestination || this.hotelDestinationControl.value;
+    
+    if (destination && typeof destination === 'object') {
+      // Navigate with the destination city name
       this.router.navigate(['/hotels'], { 
         queryParams: { 
-          destination: this.searchDestination,
-          dates: this.searchDates,
+          city: destination.name || destination.city,
+          iataCode: destination.iataCode,
+          checkIn: this.searchCheckIn,
+          checkOut: this.searchCheckOut,
+          guests: this.searchGuests
+        }
+      });
+    } else if (typeof destination === 'string' && destination.trim()) {
+      // User typed a string without selecting from dropdown
+      this.router.navigate(['/hotels'], { 
+        queryParams: { 
+          city: destination.trim(),
+          checkIn: this.searchCheckIn,
+          checkOut: this.searchCheckOut,
           guests: this.searchGuests
         }
       });
@@ -2645,32 +3037,200 @@ export class HomeComponent implements OnInit {
   }
 
   onSearchFlights(): void {
-    if (this.searchFrom || this.searchTo) {
-      this.router.navigate(['/search'], { 
-        queryParams: { 
-          from: this.searchFrom,
-          to: this.searchTo,
-          departure: this.searchDeparture,
-          return: this.searchReturn
-        }
-      });
-    } else {
-      this.router.navigate(['/search']);
+    const fromDest = this.selectedFlightFrom || this.flightFromControl.value;
+    const toDest = this.selectedFlightTo || this.flightToControl.value;
+    
+    let queryParams: any = {
+      departure: this.searchDeparture,
+      return: this.searchReturn
+    };
+    
+    if (fromDest && typeof fromDest === 'object') {
+      queryParams.originLocationCode = fromDest.iataCode;
+      queryParams.from = fromDest.name;
+    } else if (typeof fromDest === 'string' && fromDest.trim()) {
+      queryParams.from = fromDest.trim();
     }
+    
+    if (toDest && typeof toDest === 'object') {
+      queryParams.destinationLocationCode = toDest.iataCode;
+      queryParams.to = toDest.name;
+    } else if (typeof toDest === 'string' && toDest.trim()) {
+      queryParams.to = toDest.trim();
+    }
+    
+    this.router.navigate(['/search'], { queryParams });
   }
 
   onSearchPackages(): void {
-    if (this.searchPackageDestination) {
-      this.router.navigate(['/search'], { 
-        queryParams: { 
-          destination: this.searchPackageDestination,
-          dates: this.searchPackageDates,
-          travelers: this.searchPackageTravelers
-        }
-      });
-    } else {
-      this.router.navigate(['/search']);
+    const origin = this.selectedPackageFrom || this.packageFromControl.value;
+    const destination = this.selectedPackageDestination || this.packageDestinationControl.value;
+    
+    let queryParams: any = {
+      packageMode: 'true',
+      departure: this.searchPackageDepartureDate,
+      return: this.searchPackageReturnDate,
+      travelers: this.searchPackageTravelers
+    };
+    
+    // Add origin parameters
+    if (origin && typeof origin === 'object') {
+      queryParams.originLocationCode = origin.iataCode;
+      queryParams.from = origin.name;
+    } else if (typeof origin === 'string' && origin.trim()) {
+      queryParams.from = origin.trim();
     }
+    
+    // Add destination parameters
+    if (destination && typeof destination === 'object') {
+      queryParams.destinationLocationCode = destination.iataCode;
+      queryParams.to = destination.name;
+      queryParams.city = destination.name;
+      queryParams.iataCode = destination.iataCode;
+    } else if (typeof destination === 'string' && destination.trim()) {
+      queryParams.to = destination.trim();
+      queryParams.city = destination.trim();
+    }
+    
+    this.router.navigate(['/search'], { queryParams });
+  }
+
+  /**
+   * Setup autocomplete for destination search fields
+   */
+  setupAutocomplete(): void {
+    // Hotel destination autocomplete
+    this.hotelDestinationControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.hotelDestinations = destinations;
+        },
+        error: (err) => console.error('Hotel destination search error:', err)
+      });
+
+    // Flight From autocomplete
+    this.flightFromControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.flightFromDestinations = destinations;
+        },
+        error: (err) => console.error('Flight from search error:', err)
+      });
+
+    // Flight To autocomplete
+    this.flightToControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.flightToDestinations = destinations;
+        },
+        error: (err) => console.error('Flight to search error:', err)
+      });
+
+    // Track selected values
+    this.hotelDestinationControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedHotelDestination = value;
+      }
+    });
+
+    this.flightFromControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedFlightFrom = value;
+      }
+    });
+
+    this.flightToControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedFlightTo = value;
+      }
+    });
+
+    // Package from autocomplete
+    this.packageFromControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.packageFromDestinations = destinations;
+        },
+        error: (err) => console.error('Package from search error:', err)
+      });
+
+    this.packageFromControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedPackageFrom = value;
+      }
+    });
+
+    // Package destination autocomplete
+    this.packageDestinationControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(value => {
+          if (typeof value === 'string' && value.length >= 2) {
+            return this.destinationService.search(value);
+          }
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (destinations) => {
+          this.packageDestinations = destinations;
+        },
+        error: (err) => console.error('Package destination search error:', err)
+      });
+
+    this.packageDestinationControl.valueChanges.subscribe(value => {
+      if (typeof value === 'object' && value !== null) {
+        this.selectedPackageDestination = value;
+      }
+    });
+  }
+
+  /**
+   * Display function for autocomplete
+   */
+  displayDestination(destination: any): string {
+    return destination && typeof destination === 'object' ? destination.name : '';
   }
 
   /**
@@ -2702,12 +3262,21 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Initialize dates with defaults
+    this.searchCheckIn = this.tomorrowDate;
+    this.searchCheckOut = this.nextWeekDate;
+    this.searchDeparture = this.todayDate;
+    this.searchReturn = this.nextWeekDate;
+    this.searchPackageDepartureDate = this.todayDate;
+    this.searchPackageReturnDate = this.nextWeekDate;
+    
     this.loadHeroImage();
     this.loadDestinations();
     this.loadHotels();
     this.loadFlights();
     this.startImageRotation();
     this.startTextAnimation();
+    this.setupAutocomplete();
   }
   
   private loadHeroImage(): void {
@@ -2785,7 +3354,7 @@ export class HomeComponent implements OnInit {
           if (results && results.length > 0) {
             const destination: Destination = results[0] as any;
             // Load image for destination
-            this.imageService.getDestinationImage(city, 'skyline', 'regular').subscribe({
+            this.imageService.getDestinationImage(city, 'landmark', 'full').subscribe({
               next: (imageResult) => {
                 destination.imageUrl = imageResult.url;
                 destination.imageAlt = imageResult.altText;
@@ -2859,16 +3428,17 @@ export class HomeComponent implements OnInit {
         console.log(`✓ Booking hotels (${city}):`, results);
         this.hotels = results;
         
-        // Enhance hotels with high-quality Unsplash images
-        this.hotels.forEach(hotel => {
+        // Enhance hotels with high-quality Unsplash images ONLY if they don't have images
+        this.hotels.forEach((hotel, index) => {
           // Check if hotel already has a good image from Booking.com API
           const hasBookingImage = hotel.imageUrl && 
                                   !hotel.imageUrl.includes('unsplash.com') && 
                                   hotel.imageUrl.startsWith('http');
           
-          // If no Booking.com image, or fallback image, load from Unsplash
+          // Only load from Unsplash if no Booking.com image exists
           if (!hasBookingImage) {
-            this.imageService.getHotelImage(city, 'exterior', 'regular').subscribe({
+            const orientation = index % 2 === 0 ? 'exterior' : 'lobby';
+            this.imageService.getHotelImage(city, orientation, 'full').subscribe({
               next: (imageResult) => {
                 hotel.imageUrl = imageResult.url;
               },

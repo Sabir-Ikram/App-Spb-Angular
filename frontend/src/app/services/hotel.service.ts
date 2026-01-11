@@ -93,6 +93,13 @@ export class HotelService {
     const rating = prop.review_score ? Math.min(Math.round(prop.review_score / 2), 5) : 
                    (prop.class || 4);
     
+    // Get the best quality image URL from Booking.com
+    let imageUrl = prop.max_photo_url || prop.main_photo_url || 
+                   'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
+    
+    // Upgrade Booking.com image URLs to maximum quality
+    imageUrl = this.upgradeBookingImageQuality(imageUrl);
+    
     return {
       id: prop.hotel_id || (1000 + index),
       name: prop.hotel_name_trans || prop.hotel_name || 'Hotel',
@@ -101,10 +108,42 @@ export class HotelService {
       destinationId: 1,
       address: prop.address_trans || prop.address || (prop.city || 'City Center'),
       rating: rating,
-      imageUrl: prop.max_photo_url || prop.main_photo_url || 
-                'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop',
+      imageUrl: imageUrl,
       description: `${rating}-star hotel in ${prop.city || 'the city'}`
     };
+  }
+
+  /**
+   * Upgrade Booking.com image URLs to maximum quality
+   * Booking.com uses different size parameters in their URLs
+   */
+  private upgradeBookingImageQuality(url: string): string {
+    if (!url || !url.includes('booking.com')) {
+      return url;
+    }
+
+    try {
+      const urlObj = new URL(url);
+      
+      // Replace common Booking.com size parameters with MAXIMUM QUALITY (Full HD 1920x1080)
+      // Typical patterns: square60, square200, max300, max500, etc.
+      let path = urlObj.pathname;
+      
+      // Replace size indicators with max quality - Full HD resolution
+      path = path.replace(/square\d+/gi, 'max1920x1080');
+      path = path.replace(/max\d+/gi, 'max1920x1080');
+      path = path.replace(/\d+x\d+/g, '1920x1080');
+      
+      urlObj.pathname = path;
+      
+      // Add quality parameters if supported
+      urlObj.searchParams.set('quality', '100');
+      
+      return urlObj.toString();
+    } catch (e) {
+      // If URL parsing fails, return original
+      return url;
+    }
   }
 
   getById(id: number): Observable<Hotel> {
