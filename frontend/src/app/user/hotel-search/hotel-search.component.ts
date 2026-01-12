@@ -37,742 +37,1252 @@ import { of } from 'rxjs';
     MatAutocompleteModule
   ],
   template: `
-    <div class="search-page">
-      <!-- Hero Section -->
-      <div class="search-hero">
-        <div class="search-hero-content">
-          <mat-icon class="hero-icon">hotel</mat-icon>
-          <h1 class="hero-title">Find Your Perfect Stay</h1>
-          <p class="hero-subtitle">Discover and book hotels worldwide • Over 2,800+ properties powered by Booking.com</p>
+    <div class="hotel-search-premium">
+      <!-- Luxury Hero with Background -->
+      <div class="luxury-hero">
+        <div class="hero-background"></div>
+        <div class="hero-gradient-overlay"></div>
+        <div class="hero-content-container">
+          <div class="hero-badge-luxury">
+            <mat-icon>apartment</mat-icon>
+            <span>Luxury Accommodations</span>
+          </div>
+          <h1 class="hero-heading-luxury">Experience Extraordinary Stays</h1>
+          <p class="hero-text-luxury">Discover handpicked hotels and resorts across the globe • Powered by Booking.com with 2,800+ premium properties</p>
+          
+          <!-- Inline Luxury Search Card -->
+          <div class="luxury-search-inline">
+            <form (submit)="onSearch()">
+              <div class="search-fields-grid">
+                <div class="field-container">
+                  <mat-form-field appearance="outline" class="luxury-field">
+                    <mat-label>Destination</mat-label>
+                    <mat-icon matPrefix>location_city</mat-icon>
+                    <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" placeholder="Where to?" required />
+                    <mat-autocomplete #autoCity="matAutocomplete" [displayWith]="displayCity">
+                      <mat-option *ngFor="let dest of cityDestinations" [value]="dest">
+                        <div class="luxury-autocomplete-option">
+                          <div class="option-icon-wrapper">
+                            <mat-icon>place</mat-icon>
+                          </div>
+                          <div class="option-content">
+                            <span class="option-city">{{dest.name}}</span>
+                            <span class="option-details">{{dest.iataCode}} • {{dest.country}}</span>
+                          </div>
+                        </div>
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-container">
+                  <mat-form-field appearance="outline" class="luxury-field">
+                    <mat-label>Check-in</mat-label>
+                    <mat-icon matPrefix>event_available</mat-icon>
+                    <input matInput [matDatepicker]="pickerIn" [(ngModel)]="checkInDate" name="checkInDate" placeholder="Arrival" required />
+                    <mat-datepicker-toggle matSuffix [for]="pickerIn"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerIn></mat-datepicker>
+                  </mat-form-field>
+                </div>
+
+                <div class="field-container">
+                  <mat-form-field appearance="outline" class="luxury-field">
+                    <mat-label>Check-out</mat-label>
+                    <mat-icon matPrefix>event_busy</mat-icon>
+                    <input matInput [matDatepicker]="pickerOut" [(ngModel)]="checkOutDate" name="checkOutDate" placeholder="Departure" required />
+                    <mat-datepicker-toggle matSuffix [for]="pickerOut"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerOut></mat-datepicker>
+                  </mat-form-field>
+                </div>
+
+                <button mat-raised-button type="submit" class="luxury-search-button" [disabled]="loading">
+                  <mat-icon>${'{{loading ? "hourglass_empty" : "search"}}'}</mat-icon>
+                  <span>${'{{loading ? "Searching..." : "Find Hotels"}}'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 
-      <!-- Search Form -->
-      <mat-card class="search-container">
-        <mat-card-content>
-          <form (submit)="onSearch()">
-            <h2 class="form-heading">
-              <mat-icon>search</mat-icon>
-              <span>Search Hotels</span>
-            </h2>
-            
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>City / Location</mat-label>
-                <mat-icon matPrefix>location_on</mat-icon>
-                <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" placeholder="e.g., Paris, London, Casablanca" required />
-                <mat-hint>Select your destination city</mat-hint>
-                <mat-autocomplete #autoCity="matAutocomplete" [displayWith]="displayCity">
-                  <mat-option *ngFor="let dest of cityDestinations" [value]="dest">
-                    <mat-icon>place</mat-icon>
-                    ${'{{dest.name}}'} (${'{{dest.iataCode}}'}) - ${'{{dest.country}}'}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
+      <!-- Premium Loading State -->
+      <div *ngIf="loading" class="luxury-loading">
+        <div class="loading-spinner-wrapper">
+          <mat-icon class="spinner-icon">apartment</mat-icon>
+          <div class="loading-rings">
+            <div class="ring"></div>
+            <div class="ring"></div>
+            <div class="ring"></div>
+          </div>
+        </div>
+        <h3 class="loading-heading">Curating Premium Stays</h3>
+        <p class="loading-subtext">Searching through ${'{{currentLimit}}'} exceptional properties</p>
+      </div>
 
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Check-in Date</mat-label>
-                <mat-icon matPrefix>event</mat-icon>
-                <input matInput [matDatepicker]="pickerIn" [(ngModel)]="checkInDate" name="checkInDate" placeholder="Select date" required />
-                <mat-hint>When will you arrive?</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="pickerIn"></mat-datepicker-toggle>
-                <mat-datepicker #pickerIn></mat-datepicker>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Check-out Date</mat-label>
-                <mat-icon matPrefix>event</mat-icon>
-                <input matInput [matDatepicker]="pickerOut" [(ngModel)]="checkOutDate" name="checkOutDate" placeholder="Select date" required />
-                <mat-hint>When will you leave?</mat-hint>
-                <mat-datepicker-toggle matSuffix [for]="pickerOut"></mat-datepicker-toggle>
-                <mat-datepicker #pickerOut></mat-datepicker>
-              </mat-form-field>
+      <!-- Premium Results Section -->
+      <div class="luxury-results-wrapper" *ngIf="!loading && hotels.length > 0">
+        <div class="results-header-luxury">
+          <div class="header-left">
+            <mat-icon class="results-icon">location_city</mat-icon>
+            <div class="header-text">
+              <h2 class="results-heading">Premium Selection</h2>
+              <p class="results-count">${'{{ hotels.length }}'} Exceptional Properties</p>
             </div>
-
-            <div class="search-actions">
-              <button mat-raised-button color="primary" type="submit" class="search-btn" [disabled]="loading">
-                <mat-icon>${'{{loading ? "hourglass_empty" : "search"}}'}</mat-icon>
-                ${'{{loading ? "Searching..." : "Search Hotels"}}'}
+          </div>
+          <div class="limit-selector">
+            <span class="selector-label">Show:</span>
+            <div class="limit-chips">
+              <button mat-button *ngFor="let limit of availableLimits" 
+                      [class.chip-active]="currentLimit === limit"
+                      (click)="changeLimit(limit)"
+                      class="limit-chip">
+                ${'{{ limit }}'}
               </button>
             </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Loading State -->
-      <div *ngIf="loading" class="loading-container">
-        <div class="loading-content">
-          <mat-icon class="loading-icon">hotel</mat-icon>
-          <h3 class="loading-title">Finding Perfect Hotels...</h3>
-          <p class="loading-text">Searching through ${'{{currentLimit}}'} properties in your destination</p>
-        </div>
-      </div>
-
-      <!-- Results Grid -->
-      <div class="results-container" *ngIf="!loading && hotels.length > 0">
-        <div class="results-header">
-          <h2 class="results-title">
-            <mat-icon>apartment</mat-icon>
-            Available Hotels (${'{{ hotels.length }}'})</h2>
-          <div class="pagination-controls">
-            <span class="pagination-label">Results per search:</span>
-            <button mat-stroked-button *ngFor="let limit of availableLimits" 
-                    [class.active]="currentLimit === limit"
-                    (click)="changeLimit(limit)">
-              ${'{{ limit }}'}
-            </button>
           </div>
         </div>
         
-        <div class="hotels-grid">
-          <mat-card *ngFor="let hotel of hotels" class="hotel-card">
-            <div class="hotel-image-container">
-              <img [src]="hotel.imageUrl" [alt]="hotel.name" class="hotel-image" />
-              <div class="rating-badge">
-                <mat-icon>star</mat-icon>
+        <div class="luxury-hotels-grid">
+          <div *ngFor="let hotel of hotels" class="luxury-hotel-card">
+            <div class="hotel-visual">
+              <img [src]="hotel.imageUrl" [alt]="hotel.name" class="hotel-cover" />
+              <div class="visual-overlay"></div>
+              <div class="rating-jewel">
+                <mat-icon>grade</mat-icon>
                 <span>${'{{ hotel.rating }}'}</span>
+              </div>
+              <div class="nights-badge">
+                <mat-icon>nights_stay</mat-icon>
+                <span>${'{{ calculateNights() }}'} nights</span>
               </div>
             </div>
             
-            <mat-card-content class="hotel-content">
-              <h3 class="hotel-name">${'{{ hotel.name }}'}</h3>
-              
-              <p class="hotel-address">
-                <mat-icon>place</mat-icon>
-                ${'{{ hotel.address }}'}
-              </p>
-              
-              <p class="hotel-description">${'{{ hotel.description }}'}</p>
-              
-              <div class="hotel-amenities">
-                <div class="amenity-item">
-                  <mat-icon>hotel</mat-icon>
-                  <span>${'{{ hotel.availableRooms }}'} rooms</span>
-                </div>
-                <div class="amenity-item">
-                  <mat-icon>nights_stay</mat-icon>
-                  <span>${'{{ calculateNights() }}'} nights</span>
+            <div class="hotel-details">
+              <div class="hotel-header">
+                <h3 class="hotel-title">${'{{ hotel.name }}'}</h3>
+                <div class="hotel-location">
+                  <mat-icon>pin_drop</mat-icon>
+                  <span>${'{{ hotel.address }}'}</span>
                 </div>
               </div>
               
-              <div class="price-section">
-                <div class="price-details">
-                  <span class="price-label">From</span>
-                  <span class="price-value">\$${'{{ hotel.pricePerNight }}'}</span>
-                  <span class="price-period">per night</span>
+              <p class="hotel-summary">${'{{ hotel.description }}'}</p>
+              
+              <div class="amenities-row">
+                <div class="amenity-badge">
+                  <mat-icon>king_bed</mat-icon>
+                  <span>${'{{ hotel.availableRooms }}'} Rooms</span>
                 </div>
-                <div class="total-price">
-                  <span class="total-label">Total:</span>
-                  <span class="total-value">\$${'{{ hotel.pricePerNight * calculateNights() }}'}</span>
+                <div class="amenity-badge">
+                  <mat-icon>workspace_premium</mat-icon>
+                  <span>Premium</span>
                 </div>
               </div>
-            </mat-card-content>
-            
-            <mat-card-actions class="hotel-actions">
-              <button mat-raised-button color="accent" (click)="onBook(hotel)" class="book-btn">
-                <mat-icon>check_circle</mat-icon>
-                Book Now
+              
+              <div class="pricing-luxury">
+                <div class="price-column">
+                  <span class="from-label">From</span>
+                  <div class="price-amount">
+                    <span class="currency">$</span>
+                    <span class="amount">${'{{ hotel.pricePerNight }}'}</span>
+                  </div>
+                  <span class="per-night">/night</span>
+                </div>
+                <div class="divider-line"></div>
+                <div class="total-column">
+                  <span class="total-label">Total Stay</span>
+                  <div class="total-amount">${'${{ hotel.pricePerNight * calculateNights() }}'}</div>
+                </div>
+              </div>
+              
+              <button mat-raised-button (click)="onBook(hotel)" class="reserve-button">
+                <mat-icon>event_available</mat-icon>
+                <span>Reserve Now</span>
               </button>
-            </mat-card-actions>
-          </mat-card>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Empty State -->
-      <div *ngIf="!loading && searched && hotels.length === 0" class="empty-state">
-        <mat-icon class="empty-icon">hotel_class</mat-icon>
-        <h3 class="empty-title">No Hotels Found</h3>
-        <p class="empty-text">We couldn't find any hotels matching your criteria.</p>
-        <ul class="empty-suggestions">
-          <li>Try a different city or location</li>
-          <li>Adjust your check-in/check-out dates</li>
-          <li>Increase the results limit</li>
-          <li>Search for nearby destinations</li>
-        </ul>
+      <!-- Premium Empty State -->
+      <div *ngIf="!loading && searched && hotels.length === 0" class="luxury-empty-state">
+        <div class="empty-icon-wrapper">
+          <mat-icon class="empty-luxury-icon">apartment</mat-icon>
+        </div>
+        <h3 class="empty-luxury-title">No Properties Available</h3>
+        <p class="empty-luxury-text">We couldn't find accommodations matching your preferences</p>
+        <div class="suggestions-grid">
+          <div class="suggestion-item">
+            <mat-icon>explore</mat-icon>
+            <span>Try different destination</span>
+          </div>
+          <div class="suggestion-item">
+            <mat-icon>calendar_month</mat-icon>
+            <span>Adjust your dates</span>
+          </div>
+          <div class="suggestion-item">
+            <mat-icon>tune</mat-icon>
+            <span>Increase limit</span>
+          </div>
+          <div class="suggestion-item">
+            <mat-icon>near_me</mat-icon>
+            <span>Search nearby</span>
+          </div>
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .search-page {
-      padding: 0;
+    /* ============================================
+       PREMIUM HOTEL SEARCH
+       ============================================ */
+    .hotel-search-premium {
       min-height: 100vh;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: linear-gradient(180deg, #f8f6f3 0%, #fdfcfb 100%);
     }
 
-    /* Hero Section */
-    .search-hero {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 80px 24px 60px;
+    /* ============================================
+       LUXURY HERO SECTION
+       ============================================ */
+    .luxury-hero {
+      position: relative;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 2.5rem;
+    }
+
+    .hero-background {
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(135deg, rgba(139, 108, 80, 0.88) 0%, rgba(196, 165, 116, 0.82) 40%, rgba(109, 93, 75, 0.85) 100%),
+        url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&h=1080&fit=crop&q=90') center/cover;
+      z-index: 1;
+    }
+
+    .hero-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 25% 40%, rgba(212, 114, 44, 0.25) 0%, transparent 55%),
+        radial-gradient(circle at 75% 60%, rgba(196, 165, 116, 0.2) 0%, transparent 55%);
+      z-index: 2;
+    }
+
+    .hero-content-container {
+      position: relative;
+      z-index: 3;
+      max-width: 1100px;
+      width: 100%;
       text-align: center;
+      animation: luxuryFadeIn 1s ease-out;
+    }
+
+    @keyframes luxuryFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-badge-luxury {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(25px);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      padding: 12px 28px;
+      border-radius: 35px;
       color: white;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .hero-badge-luxury mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .hero-heading-luxury {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5rem;
+      font-weight: 800;
+      color: white;
+      margin: 0 0 1.8rem 0;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-text-luxury {
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.97);
+      margin: 0 0 3.5rem 0;
+      line-height: 1.65;
+      max-width: 750px;
+      margin-left: auto;
+      margin-right: auto;
+      text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+      font-weight: 400;
+    }
+
+    /* ============================================
+       LUXURY INLINE SEARCH CARD
+       ============================================ */
+    .luxury-search-inline {
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(35px);
+      border-radius: 28px;
+      padding: 3rem;
+      box-shadow: 
+        0 30px 80px rgba(0, 0, 0, 0.4),
+        0 18px 40px rgba(0, 0, 0, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.5);
       position: relative;
       overflow: hidden;
     }
 
-    .search-hero::before {
+    .luxury-search-inline::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-      pointer-events: none;
+      height: 5px;
+      background: linear-gradient(90deg, #c4a574 0%, #d4722c 50%, #c4a574 100%);
+      opacity: 0.75;
     }
 
-    .search-hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .hero-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      margin-bottom: 24px;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .hero-title {
-      font-size: 3rem;
-      font-weight: 700;
-      margin: 0 0 16px 0;
-      letter-spacing: -0.5px;
-    }
-
-    .hero-subtitle {
-      font-size: 1.2rem;
-      opacity: 0.95;
-      margin: 0;
-      font-weight: 300;
-    }
-
-    /* Search Container */
-    .search-container {
-      max-width: 1200px;
-      margin: -40px auto 48px;
-      background: white !important;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      position: relative;
-      z-index: 2;
-    }
-
-    mat-card-content {
-      padding: 48px 40px !important;
-    }
-
-    .form-heading {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin: 0 0 32px 0;
-    }
-
-    .form-heading mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #667eea;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      margin-bottom: 32px;
-    }
-
-    .form-field {
-      flex: 1;
-      min-width: 250px;
-    }
-
-    ::ng-deep .mat-mdc-form-field {
-      font-size: 1rem;
-    }
-
-    ::ng-deep .mat-mdc-text-field-wrapper {
-      background-color: #f8f9fa;
-    }
-
-    ::ng-deep .mat-mdc-form-field-focus-overlay {
-      background-color: rgba(102, 126, 234, 0.05);
-    }
-
-    .search-actions {
-      display: flex;
-      justify-content: center;
-      padding-top: 16px;
-      border-top: 2px solid #e9ecef;
-    }
-
-    .search-btn {
-      height: 56px;
-      padding: 0 48px !important;
-      font-size: 1.1rem !important;
-      font-weight: 600 !important;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .search-btn:hover:not([disabled]) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
-    }
-
-    .search-btn[disabled] {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    /* Loading State */
-    .loading-container {
-      max-width: 1000px;
-      margin: 48px auto;
-      padding: 80px 24px;
-      text-align: center;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    .loading-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .loading-icon {
-      font-size: 80px;
-      width: 80px;
-      height: 80px;
-      color: #667eea;
-      animation: bounce 1.5s ease-in-out infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .loading-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin: 0;
-    }
-
-    .loading-text {
-      font-size: 1.1rem;
-      color: #6c757d;
-      margin: 0;
-    }
-
-    /* Results Container */
-    .results-container {
-      max-width: 1400px;
-      margin: 0 auto 48px;
-      padding: 0 24px 48px;
-    }
-
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-
-    .results-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0;
-    }
-
-    .results-title mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #667eea;
-    }
-
-    .pagination-controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .pagination-label {
-      font-weight: 600;
-      color: #495057;
-      font-size: 1rem;
-    }
-
-    .pagination-controls button {
-      min-width: 60px;
-      height: 40px;
-      font-weight: 500;
-      border: 2px solid #dee2e6;
-      transition: all 0.2s ease;
-    }
-
-    .pagination-controls button:hover {
-      border-color: #667eea;
-      color: #667eea;
-      background-color: rgba(102, 126, 234, 0.05);
-    }
-
-    .pagination-controls button.active {
-      background-color: #667eea;
-      color: white;
-      border-color: #667eea;
-    }
-
-    /* Hotels Grid */
-    .hotels-grid {
+    .search-fields-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 32px;
+      grid-template-columns: repeat(3, 1fr) minmax(160px, auto);
+      gap: 1.5rem;
+      align-items: end;
     }
 
-    .hotel-card {
-      display: flex;
-      flex-direction: column;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      border: 2px solid #e9ecef;
-      height: 100%;
-    }
-
-    .hotel-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 32px rgba(102, 126, 234, 0.2);
-      border-color: #667eea;
-    }
-
-    .hotel-image-container {
+    .field-container {
       position: relative;
-      width: 100%;
-      height: 240px;
-      overflow: hidden;
-      background: #f0f0f0;
+      transition: transform 0.25s ease;
     }
 
-    .hotel-image {
+    .field-container:hover {
+      transform: translateY(-3px);
+    }
+
+    .luxury-field {
+      width: 100%;
+    }
+
+    ::ng-deep .luxury-field .mat-mdc-text-field-wrapper {
+      background: linear-gradient(135deg, #ffffff 0%, #fdfcfb 100%);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    ::ng-deep .luxury-field:hover .mat-mdc-text-field-wrapper {
+      background: linear-gradient(135deg, #fdfcfb 0%, #f8f6f3 100%);
+    }
+
+    ::ng-deep .luxury-field .mat-mdc-form-field-focus-overlay {
+      background-color: rgba(139, 108, 80, 0.04);
+    }
+
+    ::ng-deep .luxury-field .mat-mdc-notched-outline {
+      border-color: rgba(139, 108, 80, 0.25);
+      border-width: 2px;
+      transition: all 0.3s ease;
+    }
+
+    ::ng-deep .luxury-field:hover .mat-mdc-notched-outline {
+      border-color: rgba(139, 108, 80, 0.5);
+      box-shadow: 0 3px 12px rgba(139, 108, 80, 0.1);
+    }
+
+    ::ng-deep .luxury-field.mat-focused .mat-mdc-notched-outline {
+      border-color: #c4a574 !important;
+      border-width: 2.5px !important;
+      box-shadow: 0 5px 20px rgba(196, 165, 116, 0.2);
+    }
+
+    ::ng-deep .luxury-field .mat-mdc-floating-label {
+      color: #6d5d4b;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    ::ng-deep .luxury-field.mat-focused .mat-mdc-floating-label {
+      color: #c4a574 !important;
+      font-weight: 800;
+    }
+
+    ::ng-deep .luxury-field mat-icon[matPrefix] {
+      color: #c4a574;
+      margin-right: 16px;
+      opacity: 0.75;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      transition: all 0.3s ease;
+    }
+
+    ::ng-deep .luxury-field.mat-focused mat-icon[matPrefix] {
+      opacity: 1;
+      transform: scale(1.12);
+    }
+
+    ::ng-deep .luxury-field input {
+      color: #2d2416;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    ::ng-deep .luxury-field input::placeholder {
+      color: rgba(109, 93, 75, 0.5);
+      font-weight: 500;
+    }
+
+    .luxury-search-button {
+      height: 64px !important;
+      min-width: 160px !important;
+      padding: 0 2.5rem !important;
+      border-radius: 16px !important;
+      background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
+      color: white !important;
+      font-weight: 800 !important;
+      font-size: 1.1rem !important;
+      box-shadow: 
+        0 12px 32px rgba(139, 108, 80, 0.5),
+        0 5px 15px rgba(139, 108, 80, 0.35) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      white-space: nowrap;
+      letter-spacing: 0.025em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .luxury-search-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .luxury-search-button:hover::before {
+      left: 100%;
+    }
+
+    .luxury-search-button:hover:not([disabled]) {
+      transform: translateY(-4px);
+      box-shadow: 
+        0 16px 40px rgba(139, 108, 80, 0.55),
+        0 8px 20px rgba(139, 108, 80, 0.4) !important;
+      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
+    }
+
+    .luxury-search-button:active:not([disabled]) {
+      transform: translateY(-2px);
+    }
+
+    .luxury-search-button[disabled] {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .luxury-search-button mat-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
       transition: transform 0.3s ease;
     }
 
-    .hotel-card:hover .hotel-image {
-      transform: scale(1.05);
+    .luxury-search-button:hover:not([disabled]) mat-icon {
+      transform: scale(1.15) rotate(8deg);
     }
 
-    .rating-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-      color: #2c3e50;
-      padding: 8px 16px;
-      border-radius: 20px;
+    /* ============================================
+       AUTOCOMPLETE LUXURY STYLING
+       ============================================ */
+    ::ng-deep .mat-mdc-autocomplete-panel {
+      border-radius: 18px !important;
+      box-shadow: 
+        0 18px 60px rgba(0, 0, 0, 0.25),
+        0 8px 25px rgba(0, 0, 0, 0.15) !important;
+      border: 2px solid rgba(196, 165, 116, 0.2);
+      margin-top: 14px;
+      overflow: hidden;
+    }
+
+    .luxury-autocomplete-option {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      gap: 16px;
+      padding: 14px 0;
+      transition: all 0.25s ease;
     }
 
-    .rating-badge mat-icon {
+    .option-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, rgba(196, 165, 116, 0.1) 0%, rgba(139, 108, 80, 0.15) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.25s ease;
+    }
+
+    .luxury-autocomplete-option mat-icon {
+      color: #c4a574;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .option-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .option-city {
+      font-weight: 700;
+      color: #2d2416;
+      font-size: 1rem;
+      letter-spacing: 0.01em;
+    }
+
+    .option-details {
+      font-size: 0.85rem;
+      color: #6d5d4b;
+      font-weight: 600;
+    }
+
+    ::ng-deep .mat-mdc-option:hover {
+      background: rgba(196, 165, 116, 0.08) !important;
+    }
+
+    ::ng-deep .mat-mdc-option:hover .option-icon-wrapper {
+      background: linear-gradient(135deg, rgba(196, 165, 116, 0.2) 0%, rgba(139, 108, 80, 0.25) 100%);
+      transform: scale(1.08);
+    }
+
+    ::ng-deep .mat-mdc-option.mat-mdc-option-active {
+      background: rgba(196, 165, 116, 0.12) !important;
+    }
+
+    ::ng-deep .mat-mdc-option.mat-mdc-option-active .option-icon-wrapper {
+      background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%);
+    }
+
+    ::ng-deep .mat-mdc-option.mat-mdc-option-active .option-icon-wrapper mat-icon {
+      color: white;
+    }
+
+    /* ============================================
+       PREMIUM LOADING STATE
+       ============================================ */
+    .luxury-loading {
+      max-width: 1100px;
+      margin: 4rem auto;
+      padding: 5rem 2.5rem;
+      text-align: center;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 12px 48px rgba(139, 108, 80, 0.15);
+    }
+
+    .loading-spinner-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .spinner-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 52px;
+      width: 52px;
+      height: 52px;
+      color: #c4a574;
+      z-index: 2;
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    .loading-rings {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ring {
+      position: absolute;
+      inset: 0;
+      border: 3px solid transparent;
+      border-top-color: #c4a574;
+      border-radius: 50%;
+      animation: ringRotate 1.5s linear infinite;
+    }
+
+    .ring:nth-child(2) {
+      border-top-color: #d4722c;
+      animation-delay: -0.5s;
+      animation-duration: 2s;
+    }
+
+    .ring:nth-child(3) {
+      border-top-color: #8b6c50;
+      animation-delay: -1s;
+      animation-duration: 2.5s;
+    }
+
+    @keyframes ringRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-heading {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 1rem 0;
+      letter-spacing: -0.01em;
+    }
+
+    .loading-subtext {
+      font-size: 1.15rem;
+      color: #6d5d4b;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    /* ============================================
+       PREMIUM RESULTS SECTION
+       ============================================ */
+    .luxury-results-wrapper {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 2.5rem 5rem;
+    }
+
+    .results-header-luxury {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding: 2.5rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.1);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .results-icon {
+      font-size: 44px;
+      width: 44px;
+      height: 44px;
+      color: #c4a574;
+      background: linear-gradient(135deg, rgba(196, 165, 116, 0.1) 0%, rgba(139, 108, 80, 0.15) 100%);
+      padding: 14px;
+      border-radius: 16px;
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .results-heading {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0;
+      letter-spacing: -0.015em;
+    }
+
+    .results-count {
+      font-size: 1rem;
+      color: #6d5d4b;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .limit-selector {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .selector-label {
+      font-weight: 700;
+      color: #6d5d4b;
+      font-size: 1.05rem;
+    }
+
+    .limit-chips {
+      display: flex;
+      gap: 10px;
+    }
+
+    .limit-chip {
+      min-width: 60px;
+      height: 44px;
+      font-weight: 700 !important;
+      border: 2px solid rgba(139, 108, 80, 0.2) !important;
+      border-radius: 12px !important;
+      transition: all 0.25s ease;
+      background: white !important;
+      color: #6d5d4b !important;
+    }
+
+    .limit-chip:hover {
+      border-color: rgba(139, 108, 80, 0.5) !important;
+      background: rgba(196, 165, 116, 0.05) !important;
+      transform: translateY(-2px);
+    }
+
+    .limit-chip.chip-active {
+      background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
+      color: white !important;
+      border-color: #c4a574 !important;
+      box-shadow: 0 5px 18px rgba(196, 165, 116, 0.35);
+    }
+
+    /* ============================================
+       LUXURY HOTEL CARDS
+       ============================================ */
+    .luxury-hotels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 2.5rem;
+    }
+
+    .luxury-hotel-card {
+      display: flex;
+      flex-direction: column;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid rgba(139, 108, 80, 0.15);
+      background: white;
+      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.12);
+      height: 100%;
+    }
+
+    .luxury-hotel-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px rgba(139, 108, 80, 0.25);
+      border-color: #c4a574;
+    }
+
+    .hotel-visual {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #f8f6f3 0%, #f0ede8 100%);
+    }
+
+    .hotel-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .luxury-hotel-card:hover .hotel-cover {
+      transform: scale(1.08);
+    }
+
+    .visual-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .luxury-hotel-card:hover .visual-overlay {
+      opacity: 1;
+    }
+
+    .rating-jewel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #fdb924 0%, #f7931e 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      box-shadow: 0 6px 20px rgba(253, 185, 36, 0.5);
+      z-index: 2;
+    }
+
+    .rating-jewel mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .nights-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      color: #6d5d4b;
+      padding: 10px 18px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      z-index: 2;
+    }
+
+    .nights-badge mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
+      color: #8b6c50;
     }
 
-    .hotel-content {
+    .hotel-details {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 24px !important;
+      padding: 2rem;
     }
 
-    .hotel-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0 0 12px 0;
+    .hotel-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .hotel-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #2d2416;
+      margin: 0 0 0.75rem 0;
       line-height: 1.3;
+      letter-spacing: -0.01em;
     }
 
-    .hotel-address {
+    .hotel-location {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #6c757d;
-      margin: 0 0 16px 0;
+      color: #6d5d4b;
       font-size: 0.95rem;
+      font-weight: 600;
     }
 
-    .hotel-address mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #667eea;
+    .hotel-location mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #c4a574;
     }
 
-    .hotel-description {
+    .hotel-summary {
       color: #495057;
-      margin: 0 0 20px 0;
+      margin: 0 0 1.5rem 0;
       font-size: 0.95rem;
-      line-height: 1.6;
+      line-height: 1.65;
       flex: 1;
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
+      font-weight: 500;
     }
 
-    .hotel-amenities {
+    .amenities-row {
       display: flex;
-      gap: 24px;
-      margin-bottom: 20px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 8px;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
-    .amenity-item {
+    .amenity-badge {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #495057;
-      font-weight: 500;
-      font-size: 0.95rem;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      padding: 10px 18px;
+      border-radius: 14px;
+      color: #6d5d4b;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 1.5px solid rgba(139, 108, 80, 0.15);
     }
 
-    .amenity-item mat-icon {
+    .amenity-badge mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: #667eea;
+      color: #c4a574;
     }
 
-    .price-section {
+    .pricing-luxury {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 8px;
-      margin-top: auto;
+      padding: 1.75rem;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      border-radius: 18px;
+      margin: auto 0 1.5rem 0;
+      gap: 1.5rem;
+      border: 2px solid rgba(139, 108, 80, 0.1);
     }
 
-    .price-details {
+    .price-column {
       display: flex;
       flex-direction: column;
+      gap: 5px;
+    }
+
+    .from-label {
+      font-size: 0.85rem;
+      color: #6d5d4b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .price-amount {
+      display: flex;
+      align-items: baseline;
       gap: 4px;
     }
 
-    .price-label {
-      font-size: 0.85rem;
-      color: #6c757d;
-      font-weight: 500;
+    .currency {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #c4a574;
     }
 
-    .price-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #667eea;
+    .amount {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
     }
 
-    .price-period {
+    .per-night {
       font-size: 0.85rem;
-      color: #6c757d;
+      color: #6d5d4b;
+      font-weight: 500;
     }
 
-    .total-price {
+    .divider-line {
+      width: 2px;
+      height: 60px;
+      background: linear-gradient(180deg, transparent 0%, rgba(139, 108, 80, 0.3) 50%, transparent 100%);
+    }
+
+    .total-column {
       text-align: right;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
     }
 
     .total-label {
       font-size: 0.85rem;
-      color: #6c757d;
-      font-weight: 500;
+      color: #6d5d4b;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
-    .total-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #2c3e50;
+    .total-amount {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #2d2416;
     }
 
-    .hotel-actions {
-      padding: 20px 24px !important;
-      display: flex;
-      gap: 12px;
-      justify-content: stretch;
-      border-top: 2px solid #e9ecef;
-    }
-
-    .book-btn {
-      flex: 1;
-      height: 52px;
-      font-size: 1.1rem !important;
-      font-weight: 600 !important;
-      border-radius: 8px;
+    .reserve-button {
+      width: 100%;
+      height: 58px !important;
+      font-size: 1.15rem !important;
+      font-weight: 800 !important;
+      border-radius: 16px !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      gap: 12px;
+      background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
+      color: white !important;
+      box-shadow: 0 8px 24px rgba(139, 108, 80, 0.4) !important;
       transition: all 0.3s ease;
+      letter-spacing: 0.02em;
     }
 
-    .book-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+    .reserve-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(139, 108, 80, 0.5) !important;
+      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
     }
 
-    .book-btn mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+    .reserve-button mat-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
     }
 
-    /* Empty State */
-    .empty-state {
-      max-width: 600px;
-      margin: 48px auto;
-      padding: 80px 24px;
+    /* ============================================
+       PREMIUM EMPTY STATE
+       ============================================ */
+    .luxury-empty-state {
+      max-width: 700px;
+      margin: 4rem auto;
+      padding: 4rem 2.5rem;
       text-align: center;
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border-radius: 24px;
+      box-shadow: 0 12px 48px rgba(139, 108, 80, 0.15);
     }
 
-    .empty-icon {
-      font-size: 100px;
-      width: 100px;
-      height: 100px;
-      color: #dee2e6;
-      margin-bottom: 24px;
+    .empty-icon-wrapper {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 2rem;
+      background: linear-gradient(135deg, rgba(196, 165, 116, 0.1) 0%, rgba(139, 108, 80, 0.15) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .empty-title {
-      font-size: 1.75rem;
+    .empty-luxury-icon {
+      font-size: 70px;
+      width: 70px;
+      height: 70px;
+      color: #c4a574;
+    }
+
+    .empty-luxury-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 1rem 0;
+    }
+
+    .empty-luxury-text {
+      font-size: 1.15rem;
+      color: #6d5d4b;
+      margin: 0 0 2.5rem 0;
+      font-weight: 500;
+    }
+
+    .suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
+      border-radius: 14px;
+      color: #6d5d4b;
       font-weight: 600;
-      color: #2c3e50;
-      margin: 0 0 16px 0;
+      font-size: 0.95rem;
+      border: 1.5px solid rgba(139, 108, 80, 0.15);
+      transition: all 0.25s ease;
     }
 
-    .empty-text {
-      font-size: 1.1rem;
-      color: #6c757d;
-      margin: 0 0 20px 0;
+    .suggestion-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.15);
+      border-color: #c4a574;
     }
 
-    .empty-suggestions {
-      text-align: left;
-      display: inline-block;
-      margin: 0;
-      padding: 0;
-      list-style: none;
+    .suggestion-item mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      color: #c4a574;
     }
 
-    .empty-suggestions li {
-      padding: 8px 0;
-      color: #495057;
-      font-size: 1rem;
-    }
-
-    .empty-suggestions li::before {
-      content: "✓";
-      color: #667eea;
-      font-weight: bold;
-      margin-right: 12px;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .search-hero {
-        padding: 60px 20px 40px;
+    /* ============================================
+       RESPONSIVE DESIGN
+       ============================================ */
+    @media (max-width: 1024px) {
+      .search-fields-grid {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .hero-title {
+      .luxury-search-button {
+        grid-column: 1 / -1;
+      }
+
+      .hero-heading-luxury {
+        font-size: 3.5rem;
+      }
+
+      .luxury-hotels-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .luxury-hero {
+        min-height: auto;
+        padding: 3.5rem 1.5rem;
+      }
+
+      .hero-heading-luxury {
+        font-size: 2.5rem;
+      }
+
+      .hero-text-luxury {
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .luxury-search-inline {
+        padding: 2rem 1.5rem;
+      }
+
+      .search-fields-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .results-header-luxury {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 2rem;
+      }
+
+      .limit-selector {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .luxury-hotels-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .pricing-luxury {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1.5rem;
+      }
+
+      .divider-line {
+        width: 100%;
+        height: 2px;
+      }
+
+      .total-column {
+        text-align: left;
+      }
+
+      .suggestions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-heading-luxury {
         font-size: 2rem;
       }
 
-      .hero-subtitle {
+      .hero-text-luxury {
         font-size: 1rem;
       }
 
-      .search-container {
-        margin: -30px 16px 32px;
-        border-radius: 12px;
+      .hero-badge-luxury {
+        font-size: 0.8rem;
+        padding: 10px 20px;
       }
+    }
 
-      mat-card-content {
-        padding: 32px 24px !important;
-      }
+    /* ============================================
+       DATEPICKER STYLING
+       ============================================ */
+    ::ng-deep .mat-datepicker-content {
+      border-radius: 18px !important;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2) !important;
+    }
 
-      .form-row {
-        flex-direction: column;
-        gap: 16px;
-      }
+    ::ng-deep .mat-calendar-body-selected {
+      background-color: #c4a574 !important;
+    }
 
-      .form-field {
-        min-width: 100%;
-      }
+    ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+      border-color: #c4a574 !important;
+    }
 
-      .results-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .hotels-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .price-section {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-      }
-
-      .total-price {
-        text-align: left;
-      }
+    ::ng-deep .mat-datepicker-toggle {
+      color: #c4a574 !important;
     }
   `]
 })
