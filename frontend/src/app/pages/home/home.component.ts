@@ -554,8 +554,8 @@ interface Destination {
               <div class="route-point">
                 <mat-icon class="route-icon">flight_takeoff</mat-icon>
                 <div class="route-details">
-                  <span class="airport-code-large">{{ flight.origin || getFlightOrigin(flight.departure) }}</span>
-                  <span class="city-name" *ngIf="flight.originCity">{{ flight.originCity }}</span>
+                  <span class="airport-code-large">{{ flight.originCity || flight.origin || getFlightOrigin(flight.departure) || 'Origin' }}</span>
+                  <span class="city-name">{{ flight.origin || 'Departure' }}</span>
                 </div>
               </div>
               
@@ -569,8 +569,8 @@ interface Destination {
               <div class="route-point">
                 <mat-icon class="route-icon destination-icon">flight_land</mat-icon>
                 <div class="route-details">
-                  <span class="airport-code-large">{{ flight.destination || getFlightDestination(flight.arrival) }}</span>
-                  <span class="city-name" *ngIf="flight.destinationCity">{{ flight.destinationCity }}</span>
+                  <span class="airport-code-large">{{ flight.destinationCity || flight.destination || getFlightDestination(flight.arrival) || 'Destination' }}</span>
+                  <span class="city-name">{{ flight.destination || 'Arrival' }}</span>
                 </div>
               </div>
             </div>

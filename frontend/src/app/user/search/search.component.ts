@@ -55,17 +55,30 @@ import { of } from 'rxjs';
             <mat-icon>{{isPackageMode ? 'card_travel' : 'flight'}}</mat-icon>
             <span>{{isPackageMode ? 'Complete Travel Packages' : 'Premium Flight Search'}}</span>
           </div>
-          <h1 class="hero-main-title">{{isPackageMode ? 'Your Perfect Journey Awaits' : 'Discover Your Next Adventure'}}</h1>
+          <h1 class="hero-main-title">
+            <ng-container *ngIf="isPackageMode; else flightTitle">Your Perfect Journey Awaits</ng-container>
+            <ng-template #flightTitle>
+              Discover Your Next <span class="saffron-accent">Adventure</span>
+            </ng-template>
+          </h1>
           <p class="hero-description">{{isPackageMode ? 'Seamlessly combine flights and accommodations for the ultimate travel experience' : 'Search and compare flights from over 500 airlines worldwide with real-time pricing'}}</p>
           
-          <!-- Inline Premium Search Card -->
-          <div class="search-card-inline">
-            <div class="search-grid">
-              <div class="search-field-wrapper">
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>From</mat-label>
-                  <mat-icon matPrefix>flight_takeoff</mat-icon>
-                  <input matInput [formControl]="originControl" [matAutocomplete]="autoOrigin" placeholder="Departure city">
+          <!-- Premium Moroccan Glassmorphism Search Card -->
+          <div class="search-card-moroccan-glass">
+            <div class="moroccan-pattern-overlay"></div>
+            <div class="search-grid-luxury">
+              <div class="luxury-field-wrapper">
+                <div class="floating-field-container">
+                  <mat-icon class="luxury-icon">flight_takeoff</mat-icon>
+                  <input 
+                    type="text" 
+                    class="luxury-input" 
+                    [formControl]="originControl" 
+                    [matAutocomplete]="autoOrigin"
+                    placeholder=" "
+                    id="fromInput">
+                  <label for="fromInput" class="floating-label">From</label>
+                  <div class="field-border"></div>
                   <mat-autocomplete #autoOrigin="matAutocomplete" [displayWith]="displayDestination">
                     <mat-option *ngFor="let dest of originDestinations" [value]="dest">
                       <div class="autocomplete-option">
@@ -79,14 +92,21 @@ import { of } from 'rxjs';
                       </div>
                     </mat-option>
                   </mat-autocomplete>
-                </mat-form-field>
+                </div>
               </div>
 
-              <div class="search-field-wrapper">
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>To</mat-label>
-                  <mat-icon matPrefix>flight_land</mat-icon>
-                  <input matInput [formControl]="destinationControl" [matAutocomplete]="autoDestination" placeholder="Arrival city">
+              <div class="luxury-field-wrapper">
+                <div class="floating-field-container">
+                  <mat-icon class="luxury-icon">flight_land</mat-icon>
+                  <input 
+                    type="text" 
+                    class="luxury-input" 
+                    [formControl]="destinationControl" 
+                    [matAutocomplete]="autoDestination"
+                    placeholder=" "
+                    id="toInput">
+                  <label for="toInput" class="floating-label">To</label>
+                  <div class="field-border"></div>
                   <mat-autocomplete #autoDestination="matAutocomplete" [displayWith]="displayDestination">
                     <mat-option *ngFor="let dest of destinationDestinations" [value]="dest">
                       <div class="autocomplete-option">
@@ -100,32 +120,47 @@ import { of } from 'rxjs';
                       </div>
                     </mat-option>
                   </mat-autocomplete>
-                </mat-form-field>
+                </div>
               </div>
 
-              <div class="search-field-wrapper">
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>Departure</mat-label>
-                  <mat-icon matPrefix>event</mat-icon>
-                  <input matInput [matDatepicker]="picker1" [(ngModel)]="departureDate" placeholder="Select date">
-                  <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <div class="luxury-field-wrapper">
+                <div class="floating-field-container">
+                  <mat-icon class="luxury-icon">today</mat-icon>
+                  <input 
+                    matInput 
+                    [matDatepicker]="picker1" 
+                    [(ngModel)]="departureDate" 
+                    class="luxury-input"
+                    placeholder=" "
+                    id="departureInput">
+                  <label for="departureInput" class="floating-label">Departure</label>
+                  <div class="field-border"></div>
+                  <mat-datepicker-toggle matSuffix [for]="picker1" class="luxury-datepicker-toggle"></mat-datepicker-toggle>
                   <mat-datepicker #picker1></mat-datepicker>
-                </mat-form-field>
+                </div>
               </div>
 
-              <div class="search-field-wrapper">
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>Return</mat-label>
-                  <mat-icon matPrefix>event</mat-icon>
-                  <input matInput [matDatepicker]="picker2" [(ngModel)]="returnDate" placeholder="One-way">
-                  <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+              <div class="luxury-field-wrapper">
+                <div class="floating-field-container">
+                  <mat-icon class="luxury-icon">date_range</mat-icon>
+                  <input 
+                    matInput 
+                    [matDatepicker]="picker2" 
+                    [(ngModel)]="returnDate" 
+                    class="luxury-input"
+                    placeholder=" "
+                    id="returnInput">
+                  <label for="returnInput" class="floating-label">Return</label>
+                  <div class="field-border"></div>
+                  <mat-datepicker-toggle matSuffix [for]="picker2" class="luxury-datepicker-toggle"></mat-datepicker-toggle>
                   <mat-datepicker #picker2></mat-datepicker>
-                </mat-form-field>
+                </div>
               </div>
 
-              <button mat-raised-button (click)="onSearch()" class="search-action-btn" [disabled]="isSearching">
-                <mat-icon>{{isSearching ? 'hourglass_empty' : 'search'}}</mat-icon>
-                <span>{{isSearching ? 'Searching...' : 'Search'}}</span>
+              <button class="luxury-search-button" (click)="onSearch()" [disabled]="isSearching">
+                <span class="button-text">{{isSearching ? 'Searching...' : 'SEARCH'}}</span>
+                <mat-icon class="button-icon">{{isSearching ? 'hourglass_empty' : 'search'}}</mat-icon>
+                <div class="button-shine"></div>
               </button>
             </div>
           </div>
@@ -223,7 +258,7 @@ import { of } from 'rxjs';
     .hero-content-wrapper {
       position: relative;
       z-index: 3;
-      max-width: 1000px;
+      max-width: 1100px;
       width: 100%;
       text-align: center;
       animation: fadeInUp 0.8s ease-out;
@@ -271,7 +306,12 @@ import { of } from 'rxjs';
       margin: 0 0 1.5rem 0;
       line-height: 1.15;
       letter-spacing: -0.02em;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-main-title ::ng-deep .saffron-accent {
+      color: #d4af37;
+      font-style: italic;
     }
 
     .hero-description {
@@ -286,190 +326,271 @@ import { of } from 'rxjs';
     }
 
     /* ============================================
-       INLINE SEARCH CARD
+       PREMIUM MOROCCAN GLASSMORPHISM SEARCH CARD
        ============================================ */
-    .search-card-inline {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(30px);
+    .search-card-moroccan-glass {
+      background: #ffffff;
       border-radius: 24px;
-      padding: 2.5rem;
+      padding: 3rem;
       box-shadow: 
-        0 25px 70px rgba(0, 0, 0, 0.35),
-        0 15px 35px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.4);
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
 
-    .search-card-inline::before {
-      content: '';
+    @keyframes scaleInLuxury {
+      from {
+        opacity: 0;
+        transform: scale(0.92) translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Moroccan Zellige Pattern Overlay */
+    .moroccan-pattern-overlay {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #8b6c50 0%, #c4a574 50%, #8b6c50 100%);
-      opacity: 0.6;
+      bottom: 0;
+      opacity: 0;
+      pointer-events: none;
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, #1a365d 10px, #1a365d 11px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, #d4af37 10px, #d4af37 11px);
+      background-size: 30px 30px;
     }
 
-    .search-grid {
+    .search-grid-luxury {
       display: grid;
-      grid-template-columns: repeat(4, minmax(180px, 1fr)) minmax(140px, auto);
-      gap: 1.25rem;
-      align-items: end;
-    }
-
-    .search-field-wrapper {
+      grid-template-columns: repeat(4, 1fr) auto;
+      gap: 1.5rem;
+      align-items: stretch;
       position: relative;
-      transition: transform 0.2s ease;
-      min-width: 0; /* Allow fields to shrink if needed */
+      z-index: 1;
     }
 
-    .search-field-wrapper:hover {
-      transform: translateY(-2px);
+    /* ============================================
+       LUXURY FLOATING LABEL INPUTS
+       ============================================ */
+    .luxury-field-wrapper {
+      position: relative;
+      min-width: 0;
+      display: flex;
+      align-items: stretch;
     }
 
-    .search-field {
-      width: 100%;
-      min-width: 0; /* Prevent overflow */
+    .floating-field-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
-    ::ng-deep .search-field .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #ffffff 0%, #fdfcfb 100%);
-      border-radius: 14px;
-      transition: all 0.3s ease;
-    }
-
-    ::ng-deep .search-field:hover .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #fdfcfb 0%, #f8f6f3 100%);
-    }
-
-    ::ng-deep .search-field .mat-mdc-form-field-focus-overlay {
-      background-color: rgba(139, 108, 80, 0.03);
-    }
-
-    ::ng-deep .search-field .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.2);
-      border-width: 1.5px;
-      transition: all 0.3s ease;
-    }
-
-    ::ng-deep .search-field:hover .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.45);
-      box-shadow: 0 2px 8px rgba(139, 108, 80, 0.08);
-    }
-
-    ::ng-deep .search-field.mat-focused .mat-mdc-notched-outline {
-      border-color: #8b6c50 !important;
-      border-width: 2px !important;
-      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.15);
-    }
-
-    ::ng-deep .search-field .mat-mdc-floating-label {
-      color: #6d5d4b;
-      font-weight: 600;
-      font-size: 0.95rem;
-      white-space: nowrap;
-      overflow: visible;
-    }
-
-    ::ng-deep .search-field.mat-focused .mat-mdc-floating-label {
-      color: #8b6c50 !important;
-      font-weight: 700;
-    }
-
-    ::ng-deep .search-field mat-icon[matPrefix] {
-      color: #8b6c50;
-      margin-right: 14px;
-      opacity: 0.7;
+    .luxury-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #1a365d;
       font-size: 22px;
       width: 22px;
       height: 22px;
+      z-index: 2;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .luxury-input {
+      width: 100%;
+      height: 58px;
+      padding: 24px 16px 8px 52px;
+      border: 2px solid rgba(26, 54, 93, 0.15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #1a365d;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Inter', 'Poppins', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .luxury-input::placeholder {
+      color: transparent;
+    }
+
+    .floating-label {
+      position: absolute;
+      left: 52px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(26, 54, 93, 0.6);
+      font-size: 0.95rem;
+      font-weight: 500;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: transparent;
+      padding: 0 4px;
+      z-index: 2;
+    }
+
+    .luxury-input:focus {
+      background: white;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    .luxury-input:focus ~ .floating-label,
+    .floating-field-container.has-value .floating-label {
+      top: 8px;
+      left: 52px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field-border {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #d4af37 0%, #b8941f 100%);
+      transform: scaleX(0);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 0 0 12px 12px;
+      z-index: 3;
+    }
+
+    .luxury-input:focus ~ .field-border {
+      transform: scaleX(1);
+    }
+
+    .luxury-input:focus ~ .luxury-icon,
+    .floating-field-container.has-value .luxury-icon {
+      color: #d4af37;
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    /* Datepicker Toggle Luxury */
+    ::ng-deep .luxury-datepicker-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+
+    ::ng-deep .luxury-datepicker-toggle button {
+      color: #1a365d;
       transition: all 0.3s ease;
     }
 
-    ::ng-deep .search-field.mat-focused mat-icon[matPrefix] {
-      opacity: 1;
-      transform: scale(1.1);
+    ::ng-deep .luxury-datepicker-toggle button:hover {
+      color: #d4af37;
     }
 
-    ::ng-deep .search-field input {
-      color: #2d2416;
-      font-weight: 500;
-      font-size: 0.95rem;
+    ::ng-deep .luxury-input:focus ~ .luxury-datepicker-toggle button {
+      color: #d4af37;
     }
 
-    ::ng-deep .search-field input::placeholder {
-      color: rgba(109, 93, 75, 0.5);
-      font-weight: 400;
-    }
-
-    .search-action-btn {
-      height: 60px !important;
-      min-width: 140px !important;
-      padding: 0 2rem !important;
-      border-radius: 14px !important;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
-      color: white !important;
-      font-weight: 700 !important;
-      font-size: 1.05rem !important;
+    /* ============================================
+       LUXURY SEARCH BUTTON WITH GRADIENT & SHINE
+       ============================================ */
+    .luxury-search-button {
+      height: 58px;
+      min-width: 160px;
+      padding: 0 2.5rem;
+      background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Inter', 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 
-        0 10px 28px rgba(139, 108, 80, 0.45),
-        0 4px 12px rgba(139, 108, 80, 0.3) !important;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        0 10px 30px rgba(212, 175, 55, 0.4),
+        0 4px 12px rgba(212, 175, 55, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
-      white-space: nowrap;
-      letter-spacing: 0.02em;
-      position: relative;
-      overflow: hidden;
+      align-self: stretch;
     }
 
-    .search-action-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .search-action-btn:hover::before {
-      left: 100%;
-    }
-
-    .search-action-btn:hover:not([disabled]) {
+    .luxury-search-button:hover:not([disabled]) {
       transform: translateY(-3px);
       box-shadow: 
-        0 14px 36px rgba(139, 108, 80, 0.5),
-        0 6px 16px rgba(139, 108, 80, 0.35) !important;
-      background: linear-gradient(135deg, #6d5d4b 0%, #5a4d3d 100%) !important;
+        0 16px 40px rgba(212, 175, 55, 0.5),
+        0 8px 20px rgba(212, 175, 55, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #b8941f 0%, #a07a1a 100%);
     }
 
-    .search-action-btn:active:not([disabled]) {
+    .luxury-search-button:active:not([disabled]) {
       transform: translateY(-1px);
     }
 
-    .search-action-btn[disabled] {
+    .luxury-search-button[disabled] {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none !important;
     }
 
-    .search-action-btn mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+    .button-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .button-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      position: relative;
+      z-index: 2;
       transition: transform 0.3s ease;
     }
 
-    .search-action-btn:hover:not([disabled]) mat-icon {
-      transform: scale(1.1) rotate(5deg);
+    .luxury-search-button:hover:not([disabled]) .button-icon {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    /* Shine Effect on Button */
+    .button-shine {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+      );
+      transition: left 0.6s ease;
+      z-index: 1;
+    }
+
+    .luxury-search-button:hover:not([disabled]) .button-shine {
+      left: 100%;
     }
 
     /* ============================================
@@ -697,15 +818,13 @@ import { of } from 'rxjs';
        RESPONSIVE DESIGN
        ============================================ */
     @media (max-width: 1024px) {
-      .search-grid {
+      .search-grid-luxury {
         grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+        gap: 1rem;
       }
 
-      .search-action-btn {
+      .luxury-search-button {
         grid-column: 1 / -1;
-        width: 100%;
-        justify-content: center;
       }
 
       .hero-main-title {
@@ -728,13 +847,21 @@ import { of } from 'rxjs';
         margin-bottom: 2rem;
       }
 
-      .search-card-inline {
-        padding: 1.5rem 1rem;
+      .search-card-moroccan-glass {
+        padding: 2rem 1.5rem;
       }
 
-      .search-grid {
+      .search-grid-luxury {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 1.25rem;
+      }
+
+      .luxury-input {
+        height: 56px;
+      }
+
+      .luxury-search-button {
+        min-width: 100%;
       }
 
       .filters-section-premium {
@@ -773,6 +900,31 @@ import { of } from 'rxjs';
       .hero-badge {
         font-size: 0.75rem;
         padding: 8px 16px;
+      }
+
+      .search-card-moroccan-glass {
+        padding: 1.5rem 1rem;
+      }
+
+      .luxury-input {
+        height: 54px;
+        padding: 22px 12px 8px 48px;
+      }
+
+      .luxury-icon {
+        left: 12px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .floating-label {
+        left: 48px;
+      }
+
+      .luxury-input:focus ~ .floating-label,
+      .luxury-input:not(:placeholder-shown) ~ .floating-label {
+        left: 44px;
       }
     }
 

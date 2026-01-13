@@ -42,88 +42,96 @@ import { Router } from '@angular/router';
       </div>
       
       <div class="results-grid">
-        <div *ngFor="let result of results" class="flight-card-premium">
-          <!-- Card Header with Airline & Price -->
-          <div class="flight-header">
-            <div class="airline-section">
-              <div class="airline-logo">
+        <div *ngFor="let result of results" class="flight-card">
+          <!-- Airline Header -->
+          <div class="flight-card-header">
+            <div class="airline-info">
+              <div class="airline-logo-badge">
                 <mat-icon>airlines</mat-icon>
               </div>
-              <div class="airline-details">
-                <h3 class="airline-name">{{ result.airline || 'Premium Airlines' }}</h3>
-                <span class="flight-number">{{ result.flightNumber || 'Direct Flight' }}</span>
+              <div class="airline-text">
+                <span class="airline-name">{{ result.airline || 'Premium Airlines' }}</span>
+                <span class="flight-number">{{ result.flightNumber || 'FL-000' }}</span>
               </div>
             </div>
-            <div class="price-section">
-              <div class="price-tag">
-                <span class="price-currency">$</span>
-                <span class="price-amount">{{ result.price }}</span>
+            <span class="direct-badge">
+              <mat-icon>done_all</mat-icon>
+              Direct
+            </span>
+          </div>
+          
+          <!-- Route Visualization -->
+          <div class="flight-route">
+            <div class="route-point">
+              <mat-icon class="route-icon">flight_takeoff</mat-icon>
+              <div class="route-details">
+                <span class="airport-code-large">{{ sessionStorage.getItem('searchOriginCity') || result.origin || 'Origin' }}</span>
+                <span class="city-name">{{ result.origin || 'Departure' }}</span>
               </div>
-              <span class="price-label">per person</span>
+            </div>
+            
+            <div class="route-line">
+              <div class="plane-icon">
+                <mat-icon>flight</mat-icon>
+              </div>
+            </div>
+            
+            <div class="route-point">
+              <mat-icon class="route-icon destination-icon">flight_land</mat-icon>
+              <div class="route-details">
+                <span class="airport-code-large">{{ sessionStorage.getItem('searchDestinationCity') || result.destination || 'Destination' }}</span>
+                <span class="city-name">{{ result.destination || 'Arrival' }}</span>
+              </div>
             </div>
           </div>
-
-          <!-- Flight Route Timeline -->
-          <div class="flight-timeline">
-            <div class="timeline-point departure">
-              <div class="timeline-icon-wrapper">
-                <mat-icon>flight_takeoff</mat-icon>
-              </div>
-              <div class="timeline-info">
-                <span class="timeline-label">Departure</span>
-                <span class="timeline-time">{{ result.departure | date: 'h:mm a' }}</span>
-                <span class="timeline-date">{{ result.departure | date: 'MMM d, y' }}</span>
-                <span class="timeline-location">{{ result.origin || 'N/A' }}</span>
-              </div>
-            </div>
-
-            <div class="timeline-connector">
-              <div class="connector-line"></div>
-              <div class="connector-duration">
+          
+          <!-- Flight Details -->
+          <div class="flight-details">
+            <div class="time-info">
+              <div class="time-block">
                 <mat-icon>schedule</mat-icon>
-                <span>Direct</span>
+                <div class="time-text">
+                  <span class="time-label">Departure</span>
+                  <span class="time-value">{{ result.departure | date:'short' }}</span>
+                </div>
               </div>
-              <div class="connector-line"></div>
+              <div class="time-block">
+                <mat-icon>schedule</mat-icon>
+                <div class="time-text">
+                  <span class="time-label">Arrival</span>
+                  <span class="time-value">{{ result.arrival | date:'short' }}</span>
+                </div>
+              </div>
             </div>
-
-            <div class="timeline-point arrival">
-              <div class="timeline-icon-wrapper">
-                <mat-icon>flight_land</mat-icon>
-              </div>
-              <div class="timeline-info">
-                <span class="timeline-label">Arrival</span>
-                <span class="timeline-time">{{ result.arrival | date: 'h:mm a' }}</span>
-                <span class="timeline-date">{{ result.arrival | date: 'MMM d, y' }}</span>
-                <span class="timeline-location">{{ result.destination || 'N/A' }}</span>
-              </div>
+            
+            <div class="flight-meta">
+              <span class="meta-item">
+                <mat-icon>airline_seat_recline_normal</mat-icon>
+                {{ result.availableSeats || 0 }} seats
+              </span>
+              <span class="meta-item">
+                <mat-icon>class</mat-icon>
+                Economy
+              </span>
+              <span class="urgency-label" *ngIf="result.availableSeats && result.availableSeats < 5">
+                <mat-icon>warning</mat-icon>
+                Only {{ result.availableSeats }} left!
+              </span>
             </div>
           </div>
-
-          <!-- Flight Features -->
-          <div class="flight-features">
-            <div class="feature-item">
-              <mat-icon>event_seat</mat-icon>
-              <span>{{ result.availableSeats || 0 }} seats left</span>
+          
+          <!-- Price & Booking -->
+          <div class="flight-footer">
+            <div class="price-info">
+              <span class="price-from">From</span>
+              <span class="price-amount">{{ result.price | currency }}</span>
+              <span class="price-unit">per person</span>
             </div>
-            <div class="feature-item">
-              <mat-icon>luggage</mat-icon>
-              <span>Baggage included</span>
-            </div>
-            <div class="feature-item">
-              <mat-icon>dining</mat-icon>
-              <span>Meal service</span>
-            </div>
-            <div class="feature-item">
-              <mat-icon>check_circle</mat-icon>
-              <span>Free cancellation</span>
-            </div>
+            <button class="book-btn" (click)="onBook(result)">
+              <span>Book Flight</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
           </div>
-
-          <!-- Book Button -->
-          <button class="book-flight-btn" (click)="onBook(result)">
-            <span>Select & Continue</span>
-            <mat-icon>arrow_forward</mat-icon>
-          </button>
         </div>
       </div>
     </div>
@@ -315,436 +323,316 @@ import { Router } from '@angular/router';
     .results-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 14px;
+      gap: 1.75rem;
       padding: 0 2rem;
     }
 
     /* ============================================
-       PREMIUM FLIGHT CARDS
+       PREMIUM FLIGHT CARDS - HOME STYLE
        ============================================ */
-    .flight-card-premium {
-      background: linear-gradient(to bottom, #ffffff 0%, #fefefe 100%);
-      border-radius: 14px;
+    .flight-card {
+      background: white;
+      border-radius: 16px;
       overflow: hidden;
-      position: relative;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(139, 108, 80, 0.12);
-      box-shadow: 
-        0 2px 12px rgba(0, 0, 0, 0.05),
-        0 1px 3px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(139, 108, 80, 0.1);
     }
-
-    .flight-card-premium:hover {
-      transform: translateY(-4px);
-      box-shadow: 
-        0 8px 24px rgba(139, 108, 80, 0.18),
-        0 4px 12px rgba(139, 108, 80, 0.1);
-      border-color: rgba(139, 108, 80, 0.25);
+    
+    .flight-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(139, 108, 80, 0.2);
+      border-color: #8b6c50;
     }
-
-    /* Card Header */
-    .flight-header {
+    
+    /* Airline Header */
+    .flight-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 20px;
-      background: linear-gradient(to right, #fafafa 0%, #f8f8f8 100%);
-      border-bottom: 1px solid rgba(139, 108, 80, 0.08);
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #fdfcfb 0%, white 100%);
+      border-bottom: 1px solid rgba(139, 108, 80, 0.1);
     }
-
-    .airline-section {
+    
+    .airline-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
-
-    .airline-logo {
-      width: 40px;
-      height: 40px;
+    
+    .airline-logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%);
-      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 
-        0 3px 8px rgba(139, 108, 80, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(139, 108, 80, 0.25);
     }
-
-    .flight-card-premium:hover .airline-logo {
-      transform: scale(1.08);
-      box-shadow: 
-        0 4px 12px rgba(139, 108, 80, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    .airline-logo mat-icon {
+    
+    .airline-logo-badge mat-icon {
       color: white;
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
     }
-
-    .airline-details {
+    
+    .airline-text {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
-
+    
     .airline-name {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #2d2416;
-      margin: 0;
-      letter-spacing: -0.01em;
-    }
-
-    .flight-number {
-      font-size: 0.72rem;
-      color: #8b6c50;
       font-weight: 600;
-      padding: 3px 8px;
-      background: linear-gradient(135deg, rgba(139, 108, 80, 0.08) 0%, rgba(196, 165, 116, 0.12) 100%);
-      border-radius: 5px;
-      display: inline-block;
-      width: fit-content;
-      border: 1px solid rgba(139, 108, 80, 0.1);
+      color: #2d2416;
+      font-size: 0.95rem;
     }
-
-    .price-section {
-      text-align: right;
+    
+    .flight-number {
+      font-size: 0.8rem;
+      color: #6d5d4b;
+    }
+    
+    .direct-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    
+    .direct-badge mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+    
+    /* Route Visualization */
+    .flight-route {
+      display: flex;
+      align-items: center;
+      padding: 1.75rem 1.5rem;
+      background: linear-gradient(90deg, rgba(139, 108, 80, 0.04) 0%, transparent 50%, rgba(139, 108, 80, 0.04) 100%);
+    }
+    
+    .route-point {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .route-icon {
+      color: #8b6c50;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+    
+    .route-details {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      gap: 3px;
+      gap: 2px;
     }
-
-    .price-tag {
-      display: flex;
-      align-items: flex-start;
-      line-height: 1;
-      padding: 8px 14px;
-      background: linear-gradient(135deg, rgba(139, 108, 80, 0.06) 0%, rgba(196, 165, 116, 0.1) 100%);
-      border-radius: 10px;
-      border: 1.5px solid rgba(196, 165, 116, 0.2);
-      transition: all 0.3s ease;
-    }
-
-    .flight-card-premium:hover .price-tag {
-      background: linear-gradient(135deg, rgba(139, 108, 80, 0.1) 0%, rgba(196, 165, 116, 0.15) 100%);
-      border-color: rgba(196, 165, 116, 0.35);
-      transform: scale(1.03);
-    }
-
-    .price-currency {
-      font-size: 0.9rem;
+    
+    .airport-code-large {
+      font-size: 1.4rem;
       font-weight: 700;
-      color: #a8845c;
-      margin-top: 2px;
-      margin-right: 2px;
+      color: #2d2416;
+      line-height: 1;
     }
-
-    .price-amount {
-      font-size: 1.65rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-    }
-
-    .price-label {
-      font-size: 0.68rem;
+    
+    .city-name {
+      font-size: 0.8rem;
       color: #6d5d4b;
-      font-weight: 500;
     }
-
-    /* Flight Timeline */
-    .flight-timeline {
-      padding: 18px 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      background: white;
+    
+    .route-line {
+      flex: 1;
       position: relative;
-    }
-
-    .flight-timeline::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 16px;
-      right: 16px;
-      height: 1px;
-      background: rgba(139, 108, 80, 0.1);
-    }
-
-    .timeline-point {
-      flex: 1 1 auto;
-      min-width: 0;
-      display: flex;
-      gap: 10px;
-    }
-
-    .timeline-icon-wrapper {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, rgba(139, 108, 80, 0.08) 0%, rgba(196, 165, 116, 0.12) 100%);
-      border-radius: 10px;
+      height: 2px;
+      background: linear-gradient(90deg, #8b6c50 0%, #c4a574 50%, #8b6c50 100%);
+      margin: 0 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.3s ease;
-      border: 1.5px solid rgba(196, 165, 116, 0.2);
-      box-shadow: 0 2px 6px rgba(139, 108, 80, 0.08);
     }
-
-    .flight-card-premium:hover .timeline-icon-wrapper {
-      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 100%);
-      border-color: #c4a574;
-      transform: scale(1.08);
-      box-shadow: 0 4px 10px rgba(139, 108, 80, 0.25);
+    
+    .plane-icon {
+      background: white;
+      border-radius: 50%;
+      padding: 6px;
+      box-shadow: 0 2px 8px rgba(139, 108, 80, 0.2);
     }
-
-    .timeline-icon-wrapper mat-icon {
+    
+    .plane-icon mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #8b6c50;
+      transform: rotate(90deg);
+    }
+    
+    /* Flight Details */
+    .flight-details {
+      padding: 1.25rem 1.5rem;
+    }
+    
+    .time-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .time-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(139, 108, 80, 0.05);
+      border-radius: 10px;
+    }
+    
+    .time-block mat-icon {
       color: #8b6c50;
       font-size: 18px;
       width: 18px;
       height: 18px;
-      transition: all 0.3s ease;
     }
-
-    .flight-card-premium:hover .timeline-icon-wrapper mat-icon {
-      color: white;
-      transform: scale(1.1);
-    }
-
-    .timeline-info {
+    
+    .time-text {
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      min-width: 0;
-      flex: 1;
+      gap: 2px;
     }
-
-    .timeline-label {
-      font-size: 0.68rem;
-      color: #c4a574;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .timeline-time {
-      font-size: 1.15rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #2d2416 0%, #6d5d4b 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-    }
-
-    .timeline-date {
-      font-size: 0.78rem;
-      color: #6d5d4b;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    .timeline-location {
-      font-size: 0.88rem;
-      color: #2d2416;
-      font-weight: 700;
-      margin-top: 2px;
-      padding: 3px 8px;
-      background: linear-gradient(135deg, rgba(196, 165, 116, 0.1) 0%, rgba(139, 108, 80, 0.08) 100%);
-      border-radius: 6px;
-      display: inline-block;
-      width: fit-content;
-      max-width: 100%;
-      border: 1px solid rgba(139, 108, 80, 0.08);
-      white-space: normal;
-      word-break: break-word;
-    }
-
-    .timeline-connector {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 80px;
-      max-width: 90px;
-      flex-shrink: 0;
-    }
-
-    .connector-line {
-      flex: 1;
-      height: 2px;
-      background: rgba(139, 108, 80, 0.2);
-      border-radius: 2px;
-    }
-
-    .connector-duration {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      color: #8b6c50;
+    
+    .time-label {
       font-size: 0.7rem;
-      font-weight: 700;
-      white-space: nowrap;
-      padding: 4px 8px;
-      background: rgba(139, 108, 80, 0.06);
-      border-radius: 6px;
-      border: 1px solid rgba(139, 108, 80, 0.12);
+      color: #6d5d4b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-
-    .connector-duration mat-icon {
+    
+    .time-value {
+      font-weight: 600;
+      color: #2d2416;
+      font-size: 0.85rem;
+    }
+    
+    .flight-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: rgba(139, 108, 80, 0.08);
+      border-radius: 16px;
+      font-size: 0.8rem;
+      color: #2d2416;
+    }
+    
+    .meta-item mat-icon {
       font-size: 14px;
       width: 14px;
       height: 14px;
       color: #8b6c50;
     }
-
-    /* Flight Features */
-    .flight-features {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      padding: 14px 20px;
-      background: linear-gradient(to bottom, #fafafa 0%, #f8f8f8 100%);
-      border-top: 1px solid rgba(139, 108, 80, 0.08);
-      border-bottom: 1px solid rgba(139, 108, 80, 0.08);
-    }
-
-    .feature-item {
+    
+    .urgency-label {
       display: flex;
       align-items: center;
-      gap: 8px;
-      color: #2d2416;
-      font-weight: 600;
-      font-size: 0.82rem;
-      padding: 9px 12px;
-      background: white;
-      border-radius: 8px;
-      border: 1px solid rgba(139, 108, 80, 0.1);
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .feature-item::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(196, 165, 116, 0.06) 0%, rgba(139, 108, 80, 0.04) 100%);
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-
-    .feature-item:hover {
-      border-color: rgba(196, 165, 116, 0.25);
-      box-shadow: 0 2px 8px rgba(139, 108, 80, 0.12);
-      transform: translateX(2px);
-    }
-
-    .feature-item:hover::before {
-      opacity: 1;
-    }
-
-    .feature-item mat-icon {
-      color: #c4a574;
-      font-size: 17px;
-      width: 17px;
-      height: 17px;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-      transition: all 0.25s ease;
-    }
-
-    .feature-item:hover mat-icon {
-      color: #8b6c50;
-      transform: scale(1.1);
-    }
-
-    .feature-item span {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Book Button */
-    .book-flight-btn {
-      width: 100%;
-      padding: 15px 20px;
-      background: linear-gradient(135deg, #8b6c50 0%, #a8845c 50%, #6d5d4b 100%);
+      gap: 4px;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: white;
-      border: none;
-      font-size: 0.95rem;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    
+    .urgency-label mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: white;
+    }
+    
+    /* Price & Booking Footer */
+    .flight-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid rgba(139, 108, 80, 0.1);
+      background: linear-gradient(135deg, #fdfcfb 0%, white 100%);
+    }
+    
+    .price-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .price-from {
+      font-size: 0.7rem;
+      color: #6d5d4b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .price-amount {
+      font-size: 1.75rem;
       font-weight: 700;
+      color: #8b6c50;
+      line-height: 1;
+    }
+    
+    .price-unit {
+      font-size: 0.75rem;
+      color: #6d5d4b;
+    }
+    
+    .book-btn {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      gap: 8px;
+      padding: 0 1.5rem !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
+      color: white !important;
+      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.3) !important;
+      transition: all 0.3s !important;
+      border: none;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 
-        0 4px 12px rgba(139, 108, 80, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
     }
-
-    .book-flight-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.6s ease;
-    }
-
-    .book-flight-btn:hover::before {
-      left: 100%;
-    }
-
-    .book-flight-btn:hover {
-      background: linear-gradient(135deg, #6d5d4b 0%, #8b6c50 50%, #5a4d3d 100%);
-      box-shadow: 
-        0 6px 20px rgba(139, 108, 80, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    
+    .book-btn:hover {
       transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.4) !important;
     }
-
-    .book-flight-btn:active {
-      transform: translateY(0);
-      box-shadow: 
-        0 2px 8px rgba(139, 108, 80, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    }
-
-    .book-flight-btn mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .book-flight-btn:hover mat-icon {
-      transform: translateX(4px) scale(1.1);
+    
+    .book-btn mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     /* ============================================
@@ -868,10 +756,6 @@ import { Router } from '@angular/router';
       .results-grid {
         grid-template-columns: 1fr;
       }
-
-      .flight-features {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 768px) {
@@ -888,38 +772,28 @@ import { Router } from '@angular/router';
         padding: 0 1rem;
       }
 
-      .flight-timeline {
+      .flight-route {
         flex-direction: column;
-        gap: 24px;
+        gap: 16px;
       }
 
-      .timeline-connector {
-        flex-direction: column;
-        width: 100%;
-        min-width: auto;
-      }
-
-      .connector-line {
+      .route-line {
         width: 2px;
         height: 40px;
+        margin: 0;
       }
 
-      .connector-duration {
-        transform: rotate(0deg);
+      .plane-icon mat-icon {
+        transform: rotate(180deg);
       }
 
-      .flight-header {
+      .flight-card-header {
         flex-direction: column;
-        gap: 20px;
-        text-align: center;
+        gap: 12px;
       }
 
-      .airline-section {
-        flex-direction: column;
-      }
-
-      .price-section {
-        align-items: center;
+      .time-info {
+        grid-template-columns: 1fr;
       }
 
       .empty-state,
@@ -930,19 +804,19 @@ import { Router } from '@angular/router';
 
     @media (max-width: 480px) {
       .price-amount {
-        font-size: 2.25rem;
+        font-size: 1.5rem;
       }
 
-      .timeline-time {
-        font-size: 1.25rem;
+      .airport-code-large {
+        font-size: 1.2rem;
       }
 
-      .flight-header,
-      .flight-timeline,
-      .flight-features,
-      .book-flight-btn {
-        padding-left: 20px;
-        padding-right: 20px;
+      .flight-card-header,
+      .flight-route,
+      .flight-details,
+      .flight-footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
       }
     }
   `]
@@ -950,6 +824,8 @@ import { Router } from '@angular/router';
 export class SearchResultsComponent {
   @Input() results: any[] = [];
   @Input() isLoading: boolean = false;
+  
+  sessionStorage = sessionStorage;
 
   constructor(private router: Router) {}
 

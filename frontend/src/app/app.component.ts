@@ -31,8 +31,15 @@ import { AuthService } from './auth/auth.service';
           <a routerLink="/search" 
              routerLinkActive="active"
              class="nav-link">
-            <mat-icon>search</mat-icon>
-            <span>Search</span>
+            <mat-icon>flight</mat-icon>
+            <span>Flights</span>
+          </a>
+          
+          <a routerLink="/hotels" 
+             routerLinkActive="active"
+             class="nav-link">
+            <mat-icon>hotel</mat-icon>
+            <span>Hotels</span>
           </a>
           
           <a *ngIf="isAuthenticated" 
@@ -95,8 +102,16 @@ import { AuthService } from './auth/auth.service';
            (click)="closeMobileMenu()"
            routerLinkActive="active"
            class="mobile-nav-link">
-          <mat-icon>search</mat-icon>
-          <span>Search</span>
+          <mat-icon>flight</mat-icon>
+          <span>Flights</span>
+        </a>
+        
+        <a routerLink="/hotels" 
+           (click)="closeMobileMenu()"
+           routerLinkActive="active"
+           class="mobile-nav-link">
+          <mat-icon>hotel</mat-icon>
+          <span>Hotels</span>
         </a>
         
         <a *ngIf="isAuthenticated" 

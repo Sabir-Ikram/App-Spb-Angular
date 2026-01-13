@@ -18,6 +18,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
+// Extended Hotel type with resolved image URL
+interface HotelWithImage extends Hotel {
+  resolvedImageUrl?: string;
+}
+
 @Component({
   selector: 'app-hotel-search',
   standalone: true,
@@ -50,15 +55,23 @@ import { of } from 'rxjs';
           <h1 class="hero-heading-luxury">Experience Extraordinary Stays</h1>
           <p class="hero-text-luxury">Discover handpicked hotels and resorts across the globe • Powered by Booking.com with 2,800+ premium properties</p>
           
-          <!-- Inline Luxury Search Card -->
-          <div class="luxury-search-inline">
+          <!-- Premium Floating Label Search Card -->
+          <div class="search-card-moroccan-glass">
             <form (submit)="onSearch()">
-              <div class="search-fields-grid">
-                <div class="field-container">
-                  <mat-form-field appearance="outline" class="luxury-field">
-                    <mat-label>Destination</mat-label>
-                    <mat-icon matPrefix>location_city</mat-icon>
-                    <input matInput [formControl]="cityControl" [matAutocomplete]="autoCity" placeholder="Where to?" required />
+              <div class="search-grid-luxury">
+                <!-- Destination Field -->
+                <div class="luxury-field-wrapper">
+                  <div class="floating-field-container" [class.has-value]="cityControl.value">
+                    <mat-icon class="luxury-icon">location_city</mat-icon>
+                    <input 
+                      type="text"
+                      class="luxury-input"
+                      [formControl]="cityControl"
+                      [matAutocomplete]="autoCity"
+                      required
+                    />
+                    <label class="floating-label">Destination</label>
+                    <div class="field-border"></div>
                     <mat-autocomplete #autoCity="matAutocomplete" [displayWith]="displayCity">
                       <mat-option *ngFor="let dest of cityDestinations" [value]="dest">
                         <div class="luxury-autocomplete-option">
@@ -72,32 +85,54 @@ import { of } from 'rxjs';
                         </div>
                       </mat-option>
                     </mat-autocomplete>
-                  </mat-form-field>
+                  </div>
                 </div>
 
-                <div class="field-container">
-                  <mat-form-field appearance="outline" class="luxury-field">
-                    <mat-label>Check-in</mat-label>
-                    <mat-icon matPrefix>event_available</mat-icon>
-                    <input matInput [matDatepicker]="pickerIn" [(ngModel)]="checkInDate" name="checkInDate" placeholder="Arrival" required />
-                    <mat-datepicker-toggle matSuffix [for]="pickerIn"></mat-datepicker-toggle>
+                <!-- Check-in Date Field -->
+                <div class="luxury-field-wrapper">
+                  <div class="floating-field-container" [class.has-value]="checkInDate">
+                    <mat-icon class="luxury-icon">today</mat-icon>
+                    <input 
+                      type="text"
+                      class="luxury-input"
+                      [matDatepicker]="pickerIn"
+                      [(ngModel)]="checkInDate"
+                      name="checkInDate"
+                      required
+                      readonly
+                    />
+                    <label class="floating-label">Check-in</label>
+                    <div class="field-border"></div>
+                    <mat-datepicker-toggle matSuffix [for]="pickerIn" class="luxury-datepicker-toggle"></mat-datepicker-toggle>
                     <mat-datepicker #pickerIn></mat-datepicker>
-                  </mat-form-field>
+                  </div>
                 </div>
 
-                <div class="field-container">
-                  <mat-form-field appearance="outline" class="luxury-field">
-                    <mat-label>Check-out</mat-label>
-                    <mat-icon matPrefix>event_busy</mat-icon>
-                    <input matInput [matDatepicker]="pickerOut" [(ngModel)]="checkOutDate" name="checkOutDate" placeholder="Departure" required />
-                    <mat-datepicker-toggle matSuffix [for]="pickerOut"></mat-datepicker-toggle>
+                <!-- Check-out Date Field -->
+                <div class="luxury-field-wrapper">
+                  <div class="floating-field-container" [class.has-value]="checkOutDate">
+                    <mat-icon class="luxury-icon">date_range</mat-icon>
+                    <input 
+                      type="text"
+                      class="luxury-input"
+                      [matDatepicker]="pickerOut"
+                      [(ngModel)]="checkOutDate"
+                      name="checkOutDate"
+                      required
+                      readonly
+                    />
+                    <label class="floating-label">Check-out</label>
+                    <div class="field-border"></div>
+                    <mat-datepicker-toggle matSuffix [for]="pickerOut" class="luxury-datepicker-toggle"></mat-datepicker-toggle>
                     <mat-datepicker #pickerOut></mat-datepicker>
-                  </mat-form-field>
+                  </div>
                 </div>
 
-                <button mat-raised-button type="submit" class="luxury-search-button" [disabled]="loading">
-                  <mat-icon>${'{{loading ? "hourglass_empty" : "search"}}'}</mat-icon>
-                  <span>${'{{loading ? "Searching..." : "Find Hotels"}}'}</span>
+                <!-- Search Button -->
+                <button type="submit" class="luxury-search-button" [disabled]="loading">
+                  <span class="button-text">${'{{loading ? "Searching..." : "Find Hotels"}}'}</span>
+                  <mat-icon class="button-icon">${'{{loading ? "hourglass_empty" : "search"}}'}</mat-icon>
+                  <div class="button-shine"></div>
                 </button>
               </div>
             </form>
@@ -143,9 +178,14 @@ import { of } from 'rxjs';
         </div>
         
         <div class="luxury-hotels-grid">
-          <div *ngFor="let hotel of hotels" class="luxury-hotel-card">
+          <div *ngFor="let hotel of hotels; trackBy: trackByHotelId" class="luxury-hotel-card">
             <div class="hotel-visual">
-              <img [src]="hotel.imageUrl" [alt]="hotel.name" class="hotel-cover" />
+              <img 
+                [src]="hotel.resolvedImageUrl" 
+                [alt]="hotel.name" 
+                class="hotel-cover"
+                (error)="$any($event.target).src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&h=600&q=80'" 
+              />
               <div class="visual-overlay"></div>
               <div class="rating-jewel">
                 <mat-icon>grade</mat-icon>
@@ -340,186 +380,233 @@ import { of } from 'rxjs';
     }
 
     /* ============================================
-       LUXURY INLINE SEARCH CARD
+       PREMIUM FLOATING LABEL SEARCH CARD
        ============================================ */
-    .luxury-search-inline {
-      background: rgba(255, 255, 255, 0.97);
-      backdrop-filter: blur(35px);
-      border-radius: 28px;
+    .search-card-moroccan-glass {
+      background: #ffffff;
+      border-radius: 24px;
       padding: 3rem;
       box-shadow: 
-        0 30px 80px rgba(0, 0, 0, 0.4),
-        0 18px 40px rgba(0, 0, 0, 0.3),
-        inset 0 2px 0 rgba(255, 255, 255, 0.35);
-      border: 2px solid rgba(255, 255, 255, 0.5);
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.08);
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
 
-    .luxury-search-inline::before {
-      content: '';
+    .search-grid-luxury {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr) auto;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+
+    /* ============================================
+       FLOATING LABEL INPUT SYSTEM
+       ============================================ */
+    .luxury-field-wrapper {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .floating-field-container {
+      position: relative;
+      width: 100%;
+      flex: 1;
+    }
+
+    .luxury-icon {
       position: absolute;
-      top: 0;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #1a365d;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      z-index: 2;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .luxury-input {
+      width: 100%;
+      height: 58px;
+      padding: 24px 16px 8px 52px;
+      border: 2px solid rgba(26, 54, 93, 0.15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #1a365d;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Inter', 'Poppins', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .luxury-input:focus {
+      background: white;
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    .floating-label {
+      position: absolute;
+      left: 52px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(26, 54, 93, 0.6);
+      font-size: 0.95rem;
+      font-weight: 500;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: transparent;
+      padding: 0 4px;
+      z-index: 2;
+    }
+
+    .luxury-input:focus ~ .floating-label,
+    .floating-field-container.has-value .floating-label {
+      top: 8px;
+      left: 52px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field-border {
+      position: absolute;
+      bottom: 0;
       left: 0;
       right: 0;
-      height: 5px;
-      background: linear-gradient(90deg, #c4a574 0%, #d4722c 50%, #c4a574 100%);
-      opacity: 0.75;
+      height: 2px;
+      background: linear-gradient(90deg, #d4af37 0%, #b8941f 100%);
+      transform: scaleX(0);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 0 0 12px 12px;
+      z-index: 3;
     }
 
-    .search-fields-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr) minmax(160px, auto);
-      gap: 1.5rem;
-      align-items: end;
+    .luxury-input:focus ~ .field-border {
+      transform: scaleX(1);
     }
 
-    .field-container {
-      position: relative;
-      transition: transform 0.25s ease;
+    .luxury-input:focus ~ .luxury-icon,
+    .floating-field-container.has-value .luxury-icon {
+      color: #d4af37;
+      transform: translateY(-50%) scale(1.05);
     }
 
-    .field-container:hover {
-      transform: translateY(-3px);
+    /* ============================================
+       DATEPICKER TOGGLE STYLING
+       ============================================ */
+    .luxury-datepicker-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
     }
 
-    .luxury-field {
-      width: 100%;
-    }
-
-    ::ng-deep .luxury-field .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #ffffff 0%, #fdfcfb 100%);
-      border-radius: 16px;
+    ::ng-deep .luxury-datepicker-toggle button {
+      color: #1a365d;
       transition: all 0.3s ease;
     }
 
-    ::ng-deep .luxury-field:hover .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #fdfcfb 0%, #f8f6f3 100%);
+    ::ng-deep .luxury-datepicker-toggle button:hover {
+      color: #d4af37;
     }
 
-    ::ng-deep .luxury-field .mat-mdc-form-field-focus-overlay {
-      background-color: rgba(139, 108, 80, 0.04);
+    ::ng-deep .luxury-input:focus ~ .luxury-datepicker-toggle button {
+      color: #d4af37;
     }
 
-    ::ng-deep .luxury-field .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.25);
-      border-width: 2px;
-      transition: all 0.3s ease;
-    }
-
-    ::ng-deep .luxury-field:hover .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.5);
-      box-shadow: 0 3px 12px rgba(139, 108, 80, 0.1);
-    }
-
-    ::ng-deep .luxury-field.mat-focused .mat-mdc-notched-outline {
-      border-color: #c4a574 !important;
-      border-width: 2.5px !important;
-      box-shadow: 0 5px 20px rgba(196, 165, 116, 0.2);
-    }
-
-    ::ng-deep .luxury-field .mat-mdc-floating-label {
-      color: #6d5d4b;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    ::ng-deep .luxury-field.mat-focused .mat-mdc-floating-label {
-      color: #c4a574 !important;
-      font-weight: 800;
-    }
-
-    ::ng-deep .luxury-field mat-icon[matPrefix] {
-      color: #c4a574;
-      margin-right: 16px;
-      opacity: 0.75;
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      transition: all 0.3s ease;
-    }
-
-    ::ng-deep .luxury-field.mat-focused mat-icon[matPrefix] {
-      opacity: 1;
-      transform: scale(1.12);
-    }
-
-    ::ng-deep .luxury-field input {
-      color: #2d2416;
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    ::ng-deep .luxury-field input::placeholder {
-      color: rgba(109, 93, 75, 0.5);
-      font-weight: 500;
-    }
-
+    /* ============================================
+       LUXURY SEARCH BUTTON WITH GRADIENT & SHINE
+       ============================================ */
     .luxury-search-button {
-      height: 64px !important;
-      min-width: 160px !important;
-      padding: 0 2.5rem !important;
-      border-radius: 16px !important;
-      background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
-      color: white !important;
-      font-weight: 800 !important;
-      font-size: 1.1rem !important;
+      height: 58px;
+      min-width: 160px;
+      padding: 0 2.5rem;
+      background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Inter', 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 
-        0 12px 32px rgba(139, 108, 80, 0.5),
-        0 5px 15px rgba(139, 108, 80, 0.35) !important;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        0 10px 30px rgba(212, 175, 55, 0.4),
+        0 4px 12px rgba(212, 175, 55, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      white-space: nowrap;
-      letter-spacing: 0.025em;
-      position: relative;
-      overflow: hidden;
+      gap: 12px;
+      align-self: stretch;
     }
 
-    .luxury-search-button::before {
-      content: '';
+    .luxury-search-button:hover:not([disabled]) {
+      transform: translateY(-3px);
+      box-shadow: 
+        0 16px 40px rgba(212, 175, 55, 0.5),
+        0 8px 20px rgba(212, 175, 55, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #b8941f 0%, #a07a1a 100%);
+    }
+
+    .luxury-search-button:active:not([disabled]) {
+      transform: translateY(-1px);
+    }
+
+    .luxury-search-button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .button-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .button-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease;
+    }
+
+    .luxury-search-button:hover:not([disabled]) .button-icon {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    .button-shine {
       position: absolute;
       top: 0;
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       transition: left 0.6s ease;
+      z-index: 1;
     }
 
-    .luxury-search-button:hover::before {
+    .luxury-search-button:hover:not([disabled]) .button-shine {
       left: 100%;
-    }
-
-    .luxury-search-button:hover:not([disabled]) {
-      transform: translateY(-4px);
-      box-shadow: 
-        0 16px 40px rgba(139, 108, 80, 0.55),
-        0 8px 20px rgba(139, 108, 80, 0.4) !important;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
-    }
-
-    .luxury-search-button:active:not([disabled]) {
-      transform: translateY(-2px);
-    }
-
-    .luxury-search-button[disabled] {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    .luxury-search-button mat-icon {
-      font-size: 26px;
-      width: 26px;
-      height: 26px;
-      transition: transform 0.3s ease;
-    }
-
-    .luxury-search-button:hover:not([disabled]) mat-icon {
-      transform: scale(1.15) rotate(8deg);
     }
 
     /* ============================================
@@ -800,14 +887,14 @@ import { of } from 'rxjs';
        ============================================ */
     .luxury-hotels-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-      gap: 2.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
     }
 
     .luxury-hotel-card {
       display: flex;
       flex-direction: column;
-      border-radius: 24px;
+      border-radius: 16px;
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       border: 2px solid rgba(139, 108, 80, 0.15);
@@ -817,7 +904,7 @@ import { of } from 'rxjs';
     }
 
     .luxury-hotel-card:hover {
-      transform: translateY(-10px);
+      transform: translateY(-6px);
       box-shadow: 0 20px 60px rgba(139, 108, 80, 0.25);
       border-color: #c4a574;
     }
@@ -825,7 +912,7 @@ import { of } from 'rxjs';
     .hotel-visual {
       position: relative;
       width: 100%;
-      height: 280px;
+      height: 160px;
       overflow: hidden;
       background: linear-gradient(135deg, #f8f6f3 0%, #f0ede8 100%);
     }
@@ -855,49 +942,49 @@ import { of } from 'rxjs';
 
     .rating-jewel {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 12px;
+      right: 12px;
       background: linear-gradient(135deg, #fdb924 0%, #f7931e 100%);
       color: white;
-      padding: 10px 20px;
-      border-radius: 24px;
+      padding: 6px 12px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-weight: 800;
-      font-size: 1.15rem;
-      box-shadow: 0 6px 20px rgba(253, 185, 36, 0.5);
+      gap: 5px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(253, 185, 36, 0.4);
       z-index: 2;
     }
 
     .rating-jewel mat-icon {
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     .nights-badge {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 12px;
+      left: 12px;
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       color: #6d5d4b;
-      padding: 10px 18px;
-      border-radius: 22px;
+      padding: 6px 12px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      gap: 5px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
       z-index: 2;
     }
 
     .nights-badge mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
       color: #8b6c50;
     }
 
@@ -905,18 +992,18 @@ import { of } from 'rxjs';
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 2rem;
+      padding: 1rem;
     }
 
     .hotel-header {
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.75rem;
     }
 
     .hotel-title {
-      font-size: 1.65rem;
-      font-weight: 800;
+      font-size: 1.25rem;
+      font-weight: 700;
       color: #2d2416;
-      margin: 0 0 0.75rem 0;
+      margin: 0 0 0.5rem 0;
       line-height: 1.3;
       letter-spacing: -0.01em;
     }
@@ -924,55 +1011,55 @@ import { of } from 'rxjs';
     .hotel-location {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: #6d5d4b;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-weight: 600;
     }
 
     .hotel-location mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
       color: #c4a574;
     }
 
     .hotel-summary {
       color: #495057;
-      margin: 0 0 1.5rem 0;
-      font-size: 0.95rem;
-      line-height: 1.65;
+      margin: 0 0 1rem 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
       flex: 1;
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       font-weight: 500;
     }
 
     .amenities-row {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
     }
 
     .amenity-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
-      padding: 10px 18px;
-      border-radius: 14px;
+      padding: 6px 12px;
+      border-radius: 10px;
       color: #6d5d4b;
-      font-weight: 700;
-      font-size: 0.9rem;
+      font-weight: 600;
+      font-size: 0.8rem;
       border: 1.5px solid rgba(139, 108, 80, 0.15);
     }
 
     .amenity-badge mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
       color: #c4a574;
     }
 
@@ -980,22 +1067,22 @@ import { of } from 'rxjs';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.75rem;
+      padding: 0.875rem;
       background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
-      border-radius: 18px;
-      margin: auto 0 1.5rem 0;
-      gap: 1.5rem;
+      border-radius: 12px;
+      margin: auto 0 0.875rem 0;
+      gap: 1rem;
       border: 2px solid rgba(139, 108, 80, 0.1);
     }
 
     .price-column {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
     }
 
     .from-label {
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       color: #6d5d4b;
       font-weight: 600;
       text-transform: uppercase;
@@ -1005,17 +1092,17 @@ import { of } from 'rxjs';
     .price-amount {
       display: flex;
       align-items: baseline;
-      gap: 4px;
+      gap: 3px;
     }
 
     .currency {
-      font-size: 1.3rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #c4a574;
     }
 
     .amount {
-      font-size: 2.5rem;
+      font-size: 1.75rem;
       font-weight: 800;
       background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
       -webkit-background-clip: text;
@@ -1025,14 +1112,14 @@ import { of } from 'rxjs';
     }
 
     .per-night {
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       color: #6d5d4b;
       font-weight: 500;
     }
 
     .divider-line {
       width: 2px;
-      height: 60px;
+      height: 45px;
       background: linear-gradient(180deg, transparent 0%, rgba(139, 108, 80, 0.3) 50%, transparent 100%);
     }
 
@@ -1040,11 +1127,11 @@ import { of } from 'rxjs';
       text-align: right;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 3px;
     }
 
     .total-label {
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       color: #6d5d4b;
       font-weight: 600;
       text-transform: uppercase;
@@ -1052,38 +1139,38 @@ import { of } from 'rxjs';
     }
 
     .total-amount {
-      font-size: 1.8rem;
+      font-size: 1.35rem;
       font-weight: 800;
       color: #2d2416;
     }
 
     .reserve-button {
       width: 100%;
-      height: 58px !important;
-      font-size: 1.15rem !important;
-      font-weight: 800 !important;
-      border-radius: 16px !important;
+      height: 48px !important;
+      font-size: 1rem !important;
+      font-weight: 700 !important;
+      border-radius: 12px !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
       color: white !important;
-      box-shadow: 0 8px 24px rgba(139, 108, 80, 0.4) !important;
+      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.3) !important;
       transition: all 0.3s ease;
       letter-spacing: 0.02em;
     }
 
     .reserve-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(139, 108, 80, 0.5) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(139, 108, 80, 0.4) !important;
       background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
     }
 
     .reserve-button mat-icon {
-      font-size: 26px;
-      width: 26px;
-      height: 26px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     /* ============================================
@@ -1173,7 +1260,7 @@ import { of } from 'rxjs';
        RESPONSIVE DESIGN
        ============================================ */
     @media (max-width: 1024px) {
-      .search-fields-grid {
+      .search-grid-luxury {
         grid-template-columns: 1fr 1fr;
       }
 
@@ -1205,13 +1292,50 @@ import { of } from 'rxjs';
         margin-bottom: 2.5rem;
       }
 
-      .luxury-search-inline {
+      .search-card-moroccan-glass {
         padding: 2rem 1.5rem;
       }
 
-      .search-fields-grid {
+      .search-grid-luxury {
         grid-template-columns: 1fr;
         gap: 1.25rem;
+      }
+
+      .luxury-input {
+        height: 52px;
+        padding: 20px 16px 8px 48px;
+        font-size: 0.9rem;
+      }
+
+      .luxury-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        left: 14px;
+      }
+
+      .floating-label {
+        left: 48px;
+        font-size: 0.9rem;
+      }
+
+      .luxury-input:focus ~ .floating-label,
+      .floating-field-container.has-value .floating-label {
+        left: 48px;
+        font-size: 0.65rem;
+      }
+
+      .luxury-search-button {
+        height: 52px;
+        min-width: 140px;
+        padding: 0 2rem;
+        font-size: 0.95rem;
+      }
+
+      .button-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
 
       .results-header-luxury {
@@ -1263,6 +1387,36 @@ import { of } from 'rxjs';
         font-size: 0.8rem;
         padding: 10px 20px;
       }
+
+      .luxury-input {
+        height: 50px;
+        padding: 18px 12px 6px 44px;
+        font-size: 0.85rem;
+      }
+
+      .luxury-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        left: 12px;
+      }
+
+      .floating-label {
+        left: 44px;
+        font-size: 0.85rem;
+      }
+
+      .luxury-input:focus ~ .floating-label,
+      .floating-field-container.has-value .floating-label {
+        left: 44px;
+        font-size: 0.6rem;
+      }
+
+      .luxury-search-button {
+        height: 50px;
+        padding: 0 1.5rem;
+        font-size: 0.9rem;
+      }
     }
 
     /* ============================================
@@ -1292,13 +1446,32 @@ export class HotelSearchComponent implements OnInit {
   selectedCity: any = null;
   checkInDate: Date | null = null;
   checkOutDate: Date | null = null;
-  hotels: Hotel[] = [];
+  hotels: HotelWithImage[] = [];
   loading = false;
   searched = false;
   
   // Pagination
   currentLimit = 20;
   availableLimits = [10, 20, 30, 50];
+
+  // Premium hotel image pool (fallback for Amadeus hotels)
+  private readonly HOTEL_IMAGES = [
+    'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa',
+    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4',
+    'https://images.unsplash.com/photo-1519821172141-b5d8c58c7b0f',
+    'https://images.unsplash.com/photo-1501117716987-c8e1ecb2105b',
+    'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
+    'https://images.unsplash.com/photo-1559599101-f09722fb4948',
+    'https://images.unsplash.com/photo-1578683010236-d716f9a3f461',
+    'https://images.unsplash.com/photo-1618773928121-c32242e63f39',
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b',
+    'https://images.unsplash.com/photo-1541971875076-8f970d573be6',
+    'https://images.unsplash.com/photo-1571896349842-33c89424de2d',
+    'https://images.unsplash.com/photo-1590490360182-c33d57733427'
+  ];
 
   constructor(
     private hotelService: HotelService,
@@ -1400,9 +1573,14 @@ export class HotelSearchComponent implements OnInit {
 
     this.hotelService.list(cityCode, this.currentLimit).subscribe({
       next: (hotels) => {
-        this.hotels = hotels;
+        // Assign unique images ONCE when data arrives
+        // Strategy: Booking.com real images → Amadeus stable Unsplash → fallback
+        this.hotels = hotels.map(hotel => ({
+          ...hotel,
+          resolvedImageUrl: this.resolveHotelImage(hotel)
+        }));
         this.loading = false;
-        console.log('Hotels received:', hotels);
+        console.log('Hotels received with resolved images:', this.hotels);
       },
       error: (err) => {
         console.error('Error searching hotels:', err);
@@ -1453,7 +1631,74 @@ export class HotelSearchComponent implements OnInit {
     return diffDays || 1;
   }
 
-  onViewDetails(hotel: Hotel) {
+  /**
+   * Generates deterministic hash from string input
+   * Used to consistently map hotel identity to same image
+   * 
+   * @param input - String to hash (hotel ID + city context)
+   * @returns Positive integer hash value
+   */
+  private hashString(input: string): number {
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      hash = ((hash << 5) - hash) + input.charCodeAt(i);
+      hash |= 0; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  /**
+   * 🏆 PROFESSIONAL IMAGE RESOLUTION STRATEGY
+   * Used in real-world MVPs (Booking.com, Airbnb, Expedia approach)
+   * 
+   * PRIORITY ORDER:
+   * 1️⃣ Booking.com → Real hotel images (when available)
+   * 2️⃣ Amadeus → Deterministic hash-based image selection from static pool
+   * 3️⃣ Fallback → First image in pool
+   * 
+   * WHY THIS WORKS (vs source.unsplash.com):
+   * ✅ source.unsplash.com IGNORES seed parameter (aggressive cache)
+   * ✅ Static pool = 100% control, no cache issues
+   * ✅ Hash-based selection = same hotel always gets same image
+   * ✅ Deterministic = stable across reloads/pagination
+   * ✅ No external API calls = faster, more reliable
+   * ✅ Defendable in technical interviews
+   * ✅ Production-ready approach used by top travel sites
+   * 
+   * @param hotel - Hotel object with source, id, name, imageUrl
+   * @returns Stable, unique image URL
+   */
+  private resolveHotelImage(hotel: Hotel): string {
+    // 1️⃣ BOOKING.COM → Use real hotel image (priority)
+    if ((hotel as any).source === 'BOOKING' && hotel.imageUrl?.trim()) {
+      return hotel.imageUrl;
+    }
+
+    // 2️⃣ AMADEUS → Deterministic image from static pool
+    const cityValue = this.cityControl.value;
+    const cityContext = (cityValue && typeof cityValue !== 'string') 
+      ? cityValue.iataCode || cityValue.name 
+      : '';
+    
+    // Create stable identity string: hotel + destination
+    const identity = `${hotel.id ?? hotel.name}-${cityContext}`;
+    
+    // Hash to get deterministic index (same hotel = same index = same image)
+    const index = this.hashString(identity) % this.HOTEL_IMAGES.length;
+    
+    // Return image with Unsplash optimization parameters
+    return `${this.HOTEL_IMAGES[index]}?w=800&h=600&fit=crop&q=80`;
+  }
+
+  /**
+   * TrackBy function for *ngFor optimization
+   * Helps Angular track hotel items and avoid unnecessary re-renders
+   */
+  trackByHotelId(index: number, hotel: HotelWithImage): string | number {
+    return hotel.id || hotel.name || index;
+  }
+
+  onViewDetails(hotel: HotelWithImage) {
     alert(`Hotel Details:\n\nName: ${hotel.name}\nRating: ${hotel.rating}/5\nPrice: $${hotel.pricePerNight}/night\nAddress: ${hotel.address}\n\n${hotel.description}`);
   }
 }
