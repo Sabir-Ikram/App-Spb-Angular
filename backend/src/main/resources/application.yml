@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+server:
+  port: ${SERVER_PORT}
+
+voyageconnect:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS}
+
+amadeus:
+  api:
+    key: ${AMADEUS_API_KEY}
+    secret: ${AMADEUS_API_SECRET}
+  test-mode: ${AMADEUS_TEST_MODE}
+
+rapidapi:
+  booking:
+    key: ${RAPIDAPI_BOOKING_KEY}
+    host: ${RAPIDAPI_BOOKING_HOST}
+    base-url: ${RAPIDAPI_BOOKING_BASE_URL}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+
+logging:
+  level:
+    root: INFO
+    com.voyageconnect: DEBUG
+    org.springframework.web.client: DEBUG
+    org.apache.http: DEBUG
