@@ -64,12 +64,13 @@ import { AuthService } from '../auth.service';
   styles: [`
     .auth-page-premium {
       min-height: 100vh;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
-      padding: 2rem;
+      padding: 1rem;
     }
 
     .auth-background {
@@ -84,7 +85,8 @@ import { AuthService } from '../auth.service';
     .auth-overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 30% 40%, rgba(212, 114, 44, 0.2) 0%, transparent 60%);
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(2px);
       z-index: 2;
     }
 
@@ -92,7 +94,7 @@ import { AuthService } from '../auth.service';
       position: relative;
       z-index: 3;
       width: 100%;
-      max-width: 480px;
+      max-width: 400px;
       animation: fadeInScale 0.6s ease-out;
     }
 
@@ -108,15 +110,12 @@ import { AuthService } from '../auth.service';
     }
 
     .auth-card-premium {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(40px);
-      border-radius: 28px;
-      padding: 3rem;
-      box-shadow: 
-        0 30px 90px rgba(0, 0, 0, 0.4),
-        0 15px 40px rgba(0, 0, 0, 0.3),
-        inset 0 2px 0 rgba(255, 255, 255, 0.4);
-      border: 2px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       position: relative;
       overflow: hidden;
     }
@@ -127,64 +126,59 @@ import { AuthService } from '../auth.service';
       top: 0;
       left: 0;
       right: 0;
-      height: 5px;
+      height: 2px;
       background: linear-gradient(90deg, #c4a574 0%, #d4722c 50%, #c4a574 100%);
     }
 
     .auth-header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .auth-icon-wrapper {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 1.5rem;
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 0.6rem;
       background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 32px rgba(139, 108, 80, 0.4);
-      animation: iconPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes iconPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.25);
     }
 
     .auth-icon-wrapper mat-icon {
-      font-size: 40px;
-      width: 40px;
-      height: 40px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
       color: white;
     }
 
     .auth-title {
-      font-size: 2.2rem;
-      font-weight: 800;
+      font-size: 1.4rem;
+      font-weight: 700;
       background: linear-gradient(135deg, #8b6c50 0%, #c4a574 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      margin: 0 0 0.75rem 0;
+      margin: 0 0 0.35rem 0;
       letter-spacing: -0.015em;
     }
 
     .auth-subtitle {
-      font-size: 1.05rem;
+      font-size: 0.85rem;
       color: #6d5d4b;
       margin: 0;
       font-weight: 500;
+      opacity: 0.75;
     }
 
     .auth-form {
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .form-group-premium {
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.85rem;
     }
 
     .auth-field {
@@ -192,13 +186,13 @@ import { AuthService } from '../auth.service';
     }
 
     ::ng-deep .auth-field .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #ffffff 0%, #fdfcfb 100%);
-      border-radius: 16px;
+      background: #fafafa;
+      border-radius: 12px;
       transition: all 0.3s ease;
     }
 
     ::ng-deep .auth-field:hover .mat-mdc-text-field-wrapper {
-      background: linear-gradient(135deg, #fdfcfb 0%, #f8f6f3 100%);
+      background: #f5f5f5;
     }
 
     ::ng-deep .auth-field .mat-mdc-form-field-focus-overlay {
@@ -206,20 +200,19 @@ import { AuthService } from '../auth.service';
     }
 
     ::ng-deep .auth-field .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.25);
-      border-width: 2px;
+      border-color: rgba(139, 108, 80, 0.2);
+      border-width: 1.5px;
       transition: all 0.3s ease;
     }
 
     ::ng-deep .auth-field:hover .mat-mdc-notched-outline {
-      border-color: rgba(139, 108, 80, 0.5);
-      box-shadow: 0 3px 12px rgba(139, 108, 80, 0.1);
+      border-color: rgba(139, 108, 80, 0.4);
     }
 
     ::ng-deep .auth-field.mat-focused .mat-mdc-notched-outline {
       border-color: #c4a574 !important;
-      border-width: 2.5px !important;
-      box-shadow: 0 5px 20px rgba(196, 165, 116, 0.25);
+      border-width: 2px !important;
+      box-shadow: 0 2px 8px rgba(196, 165, 116, 0.15);
     }
 
     ::ng-deep .auth-field .mat-mdc-floating-label {
@@ -261,58 +254,41 @@ import { AuthService } from '../auth.service';
 
     .auth-submit-btn {
       width: 100%;
-      height: 60px !important;
-      font-size: 1.15rem !important;
-      font-weight: 800 !important;
-      border-radius: 16px !important;
+      height: 46px !important;
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+      border-radius: 12px !important;
       background: linear-gradient(135deg, #c4a574 0%, #8b6c50 100%) !important;
       color: white !important;
-      box-shadow: 0 12px 32px rgba(139, 108, 80, 0.5) !important;
+      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.35) !important;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      letter-spacing: 0.03em;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .auth-submit-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-      transition: left 0.6s ease;
-    }
-
-    .auth-submit-btn:hover::before {
-      left: 100%;
+      gap: 10px;
+      letter-spacing: 0.02em;
     }
 
     .auth-submit-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 40px rgba(139, 108, 80, 0.6) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(139, 108, 80, 0.45) !important;
       background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
     }
 
     .auth-submit-btn mat-icon {
-      font-size: 26px;
-      width: 26px;
-      height: 26px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .auth-footer {
       text-align: center;
-      padding-top: 1.5rem;
-      border-top: 2px solid rgba(139, 108, 80, 0.1);
+      padding-top: 0.85rem;
+      border-top: 1px solid rgba(139, 108, 80, 0.12);
     }
 
     .auth-link-text {
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: #6d5d4b;
       margin: 0;
       font-weight: 500;

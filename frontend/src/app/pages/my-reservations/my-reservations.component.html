@@ -1,12 +1,17 @@
 <div class="modern-reservations-page">
-  <!-- Clean Header -->
-  <header class="page-header">
-    <div class="container">
-      <div class="header-content">
-        <div>
-          <h1>My Reservations</h1>
-          <p class="subtitle">View and manage your travel bookings</p>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="header-wrapper">
+        <div class="title-section">
+          <h1>
+            <mat-icon class="hero-icon">receipt_long</mat-icon>
+            My Reservations
+          </h1>
+          <p class="hero-subtitle">View and manage your travel bookings</p>
         </div>
+        
+        <!-- Simple Stats -->
         <div class="header-stats">
           <div class="stat-item">
             <span class="stat-value">{{ getReservationsByStatus('CONFIRMED').length }}</span>
@@ -23,11 +28,28 @@
         </div>
       </div>
     </div>
-  </header>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-container">
 
   <!-- Filters Section -->
   <div class="container">
     <div class="filters-section">
+      <div class="filters-header" (click)="toggleFilters()">
+        <div class="filters-title">
+          <mat-icon>filter_list</mat-icon>
+          <h3>Filters & Sorting</h3>
+          <span class="results-badge" *ngIf="filteredReservations.length !== reservations.length">
+            {{ filteredReservations.length }} / {{ reservations.length }}
+          </span>
+        </div>
+        <button class="toggle-btn" mat-icon-button>
+          <mat-icon [class.rotated]="!filtersExpanded">expand_more</mat-icon>
+        </button>
+      </div>
+
+      <div class="filters-content" [class.collapsed]="!filtersExpanded">
       <div class="filter-group">
         <label>Filter by Status:</label>
         <div class="filter-chips">
@@ -99,9 +121,12 @@
           </mat-select>
         </mat-form-field>
       </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Reservations List -->
+  <!-- Reservations List -->
+  <div class="container">
     <div class="reservations-list" *ngIf="!loading">
       <div class="reservation-card" *ngFor="let reservation of filteredReservations">
         <!-- Card Header with Type Indicator -->
@@ -224,6 +249,5 @@
     <div class="loading-state" *ngIf="loading">
       <mat-spinner diameter="50"></mat-spinner>
       <p>Loading your reservations...</p>
-    </div>
-  </div>
+    </div>  </div>  </div>
 </div>

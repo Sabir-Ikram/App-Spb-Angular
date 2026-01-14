@@ -413,9 +413,9 @@ import { of } from 'rxjs';
       border: 2px solid rgba(26, 54, 93, 0.15);
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.8);
-      color: #1a365d;
+      color: #0f1f3a;
       font-size: 0.95rem;
-      font-weight: 500;
+      font-weight: 600;
       font-family: 'Inter', 'Poppins', sans-serif;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
@@ -432,9 +432,9 @@ import { of } from 'rxjs';
       left: 52px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(26, 54, 93, 0.6);
+      color: rgba(26, 54, 93, 0.45);
       font-size: 0.95rem;
-      font-weight: 500;
+      font-weight: 400;
       pointer-events: none;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       background: transparent;
@@ -449,6 +449,7 @@ import { of } from 'rxjs';
     }
 
     .luxury-input:focus ~ .floating-label,
+    .luxury-input:not(:placeholder-shown) ~ .floating-label,
     .floating-field-container.has-value .floating-label {
       top: 8px;
       left: 52px;

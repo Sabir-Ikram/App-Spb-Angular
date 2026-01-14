@@ -34,6 +34,7 @@ export class MyReservationsComponent implements OnInit {
   reservations: ReservationResponse[] = [];
   filteredReservations: ReservationResponse[] = [];
   loading = true;
+  filtersExpanded = true;
   
   selectedStatus: string | null = null;
   selectedType: string | null = null;
@@ -135,5 +136,9 @@ export class MyReservationsComponent implements OnInit {
   viewDetails(reservation: ReservationResponse): void {
     // Navigate to reservation details or show dialog
     console.log('View details for reservation:', reservation.id);
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
   }
 }

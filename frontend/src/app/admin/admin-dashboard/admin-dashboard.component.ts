@@ -125,7 +125,7 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
               <div class="stat-content">
                 <mat-icon class="stat-icon revenue">payments</mat-icon>
                 <div>
-                  <div class="stat-value">\${{getTotalRevenue()}}</div>
+                  <div class="stat-value">\${{getTotalRevenue().toFixed(2)}}</div>
                   <div class="stat-label">Total Revenue</div>
                 </div>
               </div>
@@ -143,37 +143,49 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
             </div>
 
             <!-- Search and Filters -->
-            <div class="filters-section">
-              <mat-form-field appearance="outline" class="search-field">
-                <mat-label>Search</mat-label>
-                <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="Search by ID or User">
-                <mat-icon matPrefix>search</mat-icon>
-              </mat-form-field>
+            <div class="filters-wrapper">
+              <div class="filters-header" (click)="toggleFilters()">
+                <div class="filters-title">
+                  <mat-icon>filter_list</mat-icon>
+                  <span>Search & Filters</span>
+                </div>
+                <button mat-icon-button class="toggle-btn">
+                  <mat-icon [class.rotated]="!filtersExpanded">expand_more</mat-icon>
+                </button>
+              </div>
+              
+              <div class="filters-section" [class.collapsed]="!filtersExpanded">
+                <mat-form-field appearance="outline" class="search-field">
+                  <mat-label>Search</mat-label>
+                  <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="Search by ID or User">
+                  <mat-icon matPrefix>search</mat-icon>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="filter-field">
-                <mat-label>Status</mat-label>
-                <mat-select [(ngModel)]="filterStatus" (selectionChange)="applyFilters()">
-                  <mat-option value="ALL">All Status</mat-option>
-                  <mat-option value="PENDING">Pending</mat-option>
-                  <mat-option value="CONFIRMED">Confirmed</mat-option>
-                  <mat-option value="CANCELLED">Cancelled</mat-option>
-                  <mat-option value="COMPLETED">Completed</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Status</mat-label>
+                  <mat-select [(ngModel)]="filterStatus" (selectionChange)="applyFilters()">
+                    <mat-option value="ALL">All Status</mat-option>
+                    <mat-option value="PENDING">Pending</mat-option>
+                    <mat-option value="CONFIRMED">Confirmed</mat-option>
+                    <mat-option value="CANCELLED">Cancelled</mat-option>
+                    <mat-option value="COMPLETED">Completed</mat-option>
+                  </mat-select>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="filter-field">
-                <mat-label>Type</mat-label>
-                <mat-select [(ngModel)]="filterType" (selectionChange)="applyFilters()">
-                  <mat-option value="ALL">All Types</mat-option>
-                  <mat-option value="FLIGHT">Flight</mat-option>
-                  <mat-option value="HOTEL">Hotel</mat-option>
-                  <mat-option value="BOTH">Both</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Type</mat-label>
+                  <mat-select [(ngModel)]="filterType" (selectionChange)="applyFilters()">
+                    <mat-option value="ALL">All Types</mat-option>
+                    <mat-option value="FLIGHT">Flight</mat-option>
+                    <mat-option value="HOTEL">Hotel</mat-option>
+                    <mat-option value="BOTH">Both</mat-option>
+                  </mat-select>
+                </mat-form-field>
 
-              <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters" class="clear-btn">
-                <mat-icon>clear_all</mat-icon>
-              </button>
+                <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters" class="clear-btn">
+                  <mat-icon>clear_all</mat-icon>
+                </button>
+              </div>
             </div>
 
             <!-- Loading State -->
@@ -705,6 +717,53 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
     }
 
     /* Filters Section */
+    .filters-wrapper {
+      border-bottom: 2px solid rgba(139, 108, 80, 0.15);
+      overflow: hidden;
+    }
+
+    .filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 36px;
+      background: linear-gradient(135deg, rgba(139, 108, 80, 0.08) 0%, white 100%);
+      cursor: pointer;
+      border-bottom: 2px solid rgba(139, 108, 80, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .filters-header:hover {
+      background: linear-gradient(135deg, rgba(139, 108, 80, 0.12) 0%, white 100%);
+    }
+
+    .filters-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      color: #2d2416;
+      font-size: 1.1rem;
+    }
+
+    .filters-title mat-icon {
+      color: #c4a574;
+      font-size: 24px;
+    }
+
+    .toggle-btn {
+      color: #8b6c50;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-btn mat-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-btn mat-icon.rotated {
+      transform: rotate(-90deg);
+    }
+
     .filters-section {
       padding: 28px 36px;
       background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
@@ -712,7 +771,16 @@ import { ReservationResponse, ReservationStatus, ReservationType } from '../../m
       gap: 18px;
       align-items: center;
       flex-wrap: wrap;
-      border-bottom: 3px solid rgba(139, 108, 80, 0.2);
+      transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+      max-height: 300px;
+      opacity: 1;
+    }
+
+    .filters-section.collapsed {
+      max-height: 0;
+      padding: 0 36px;
+      opacity: 0;
+      overflow: hidden;
     }
 
     .search-field {
@@ -963,6 +1031,7 @@ export class AdminDashboardComponent implements OnInit {
   searchText: string = '';
   filterStatus: string = 'ALL';
   filterType: string = 'ALL';
+  filtersExpanded: boolean = true;
   
   // Pagination
   pageSize: number = 10;
@@ -1040,6 +1109,10 @@ export class AdminDashboardComponent implements OnInit {
     this.filterStatus = 'ALL';
     this.filterType = 'ALL';
     this.applyFilters();
+  }
+
+  toggleFilters(): void {
+    this.filtersExpanded = !this.filtersExpanded;
   }
 
   onPageChange(event: PageEvent): void {
