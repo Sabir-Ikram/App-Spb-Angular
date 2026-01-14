@@ -153,7 +153,10 @@ public class BookingApiService {
             
             log.info("✓ Booking API responded: {}", response.getStatusCode());
             
-            return response.getBody() != null ? response.getBody() : "{\"result\":[],\"count\":0}";
+            String responseBody = response.getBody() != null ? response.getBody() : "{\"result\":[],\"count\":0}";
+            log.debug("✓ Response preview: {}", responseBody.substring(0, Math.min(500, responseBody.length())));
+            
+            return responseBody;
             
         } catch (Exception e) {
             log.error("✗ Error fetching hotels: {} - {}", e.getClass().getSimpleName(), e.getMessage());
@@ -213,16 +216,18 @@ public class BookingApiService {
         String arrivalDate = today.plusDays(1).toString();
         String departureDate = today.plusDays(4).toString();
         
-        return UriComponentsBuilder.fromHttpUrl(baseUrl + "/properties/list")
-            .queryParam("offset", "0")
-            .queryParam("arrival_date", arrivalDate)
-            .queryParam("departure_date", departureDate)
-            .queryParam("guest_qty", "1")
-            .queryParam("room_qty", "1")
-            .queryParam("dest_ids", destId)
+        return UriComponentsBuilder.fromHttpUrl(baseUrl + "/v2/hotels/search")
+            .queryParam("checkout_date", departureDate)
             .queryParam("order_by", "popularity")
-            .queryParam("languagecode", "en-us")
-            .queryParam("currency_code", "EUR")
+            .queryParam("filter_by_currency", "EUR")
+            .queryParam("locale", "en-gb")
+            .queryParam("checkin_date", arrivalDate)
+            .queryParam("adults_number", "1")
+            .queryParam("dest_id", destId)
+            .queryParam("dest_type", "city")
+            .queryParam("room_number", "1")
+            .queryParam("units", "metric")
+            .queryParam("page_number", "0")
             .build()
             .toUriString();
     }

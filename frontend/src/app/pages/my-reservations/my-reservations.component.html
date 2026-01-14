@@ -1,0 +1,229 @@
+<div class="modern-reservations-page">
+  <!-- Clean Header -->
+  <header class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1>My Reservations</h1>
+          <p class="subtitle">View and manage your travel bookings</p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-value">{{ getReservationsByStatus('CONFIRMED').length }}</span>
+            <span class="stat-label">Confirmed</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{ getReservationsByStatus('PENDING').length }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{ reservations.length }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <div class="container">
+    <div class="filters-section">
+      <div class="filter-group">
+        <label>Filter by Status:</label>
+        <div class="filter-chips">
+          <button 
+            class="filter-chip" 
+            [class.active]="selectedStatus === null"
+            (click)="filterByStatus(null)">
+            All
+          </button>
+          <button 
+            class="filter-chip status-confirmed" 
+            [class.active]="selectedStatus === 'CONFIRMED'"
+            (click)="filterByStatus('CONFIRMED')">
+            Confirmed
+          </button>
+          <button 
+            class="filter-chip status-pending" 
+            [class.active]="selectedStatus === 'PENDING'"
+            (click)="filterByStatus('PENDING')">
+            Pending
+          </button>
+          <button 
+            class="filter-chip status-cancelled" 
+            [class.active]="selectedStatus === 'CANCELLED'"
+            (click)="filterByStatus('CANCELLED')">
+            Cancelled
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Filter by Type:</label>
+        <div class="filter-chips">
+          <button 
+            class="filter-chip" 
+            [class.active]="selectedType === null"
+            (click)="filterByType(null)">
+            All
+          </button>
+          <button 
+            class="filter-chip type-flight" 
+            [class.active]="selectedType === 'FLIGHT'"
+            (click)="filterByType('FLIGHT')">
+            <mat-icon>flight</mat-icon> Flights
+          </button>
+          <button 
+            class="filter-chip type-hotel" 
+            [class.active]="selectedType === 'HOTEL'"
+            (click)="filterByType('HOTEL')">
+            <mat-icon>hotel</mat-icon> Hotels
+          </button>
+          <button 
+            class="filter-chip type-package" 
+            [class.active]="selectedType === 'PACKAGE'"
+            (click)="filterByType('PACKAGE')">
+            <mat-icon>card_travel</mat-icon> Packages
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group sort-group">
+        <label for="sort">Sort by:</label>
+        <mat-form-field appearance="outline" class="sort-select">
+          <mat-select id="sort" [(ngModel)]="sortBy" (selectionChange)="sortReservations()">
+            <mat-option value="date-desc">Newest First</mat-option>
+            <mat-option value="date-asc">Oldest First</mat-option>
+            <mat-option value="price-desc">Highest Price</mat-option>
+            <mat-option value="price-asc">Lowest Price</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Reservations List -->
+    <div class="reservations-list" *ngIf="!loading">
+      <div class="reservation-card" *ngFor="let reservation of filteredReservations">
+        <!-- Card Header with Type Indicator -->
+        <div class="card-header" [ngClass]="'type-' + reservation.type.toLowerCase()">
+          <div class="type-badge">
+            <mat-icon>{{ getTypeIcon(reservation.type) }}</mat-icon>
+            <span>{{ reservation.type }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="'status-' + reservation.status.toLowerCase()">
+            {{ reservation.status }}
+          </span>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+          <!-- Flight Info -->
+          <div class="flight-info" *ngIf="reservation.type === 'FLIGHT' && reservation.flightDetails">
+            <div class="route">
+              <div class="airport">
+                <div class="airport-code">{{ reservation.flightDetails.origin }}</div>
+                <div class="airport-time">{{ reservation.flightDetails.departureDate | date:'short' }}</div>
+              </div>
+              <div class="flight-arrow">
+                <mat-icon>flight_takeoff</mat-icon>
+                <div class="arrow-line"></div>
+                <mat-icon>flight_land</mat-icon>
+              </div>
+              <div class="airport">
+                <div class="airport-code">{{ reservation.flightDetails.destination }}</div>
+                <div class="airport-time">{{ reservation.flightDetails.returnDate | date:'short' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hotel Info -->
+          <div class="hotel-info" *ngIf="reservation.type === 'HOTEL' && reservation.hotelDetails">
+            <img [src]="reservation.hotelDetails.imageUrl || 'assets/hotel-placeholder.jpg'" 
+                 [alt]="reservation.hotelDetails.hotelName" 
+                 class="hotel-image"
+                 (error)="handleImageError($event)">
+            <h3 class="hotel-name">{{ reservation.hotelDetails.hotelName }}</h3>
+            <p class="hotel-location">
+              <mat-icon>location_on</mat-icon>
+              {{ reservation.hotelDetails.city }}
+            </p>
+            <div class="date-range">
+              <mat-icon>calendar_today</mat-icon>
+              {{ reservation.hotelDetails.checkInDate | date:'mediumDate' }} - {{ reservation.hotelDetails.checkOutDate | date:'mediumDate' }}
+            </div>
+          </div>
+
+          <!-- Package Info -->
+          <div class="package-info" *ngIf="reservation.type === 'BOTH' && reservation.flightDetails && reservation.hotelDetails">
+            <h3 class="package-title">Flight + Hotel Package</h3>
+            <div class="package-details">
+              <div class="detail-item">
+                <mat-icon>flight</mat-icon>
+                <span>{{ reservation.flightDetails.origin }} → {{ reservation.flightDetails.destination }}</span>
+              </div>
+              <div class="detail-item">
+                <mat-icon>hotel</mat-icon>
+                <span>{{ reservation.hotelDetails.hotelName }}</span>
+              </div>
+              <div class="detail-item">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ reservation.hotelDetails.checkInDate | date:'mediumDate' }} - {{ reservation.hotelDetails.checkOutDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Common Info -->
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Booking ID</span>
+              <span class="info-value">#{{ reservation.id }}</span>
+            </div>
+            <div class="info-item" *ngIf="reservation.flightDetails">
+              <span class="info-label">Passengers</span>
+              <span class="info-value">{{ reservation.flightDetails.passengers }}</span>
+            </div>
+            <div class="info-item" *ngIf="reservation.hotelDetails">
+              <span class="info-label">Rooms</span>
+              <span class="info-value">{{ reservation.hotelDetails.roomCount }}</span>
+            </div>
+            <div class="info-item" *ngIf="reservation.hotelDetails">
+              <span class="info-label">Nights</span>
+              <span class="info-value">{{ reservation.hotelDetails.nights }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer">
+          <div class="price-section">
+            <span class="price-label">Total Price</span>
+            <span class="price-value">{{ reservation.totalPrice | currency:'EUR' }}</span>
+          </div>
+          <div class="actions">
+            <button mat-stroked-button color="primary" (click)="viewDetails(reservation)">
+              <mat-icon>visibility</mat-icon>
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredReservations.length === 0">
+        <mat-icon>event_busy</mat-icon>
+        <h3>No reservations found</h3>
+        <p *ngIf="selectedStatus || selectedType">Try adjusting your filters</p>
+        <p *ngIf="!selectedStatus && !selectedType">You haven't made any reservations yet</p>
+        <button mat-raised-button color="primary" routerLink="/">
+          Browse Destinations
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your reservations...</p>
+    </div>
+  </div>
+</div>

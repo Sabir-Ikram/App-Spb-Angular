@@ -14,10 +14,22 @@ export interface Hotel {
   rating: number;
   imageUrl: string;
   description: string;
+  source?: string;  // 'BOOKING' or 'AMADEUS'
 }
 
 // Booking.com API raw response interface
 interface BookingProperty {
+  // v2 API fields
+  id?: number;
+  name?: string;
+  photoMainUrl?: string;
+  photoUrls?: string[];
+  checkin?: any;
+  checkout?: any;
+  priceBreakdown?: any;
+  reviewScore?: number;
+  
+  // v1 API fields (backward compatibility)
   hotel_id?: number;
   hotel_name?: string;
   hotel_name_trans?: string;
@@ -34,7 +46,8 @@ interface BookingProperty {
 }
 
 interface BookingResponse {
-  result?: BookingProperty[];
+  results?: BookingProperty[];  // v2 API
+  result?: BookingProperty[];   // v1 API
   search_results?: BookingProperty[];
 }
 
@@ -67,7 +80,11 @@ export class HotelService {
         
         // Extract hotels from Booking API response
         let properties: BookingProperty[] = [];
-        if (response.result) {
+        if (response.results) {
+          // v2 API uses 'results' (with 's')
+          properties = response.results;
+        } else if (response.result) {
+          // v1 API used 'result' (without 's')
           properties = response.result;
         } else if (response.search_results) {
           properties = response.search_results;
@@ -86,30 +103,38 @@ export class HotelService {
   }
 
   private mapBookingToHotel(prop: BookingProperty, index: number): Hotel {
+    // Support both v2 and v1 API structures
+    const hotelId = prop.id || prop.hotel_id || (1000 + index);
+    const hotelName = prop.name || prop.hotel_name_trans || prop.hotel_name || 'Hotel';
+    
     const price = prop.min_total_price || 
                   (prop.price_breakdown?.gross_price) || 
+                  (prop.priceBreakdown?.grossPrice?.value) ||
                   150;
     
-    const rating = prop.review_score ? Math.min(Math.round(prop.review_score / 2), 5) : 
-                   (prop.class || 4);
+    const rating = prop.reviewScore ? Math.min(Math.round(prop.reviewScore / 2), 5) :
+                   (prop.review_score ? Math.min(Math.round(prop.review_score / 2), 5) : 
+                   (prop.class || 4));
     
-    // Get the best quality image URL from Booking.com
-    let imageUrl = prop.max_photo_url || prop.main_photo_url || 
+    // Get the best quality image URL from Booking.com (v2 or v1 API)
+    let imageUrl = prop.photoMainUrl || prop.max_photo_url || prop.main_photo_url || 
+                   (prop.photoUrls && prop.photoUrls.length > 0 ? prop.photoUrls[0] : null) ||
                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop';
     
     // Upgrade Booking.com image URLs to maximum quality
     imageUrl = this.upgradeBookingImageQuality(imageUrl);
     
     return {
-      id: prop.hotel_id || (1000 + index),
-      name: prop.hotel_name_trans || prop.hotel_name || 'Hotel',
+      id: hotelId,
+      name: hotelName,
       pricePerNight: Math.round(price),
       availableRooms: 10,
       destinationId: 1,
       address: prop.address_trans || prop.address || (prop.city || 'City Center'),
       rating: rating,
       imageUrl: imageUrl,
-      description: `${rating}-star hotel in ${prop.city || 'the city'}`
+      description: `${rating}-star hotel in ${prop.city || 'the city'}`,
+      source: 'BOOKING'
     };
   }
 

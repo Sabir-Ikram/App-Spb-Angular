@@ -912,7 +912,7 @@ interface HotelWithImage extends Hotel {
     .hotel-visual {
       position: relative;
       width: 100%;
-      height: 160px;
+      height: 220px;
       overflow: hidden;
       background: linear-gradient(135deg, #f8f6f3 0%, #f0ede8 100%);
     }
