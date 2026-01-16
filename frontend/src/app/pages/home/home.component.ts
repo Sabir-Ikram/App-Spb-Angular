@@ -361,9 +361,9 @@ interface Destination {
       </div>
     </section>
 
-    <!-- SECTION 2: Destinations Gallery - Horizontal Premium Tiles -->
-    <section class="destinations-gallery-premium">
-      <div class="gallery-container">
+    <!-- SECTION 2: Destinations Gallery - Premium Bento Grid -->
+    <section class="destinations-bento-gallery">
+      <div class="bento-container">
         <div class="section-header-premium">
           <span class="section-badge">
             <mat-icon>flight_takeoff</mat-icon>
@@ -380,46 +380,145 @@ interface Destination {
           <mat-spinner diameter="40" color="primary"></mat-spinner>
         </div>
       
-        <div class="destinations-scroll-wrapper" *ngIf="!loadingDestinations && destinations.length > 0">
-          <div class="destinations-horizontal-scroll">
-            <!-- First set of tiles -->
-            <div class="destination-tile" *ngFor="let dest of destinations.slice(0, 8)">
-              <div class="tile-image" [style.background-image]="dest.imageUrl ? 'url(' + dest.imageUrl + ')' : 'none'">
-                <div *ngIf="!dest.imageUrl" class="tile-placeholder">
-                  <mat-icon>location_city</mat-icon>
-                </div>
-                <div class="tile-overlay"></div>
-                <div class="tile-content">
-                  <h4 class="tile-name">{{ dest.city || dest.name }}</h4>
-                  <p class="tile-country" *ngIf="!isMorocco(dest)">{{ dest.country }}</p>
-                  <span class="tile-badge" *ngIf="isMorocco(dest)">
-                    <mat-icon>star</mat-icon>
-                  </span>
-                </div>
+        <!-- Bento Grid Layout -->
+        <div class="bento-grid" *ngIf="!loadingDestinations && destinations.length > 0">
+          
+          <!-- Large Featured Card - Position 1 -->
+          <div class="bento-item large-featured" *ngIf="destinations[0]">
+            <div class="bento-image-wrapper">
+              <img *ngIf="destinations[0].imageUrl" [src]="destinations[0].imageUrl" [alt]="destinations[0].city || destinations[0].name" class="bento-image">
+              <div *ngIf="!destinations[0].imageUrl" class="bento-placeholder">
+                <mat-icon>landscape</mat-icon>
               </div>
-            </div>
-            <!-- Duplicate tiles for seamless loop -->
-            <div class="destination-tile" *ngFor="let dest of destinations.slice(0, 8)" aria-hidden="true">
-              <div class="tile-image" [style.background-image]="dest.imageUrl ? 'url(' + dest.imageUrl + ')' : 'none'">
-                <div *ngIf="!dest.imageUrl" class="tile-placeholder">
-                  <mat-icon>location_city</mat-icon>
-                </div>
-                <div class="tile-overlay"></div>
-                <div class="tile-content">
-                  <h4 class="tile-name">{{ dest.city || dest.name }}</h4>
-                  <p class="tile-country" *ngIf="!isMorocco(dest)">{{ dest.country }}</p>
-                  <span class="tile-badge" *ngIf="isMorocco(dest)">
-                    <mat-icon>star</mat-icon>
-                  </span>
-                </div>
+              <div class="bento-overlay"></div>
+              
+              <span class="featured-tag" *ngIf="isMorocco(destinations[0])">
+                <mat-icon>star</mat-icon>
+                Featured
+              </span>
+              
+              <div class="bento-content large">
+                <span class="destination-category">Popular Choice</span>
+                <h3 class="destination-title">{{ destinations[0].city || destinations[0].name }}</h3>
+                <p class="destination-location" *ngIf="!isMorocco(destinations[0])">{{ destinations[0].country }}</p>
+                <button mat-raised-button color="primary" routerLink="/search" class="explore-btn-bento">
+                  <span>Discover</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
               </div>
             </div>
           </div>
+          
+          <!-- Tall Card - Position 2 -->
+          <div class="bento-item tall-card" *ngIf="destinations[1]">
+            <div class="bento-image-wrapper">
+              <img *ngIf="destinations[1].imageUrl" [src]="destinations[1].imageUrl" [alt]="destinations[1].city || destinations[1].name" class="bento-image">
+              <div *ngIf="!destinations[1].imageUrl" class="bento-placeholder">
+                <mat-icon>landscape</mat-icon>
+              </div>
+              <div class="bento-overlay"></div>
+              
+              <span class="trending-indicator" *ngIf="isMorocco(destinations[1])">
+                <mat-icon>local_fire_department</mat-icon>
+              </span>
+              
+              <div class="bento-content">
+                <h3 class="destination-title medium">{{ destinations[1].city || destinations[1].name }}</h3>
+                <p class="destination-location">{{ destinations[1].country }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Wide Card - Position 3 -->
+          <div class="bento-item wide-card" *ngIf="destinations[2]">
+            <div class="bento-image-wrapper">
+              <img *ngIf="destinations[2].imageUrl" [src]="destinations[2].imageUrl" [alt]="destinations[2].city || destinations[2].name" class="bento-image">
+              <div *ngIf="!destinations[2].imageUrl" class="bento-placeholder">
+                <mat-icon>landscape</mat-icon>
+              </div>
+              <div class="bento-overlay"></div>
+              
+              <div class="bento-content horizontal">
+                <div class="content-left">
+                  <h3 class="destination-title medium">{{ destinations[2].city || destinations[2].name }}</h3>
+                  <p class="destination-location">{{ destinations[2].country }}</p>
+                </div>
+                <button mat-icon-button class="quick-view-btn" routerLink="/search">
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Small Cards Grid - Positions 4-7 -->
+          <div class="bento-item small-card" *ngFor="let dest of destinations.slice(3, 7)">
+            <div class="bento-image-wrapper">
+              <img *ngIf="dest.imageUrl" [src]="dest.imageUrl" [alt]="dest.city || dest.name" class="bento-image">
+              <div *ngIf="!dest.imageUrl" class="bento-placeholder small">
+                <mat-icon>landscape</mat-icon>
+              </div>
+              <div class="bento-overlay"></div>
+              
+              <span class="mini-badge" *ngIf="isMorocco(dest)">
+                <mat-icon>star</mat-icon>
+              </span>
+              
+              <div class="bento-content compact">
+                <h4 class="destination-title small">{{ dest.city || dest.name }}</h4>
+                <p class="destination-location small">{{ dest.country }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Medium Card - Position 8 -->
+          <div class="bento-item medium-card" *ngIf="destinations[7]">
+            <div class="bento-image-wrapper">
+              <img *ngIf="destinations[7].imageUrl" [src]="destinations[7].imageUrl" [alt]="destinations[7].city || destinations[7].name" class="bento-image">
+              <div *ngIf="!destinations[7].imageUrl" class="bento-placeholder">
+                <mat-icon>landscape</mat-icon>
+              </div>
+              <div class="bento-overlay"></div>
+              
+              <div class="bento-content">
+                <h3 class="destination-title medium">{{ destinations[7].city || destinations[7].name }}</h3>
+                <p class="destination-location">{{ destinations[7].country }}</p>
+                <span class="hidden-gem-tag">
+                  <mat-icon>explore</mat-icon>
+                  Hidden Gem
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Additional Cards if available -->
+          <div class="bento-item small-card" *ngFor="let dest of destinations.slice(8, 10)">
+            <div class="bento-image-wrapper">
+              <img *ngIf="dest.imageUrl" [src]="dest.imageUrl" [alt]="dest.city || dest.name" class="bento-image">
+              <div *ngIf="!dest.imageUrl" class="bento-placeholder small">
+                <mat-icon>landscape</mat-icon>
+              </div>
+              <div class="bento-overlay"></div>
+              
+              <div class="bento-content compact">
+                <h4 class="destination-title small">{{ dest.city || dest.name }}</h4>
+                <p class="destination-location small">{{ dest.country }}</p>
+              </div>
+            </div>
+          </div>
+          
         </div>
         
         <div *ngIf="!loadingDestinations && destinations.length === 0" class="empty-state-simple">
           <mat-icon>explore_off</mat-icon>
           <p>Destinations loading...</p>
+        </div>
+        
+        <!-- View All Button -->
+        <div class="view-all-wrapper" *ngIf="!loadingDestinations && destinations.length > 0">
+          <button mat-raised-button color="primary" routerLink="/search" class="view-all-destinations-btn">
+            <span>Explore All Destinations</span>
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         </div>
       </div>
     </section>
@@ -637,94 +736,171 @@ interface Destination {
     </section>
 
     <!-- SECTION 5: Exquisite Riads & Palaces -->
-    <section class="hotels-section-premium">
-      <div class="hotels-container">
-        <div class="section-header-premium">
-          <span class="section-badge">
-            <mat-icon>castle</mat-icon>
-            Luxury Stays
-          </span>
-          <h2 class="section-title">
-            <mat-icon class="section-icon">apartment</mat-icon>
-            Exquisite Riads & Palaces
-          </h2>
-          <p class="section-subtitle">Heritage properties where tradition meets luxury • Handpicked accommodations • Authentic Moroccan charm</p>
+    <section class="riads-editorial-section">
+      <div class="riads-container">
+        <!-- Header with View All -->
+        <div class="riads-header">
+          <div class="riads-header-content">
+            <span class="riads-badge">
+              <mat-icon>castle</mat-icon>
+              Luxury Stays
+            </span>
+            <h2 class="riads-title">
+              <mat-icon class="title-icon">apartment</mat-icon>
+              Exquisite Riads & Palaces
+            </h2>
+            <p class="riads-subtitle">Heritage properties where tradition meets luxury • Handpicked accommodations • Authentic Moroccan charm</p>
+          </div>
+          <button mat-button class="view-all-link" routerLink="/hotels">
+            View All Properties
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         </div>
         
+        <!-- Loading State -->
         <div *ngIf="loadingHotels" class="loading-center">
           <mat-spinner diameter="50" color="primary"></mat-spinner>
           <p class="loading-text">Curating exclusive properties...</p>
         </div>
         
-        <div class="hotels-grid" *ngIf="!loadingHotels && hotels.length > 0">
-          <div class="hotel-card" *ngFor="let hotel of hotels">
-            <!-- Hotel Image with Badge -->
-            <div class="hotel-image-section">
-              <img *ngIf="hotel.imageUrl" [src]="hotel.imageUrl" alt="{{ hotel.name }}" class="hotel-image">
-              <div *ngIf="!hotel.imageUrl" class="hotel-image-placeholder">
-                <mat-icon class="placeholder-icon">apartment</mat-icon>
+        <!-- Editorial Layout: Featured + Scroll List -->
+        <div class="riads-editorial-layout" *ngIf="!loadingHotels && hotels.length > 0">
+          
+          <!-- Left: Featured Property (First Item) -->
+          <div class="featured-riad" *ngIf="hotels[0]">
+            <div class="featured-image-container">
+              <img *ngIf="hotels[0].imageUrl" [src]="hotels[0].imageUrl" alt="{{ hotels[0].name }}" class="featured-image">
+              <div *ngIf="!hotels[0].imageUrl" class="featured-placeholder">
+                <mat-icon>apartment</mat-icon>
               </div>
-              <div class="hotel-overlay"></div>
+              <div class="featured-overlay"></div>
+              <div class="featured-glow"></div>
               
-              <span class="category-badge">
-                <mat-icon>{{ getCategoryIcon(getHotelCategory(hotel)) }}</mat-icon>
-                {{ getCategoryLabel(getHotelCategory(hotel)) }}
+              <span class="featured-category-badge">
+                <mat-icon>{{ getCategoryIcon(getHotelCategory(hotels[0])) }}</mat-icon>
+                {{ getCategoryLabel(getHotelCategory(hotels[0])) }}
               </span>
               
-              <div class="rating-badge" *ngIf="hotel.rating">
-                <div class="stars">
-                  <mat-icon *ngFor="let i of [1,2,3,4,5]" [class.filled]="i <= hotel.rating">star</mat-icon>
+              <div class="featured-rating" *ngIf="hotels[0].rating">
+                <div class="featured-stars">
+                  <mat-icon *ngFor="let i of [1,2,3,4,5]" [class.filled]="i <= hotels[0].rating">star</mat-icon>
                 </div>
-                <span class="rating-text">{{ hotel.rating }}/5</span>
+                <span class="featured-rating-text">{{ hotels[0].rating }}/5</span>
               </div>
             </div>
             
-            <!-- Hotel Content -->
-            <div class="hotel-content">
-              <h3 class="hotel-name">{{ hotel.name }}</h3>
+            <div class="featured-content">
+              <span class="featured-label">Featured Property</span>
+              <h3 class="featured-name">{{ hotels[0].name }}</h3>
               
-              <div class="hotel-location">
-                <mat-icon>location_on</mat-icon>
-                <span>{{ hotel.address }}</span>
-              </div>
-              
-              <p class="hotel-description">{{ hotel.description || 'Experience authentic Moroccan hospitality in a beautifully restored heritage property' }}</p>
-              
-              <div class="hotel-features">
-                <span class="feature-tag">
-                  <mat-icon>architecture</mat-icon>
-                  Authentic
+              <div class="featured-meta-row">
+                <span class="meta-item">
+                  <mat-icon>location_city</mat-icon>
+                  City Center
                 </span>
-                <span class="feature-tag" *ngIf="hotel.rating && hotel.rating >= 4">
+                <span class="meta-item">
+                  <mat-icon>star_outline</mat-icon>
+                  {{ hotels[0].rating || 5 }} Stars
+                </span>
+                <span class="meta-item" *ngIf="hotels[0].rating && hotels[0].rating >= 4">
                   <mat-icon>verified</mat-icon>
                   Excellence
                 </span>
-                <span class="feature-tag">
+              </div>
+              
+              <div class="featured-location">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ hotels[0].address }}</span>
+              </div>
+              
+              <p class="featured-description">{{ hotels[0].description || 'Experience authentic Moroccan hospitality in a beautifully restored heritage property with unparalleled luxury and charm' }}</p>
+              
+              <div class="featured-tags">
+                <span class="featured-tag">
+                  <mat-icon>architecture</mat-icon>
+                  Authentic
+                </span>
+                <span class="featured-tag">
                   <mat-icon>explore</mat-icon>
                   UNESCO Nearby
                 </span>
+                <span class="featured-tag">
+                  <mat-icon>spa</mat-icon>
+                  Spa & Wellness
+                </span>
               </div>
               
-              <div class="hotel-footer">
-                <div class="price-section">
-                  <span class="price-label">From</span>
-                  <span class="price-value">{{ hotel.pricePerNight | currency }}</span>
-                  <span class="price-unit">per night</span>
+              <div class="featured-footer">
+                <div class="featured-price">
+                  <span class="featured-price-label">From</span>
+                  <span class="featured-price-value">{{ hotels[0].pricePerNight | currency }}</span>
+                  <span class="featured-price-unit">per night</span>
                 </div>
-                <div class="rooms-info">
-                  <mat-icon>meeting_room</mat-icon>
-                  <span>{{ hotel.availableRooms }} rooms</span>
+                <button mat-raised-button color="primary" routerLink="/hotels" class="featured-cta">
+                  <span>View Property</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right: Vertical Scroll Snap List (Remaining Items) -->
+          <div class="riads-scroll-list" *ngIf="hotels.length > 1">
+            <div class="scroll-list-inner">
+              <div class="riad-list-card" *ngFor="let hotel of hotels.slice(1); let i = index" [attr.data-index]="i">
+                <div class="list-card-image">
+                  <img *ngIf="hotel.imageUrl" [src]="hotel.imageUrl" alt="{{ hotel.name }}" class="list-image">
+                  <div *ngIf="!hotel.imageUrl" class="list-image-placeholder">
+                    <mat-icon>apartment</mat-icon>
+                  </div>
+                  <div class="list-image-overlay"></div>
+                  
+                  <span class="list-category-badge">
+                    <mat-icon>{{ getCategoryIcon(getHotelCategory(hotel)) }}</mat-icon>
+                  </span>
+                  
+                  <div class="list-rating" *ngIf="hotel.rating">
+                    <mat-icon class="list-star">star</mat-icon>
+                    <span>{{ hotel.rating }}</span>
+                  </div>
+                </div>
+                
+                <div class="list-card-content">
+                  <h4 class="list-card-name">{{ hotel.name }}</h4>
+                  
+                  <div class="list-meta-row">
+                    <span class="list-meta-item">
+                      <mat-icon>location_city</mat-icon>
+                      City
+                    </span>
+                    <span class="list-meta-item" *ngIf="hotel.rating">
+                      <mat-icon>star_outline</mat-icon>
+                      {{ hotel.rating }} Stars
+                    </span>
+                  </div>
+                  
+                  <div class="list-location">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{ hotel.address }}</span>
+                  </div>
+                  
+                  <div class="list-footer">
+                    <div class="list-price">
+                      <span class="list-price-label">From</span>
+                      <span class="list-price-value">{{ hotel.pricePerNight | currency }}</span>
+                    </div>
+                    <button mat-button class="list-cta" routerLink="/hotels">
+                      View
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
-              
-              <button mat-raised-button color="primary" routerLink="/hotels" class="view-btn">
-                <span>View Property</span>
-                <mat-icon>arrow_forward</mat-icon>
-              </button>
             </div>
           </div>
         </div>
         
+        <!-- Empty State -->
         <div *ngIf="!loadingHotels && hotels.length === 0" class="empty-state-simple">
           <mat-icon>apartment</mat-icon>
           <p>No hotels available</p>
@@ -4442,286 +4618,896 @@ interface Destination {
     /* ============================================
        HOTELS SECTION PREMIUM
        ============================================ */
-    .hotels-section-premium {
-      padding: 4rem 0;
-      background: linear-gradient(135deg, #fdfcfb 0%, #f8f6f3 100%);
+    /* ============================================
+       RIADS EDITORIAL SECTION
+       Premium Moroccan-Inspired Layout
+       ============================================ */
+    
+    :root {
+      --ivory: #fdfcfb;
+      --sand: #f8f6f3;
+      --sandstone: #e8dfd2;
+      --terracotta: #c17b5c;
+      --emerald: #2d7a6e;
+      --gold-accent: #d4af37;
+      --charcoal: #2d2416;
+      --warm-gray: #6d5d4b;
     }
     
-    .hotels-container {
-      max-width: 1200px;
+    .riads-editorial-section {
+      padding: 5rem 0;
+      background: var(--ivory);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Subtle Moroccan pattern background */
+    .riads-editorial-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(212, 175, 55, 0.02) 10px, rgba(212, 175, 55, 0.02) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(45, 122, 110, 0.02) 10px, rgba(45, 122, 110, 0.02) 20px);
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    
+    .riads-container {
+      max-width: 1400px;
       margin: 0 auto;
       padding: 0 2rem;
+      position: relative;
+      z-index: 1;
     }
     
-    .hotels-grid {
+    /* ============================================
+       HEADER WITH VIEW ALL
+       ============================================ */
+    
+    .riads-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 3rem;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .riads-header-content {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .riads-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--emerald) 0%, #267062 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.03em;
+      box-shadow: 0 4px 16px rgba(45, 122, 110, 0.25);
+      margin-bottom: 1rem;
+    }
+    
+    .riads-badge mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .riads-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 700;
+      color: var(--charcoal);
+      margin: 0 0 0.75rem 0;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .title-icon {
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      color: var(--gold-accent);
+    }
+    
+    .riads-subtitle {
+      font-size: 1rem;
+      color: var(--warm-gray);
+      line-height: 1.6;
+      margin: 0;
+      max-width: 600px;
+    }
+    
+    .view-all-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--emerald) !important;
+      font-weight: 600 !important;
+      font-size: 0.95rem !important;
+      padding: 10px 20px !important;
+      border: 2px solid var(--emerald) !important;
+      border-radius: 24px !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      white-space: nowrap;
+    }
+    
+    .view-all-link:hover {
+      background: var(--emerald) !important;
+      color: white !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(45, 122, 110, 0.3);
+    }
+    
+    .view-all-link mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s;
+    }
+    
+    .view-all-link:hover mat-icon {
+      transform: translateX(4px);
+    }
+    
+    /* ============================================
+       EDITORIAL LAYOUT: FEATURED + SCROLL LIST
+       ============================================ */
+    
+    .riads-editorial-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.75rem;
-      margin-top: 2.5rem;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
     }
     
-    .hotel-card {
+    /* ============================================
+       FEATURED RIAD (Left - Large Card)
+       ============================================ */
+    
+    .featured-riad {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      position: relative;
+      animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .featured-image-container {
+      position: relative;
+      height: 480px;
+      overflow: hidden;
+    }
+    
+    .featured-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .featured-riad:hover .featured-image {
+      transform: scale(1.05) translateY(-8px);
+    }
+    
+    .featured-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--terracotta) 0%, #a86b50 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .featured-placeholder mat-icon {
+      font-size: 120px;
+      width: 120px;
+      height: 120px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .featured-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(45, 36, 22, 0.1) 50%,
+        rgba(45, 36, 22, 0.5) 100%
+      );
+      pointer-events: none;
+    }
+    
+    /* Subtle glow effect behind featured card */
+    .featured-glow {
+      position: absolute;
+      inset: -20px;
+      background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.15), transparent 70%);
+      filter: blur(30px);
+      opacity: 0;
+      transition: opacity 0.6s;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .featured-riad:hover .featured-glow {
+      opacity: 1;
+    }
+    
+    .featured-category-badge {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--emerald), #267062);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(45, 122, 110, 0.4);
+      animation: badgeShimmer 3s infinite;
+    }
+    
+    @keyframes badgeShimmer {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.1); }
+    }
+    
+    .featured-category-badge mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .featured-rating {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 10px 18px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .featured-stars {
+      display: flex;
+      gap: 3px;
+    }
+    
+    .featured-stars mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #e0e0e0;
+    }
+    
+    .featured-stars mat-icon.filled {
+      color: var(--gold-accent);
+    }
+    
+    .featured-rating-text {
+      font-weight: 700;
+      color: var(--charcoal);
+      font-size: 0.95rem;
+    }
+    
+    /* Featured Content */
+    .featured-content {
+      padding: 2rem;
+    }
+    
+    .featured-label {
+      display: inline-block;
+      color: var(--emerald);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+      border-left: 3px solid var(--gold-accent);
+      padding-left: 10px;
+    }
+    
+    .featured-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin: 0 0 1rem 0;
+      line-height: 1.3;
+    }
+    
+    .featured-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--sandstone);
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--warm-gray);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .meta-item mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: var(--gold-accent);
+    }
+    
+    .featured-location {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--warm-gray);
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+    
+    .featured-location mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--terracotta);
+    }
+    
+    .featured-description {
+      font-size: 0.95rem;
+      color: var(--warm-gray);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+    
+    .featured-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .featured-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(45, 122, 110, 0.08);
+      border: 1px solid rgba(45, 122, 110, 0.15);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--emerald);
+      transition: all 0.3s;
+    }
+    
+    .featured-tag:hover {
+      background: rgba(45, 122, 110, 0.12);
+      border-color: var(--emerald);
+    }
+    
+    .featured-tag mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+    
+    .featured-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--sandstone);
+      gap: 1rem;
+    }
+    
+    .featured-price {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    
+    .featured-price-label {
+      font-size: 0.75rem;
+      color: var(--warm-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    
+    .featured-price-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--emerald);
+      line-height: 1;
+    }
+    
+    .featured-price-unit {
+      font-size: 0.8rem;
+      color: var(--warm-gray);
+    }
+    
+    .featured-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 2rem !important;
+      height: 52px !important;
+      border-radius: 26px !important;
+      font-weight: 600 !important;
+      font-size: 1rem !important;
+      background: linear-gradient(135deg, var(--emerald), #267062) !important;
+      color: white !important;
+      box-shadow: 0 6px 20px rgba(45, 122, 110, 0.3) !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .featured-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+    
+    .featured-cta:hover::before {
+      transform: translateX(100%);
+    }
+    
+    .featured-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(45, 122, 110, 0.4) !important;
+    }
+    
+    .featured-cta mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s;
+    }
+    
+    .featured-cta:hover mat-icon {
+      transform: translateX(4px);
+    }
+    
+    /* ============================================
+       SCROLL SNAP LIST (Right - Vertical)
+       ============================================ */
+    
+    .riads-scroll-list {
+      height: 700px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      padding: 8px;
+      /* Hide scrollbar but keep functionality */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    
+    .riads-scroll-list::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scroll-list-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    
+    .riad-list-card {
+      scroll-snap-align: start;
+      scroll-snap-stop: normal;
       background: white;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid rgba(139, 108, 80, 0.1);
       display: flex;
-      flex-direction: column;
+      height: 180px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      border: 2px solid transparent;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      animation: fadeSlideLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     
-    .hotel-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 32px rgba(139, 108, 80, 0.2);
-      border-color: #8b6c50;
+    @keyframes fadeSlideLeft {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     
-    /* Hotel Image Section */
-    .hotel-image-section {
+    /* Stagger animation for list cards */
+    .riad-list-card:nth-child(1) { animation-delay: 0.1s; }
+    .riad-list-card:nth-child(2) { animation-delay: 0.2s; }
+    .riad-list-card:nth-child(3) { animation-delay: 0.3s; }
+    .riad-list-card:nth-child(4) { animation-delay: 0.4s; }
+    .riad-list-card:nth-child(n+5) { animation-delay: 0.5s; }
+    
+    .riad-list-card:hover {
+      transform: translateX(-6px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      border-color: var(--gold-accent);
+    }
+    
+    .list-card-image {
       position: relative;
-      height: 240px;
+      width: 220px;
+      flex-shrink: 0;
       overflow: hidden;
     }
     
-    .hotel-image {
+    .list-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    .hotel-card:hover .hotel-image {
-      transform: scale(1.08);
+    .riad-list-card:hover .list-image {
+      transform: scale(1.1);
     }
     
-    .hotel-image-placeholder {
+    .list-image-placeholder {
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%);
+      background: linear-gradient(135deg, var(--terracotta), #a86b50);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
-    .placeholder-icon {
-      font-size: 80px;
-      width: 80px;
-      height: 80px;
-      color: rgba(255, 255, 255, 0.4);
+    .list-image-placeholder mat-icon {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+      color: rgba(255, 255, 255, 0.3);
     }
     
-    .hotel-overlay {
+    .list-image-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(
-        to bottom,
+        to right,
         transparent 0%,
-        rgba(45, 36, 22, 0.15) 60%,
-        rgba(45, 36, 22, 0.5) 100%
+        rgba(45, 36, 22, 0.1) 100%
       );
     }
     
-    .category-badge {
+    .list-category-badge {
       position: absolute;
-      top: 1rem;
-      left: 1rem;
+      top: 0.75rem;
+      left: 0.75rem;
       z-index: 10;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%);
+      background: linear-gradient(135deg, var(--emerald), #267062);
       color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      font-size: 0.8rem;
+      padding: 6px 10px;
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(45, 122, 110, 0.4);
       display: flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 12px rgba(139, 108, 80, 0.4);
     }
     
-    .category-badge mat-icon {
+    .list-category-badge mat-icon {
       font-size: 16px;
       width: 16px;
       height: 16px;
     }
     
-    .rating-badge {
+    .list-rating {
       position: absolute;
-      bottom: 1rem;
-      right: 1rem;
+      bottom: 0.75rem;
+      right: 0.75rem;
       z-index: 10;
       background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      padding: 8px 14px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .stars {
-      display: flex;
-      gap: 2px;
-    }
-    
-    .stars mat-icon {
-      font-size: 13px;
-      width: 13px;
-      height: 13px;
-      color: #e0e0e0;
-    }
-    
-    .stars mat-icon.filled {
-      color: #8b6c50;
-    }
-    
-    .rating-text {
-      font-weight: 600;
-      color: #2d2416;
-      font-size: 0.85rem;
-    }
-    
-    /* Hotel Content */
-    .hotel-content {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    
-    .hotel-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: #2d2416;
-      margin: 0 0 0.75rem 0;
-      line-height: 1.3;
-    }
-    
-    .hotel-location {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #6d5d4b;
-      margin-bottom: 1rem;
-      font-size: 0.875rem;
-    }
-    
-    .hotel-location mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      color: #8b6c50;
-    }
-    
-    .hotel-description {
-      font-size: 0.875rem;
-      color: #6d5d4b;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-      flex: 1;
-    }
-    
-    .hotel-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 1rem;
-    }
-    
-    .feature-tag {
+      backdrop-filter: blur(8px);
+      padding: 6px 10px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       gap: 4px;
-      background: rgba(139, 108, 80, 0.08);
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: #2d2416;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
     }
     
-    .feature-tag mat-icon {
+    .list-star {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: var(--gold-accent);
+    }
+    
+    .list-rating span {
+      font-weight: 700;
+      color: var(--charcoal);
+      font-size: 0.8rem;
+    }
+    
+    .list-card-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .list-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin: 0 0 0.5rem 0;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .list-meta-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .list-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--warm-gray);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .list-meta-item mat-icon {
       font-size: 13px;
       width: 13px;
       height: 13px;
-      color: #8b6c50;
+      color: var(--gold-accent);
     }
     
-    .hotel-footer {
+    .list-location {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--warm-gray);
+      font-size: 0.8rem;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .list-location mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: var(--terracotta);
+      flex-shrink: 0;
+    }
+    
+    .list-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 0;
-      border-top: 1px solid rgba(139, 108, 80, 0.1);
-      margin-bottom: 1rem;
+      gap: 1rem;
     }
     
-    .price-section {
+    .list-price {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
     
-    .price-label {
-      font-size: 0.7rem;
-      color: #6d5d4b;
+    .list-price-label {
+      font-size: 0.65rem;
+      color: var(--warm-gray);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      font-weight: 600;
     }
     
-    .price-value {
-      font-size: 1.6rem;
+    .list-price-value {
+      font-size: 1.25rem;
       font-weight: 700;
-      color: #8b6c50;
+      color: var(--emerald);
       line-height: 1;
     }
     
-    .price-unit {
-      font-size: 0.75rem;
-      color: #6d5d4b;
-    }
-    
-    .rooms-info {
-      display: flex;
+    .list-cta {
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-size: 0.875rem;
-      color: #6d5d4b;
-    }
-    
-    .rooms-info mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #8b6c50;
-    }
-    
-    .view-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      height: 44px !important;
-      border-radius: 12px !important;
+      gap: 4px;
+      padding: 0 14px !important;
+      height: 36px !important;
+      min-width: auto !important;
+      border-radius: 18px !important;
       font-weight: 600 !important;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
-      color: white !important;
-      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.3) !important;
+      font-size: 0.8rem !important;
+      color: var(--emerald) !important;
+      border: 2px solid var(--emerald) !important;
       transition: all 0.3s !important;
     }
     
-    .view-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(139, 108, 80, 0.4) !important;
+    .list-cta:hover {
+      background: var(--emerald) !important;
+      color: white !important;
+      transform: translateX(3px);
     }
     
-    .view-btn mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+    .list-cta mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s;
+    }
+    
+    .list-cta:hover mat-icon {
+      transform: translateX(2px);
+    }
+    
+    /* ============================================
+       RESPONSIVE DESIGN
+       ============================================ */
+    
+    @media (max-width: 1024px) {
+      .riads-editorial-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      
+      .riads-scroll-list {
+        height: auto;
+        max-height: 500px;
+      }
+      
+      .featured-image-container {
+        height: 400px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .riads-editorial-section {
+        padding: 3rem 0;
+      }
+      
+      .riads-container {
+        padding: 0 1rem;
+      }
+      
+      .riads-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+      }
+      
+      .riads-title {
+        font-size: 1.75rem;
+      }
+      
+      .title-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+      
+      .view-all-link {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      /* Mobile: Horizontal scroll-snap carousel */
+      .riads-scroll-list {
+        height: auto;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        padding: 0;
+        margin: 0 -1rem;
+      }
+      
+      .scroll-list-inner {
+        flex-direction: row;
+        gap: 1rem;
+        padding: 0 1rem;
+      }
+      
+      .riad-list-card {
+        scroll-snap-align: center;
+        flex-direction: column;
+        min-width: 280px;
+        height: auto;
+      }
+      
+      .list-card-image {
+        width: 100%;
+        height: 180px;
+      }
+      
+      .featured-image-container {
+        height: 320px;
+      }
+      
+      .featured-content {
+        padding: 1.5rem;
+      }
+      
+      .featured-name {
+        font-size: 1.5rem;
+      }
+      
+      .featured-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .featured-cta {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* Accessibility: Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .featured-riad,
+      .riad-list-card {
+        animation: none;
+        opacity: 1;
+      }
+      
+      .featured-image,
+      .list-image,
+      .featured-cta mat-icon,
+      .list-cta mat-icon {
+        transition: none;
+      }
+      
+      .riads-scroll-list {
+        scroll-behavior: auto;
+      }
     }
     
     .search-hotels-btn {
@@ -4732,9 +5518,9 @@ interface Destination {
       height: 44px !important;
       border-radius: 12px !important;
       font-weight: 600 !important;
-      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
+      background: linear-gradient(135deg, var(--emerald), #267062) !important;
       color: white !important;
-      box-shadow: 0 4px 16px rgba(139, 108, 80, 0.3) !important;
+      box-shadow: 0 4px 16px rgba(45, 122, 110, 0.3) !important;
     }
 
     /* ============================================
@@ -5757,6 +6543,599 @@ interface Destination {
     }
     
     /* Destinations Gallery Premium */
+    /* ============================================
+       DESTINATIONS BENTO GALLERY - PREMIUM DESIGN
+       ============================================ */
+    
+    .destinations-bento-gallery {
+      padding: 5rem 0 6rem;
+      background: linear-gradient(180deg, #fdfcfb 0%, #f8f6f3 50%, #fdfcfb 100%);
+      position: relative;
+    }
+    
+    /* Subtle decorative pattern */
+    .destinations-bento-gallery::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 108, 80, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .bento-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* ============================================
+       BENTO GRID LAYOUT
+       ============================================ */
+    
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    
+    /* Grid Item Sizes */
+    .large-featured {
+      grid-column: span 6;
+      grid-row: span 2;
+    }
+    
+    .tall-card {
+      grid-column: span 3;
+      grid-row: span 2;
+    }
+    
+    .wide-card {
+      grid-column: span 3;
+      grid-row: span 1;
+    }
+    
+    .medium-card {
+      grid-column: span 3;
+      grid-row: span 1;
+    }
+    
+    .small-card {
+      grid-column: span 3;
+      grid-row: span 1;
+    }
+    
+    /* ============================================
+       BENTO ITEMS - BASE STYLING
+       ============================================ */
+    
+    .bento-item {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      animation: bentoFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    
+    @keyframes bentoFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* Stagger animation */
+    .bento-item:nth-child(1) { animation-delay: 0.05s; }
+    .bento-item:nth-child(2) { animation-delay: 0.1s; }
+    .bento-item:nth-child(3) { animation-delay: 0.15s; }
+    .bento-item:nth-child(4) { animation-delay: 0.2s; }
+    .bento-item:nth-child(5) { animation-delay: 0.25s; }
+    .bento-item:nth-child(6) { animation-delay: 0.3s; }
+    .bento-item:nth-child(7) { animation-delay: 0.35s; }
+    .bento-item:nth-child(8) { animation-delay: 0.4s; }
+    .bento-item:nth-child(n+9) { animation-delay: 0.45s; }
+    
+    .bento-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(139, 108, 80, 0.15);
+      z-index: 10;
+    }
+    
+    .bento-image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      overflow: hidden;
+    }
+    
+    .large-featured .bento-image-wrapper {
+      min-height: 500px;
+    }
+    
+    .tall-card .bento-image-wrapper {
+      min-height: 500px;
+    }
+    
+    .wide-card .bento-image-wrapper {
+      min-height: 240px;
+    }
+    
+    .medium-card .bento-image-wrapper {
+      min-height: 280px;
+    }
+    
+    .small-card .bento-image-wrapper {
+      min-height: 240px;
+    }
+    
+    .bento-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .bento-item:hover .bento-image {
+      transform: scale(1.1);
+    }
+    
+    .bento-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #e8dfd2 0%, #d4c5b0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .bento-placeholder mat-icon {
+      font-size: 80px;
+      width: 80px;
+      height: 80px;
+      color: rgba(139, 108, 80, 0.3);
+    }
+    
+    .bento-placeholder.small mat-icon {
+      font-size: 50px;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .bento-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(45, 36, 22, 0) 0%,
+        rgba(45, 36, 22, 0.3) 50%,
+        rgba(45, 36, 22, 0.85) 100%
+      );
+      transition: opacity 0.4s;
+    }
+    
+    .bento-item:hover .bento-overlay {
+      opacity: 0.95;
+    }
+    
+    /* ============================================
+       BADGES & TAGS
+       ============================================ */
+    
+    .featured-tag {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+      color: #2d2416;
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 0.875rem;
+      letter-spacing: 0.03em;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+      animation: badgeFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    
+    .featured-tag mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .trending-indicator {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      color: #d4af37;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 24px rgba(212, 175, 55, 0.5); }
+    }
+    
+    .trending-indicator mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+    
+    .mini-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+      background: rgba(212, 175, 55, 0.95);
+      color: #2d2416;
+      padding: 8px;
+      border-radius: 50%;
+      box-shadow: 0 3px 12px rgba(212, 175, 55, 0.4);
+      display: flex;
+    }
+    
+    .mini-badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    .hidden-gem-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 108, 80, 0.15);
+      border: 1px solid rgba(139, 108, 80, 0.3);
+      color: #8b6c50;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+    
+    .hidden-gem-tag mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    
+    /* ============================================
+       CONTENT STYLING
+       ============================================ */
+    
+    .bento-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      z-index: 5;
+      transform: translateY(0);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .bento-item:hover .bento-content {
+      transform: translateY(-8px);
+    }
+    
+    .bento-content.large {
+      padding: 2.5rem;
+    }
+    
+    .bento-content.compact {
+      padding: 1.5rem;
+    }
+    
+    .bento-content.horizontal {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.75rem;
+    }
+    
+    .content-left {
+      flex: 1;
+    }
+    
+    .destination-category {
+      display: inline-block;
+      color: #d4af37;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    }
+    
+    .destination-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.2;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .destination-title.medium {
+      font-size: 1.75rem;
+    }
+    
+    .destination-title.small {
+      font-size: 1.25rem;
+      margin: 0 0 0.25rem 0;
+    }
+    
+    .destination-location {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.95);
+      margin: 0;
+      font-weight: 500;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+    
+    .destination-location.small {
+      font-size: 0.9rem;
+    }
+    
+    /* ============================================
+       BUTTONS & INTERACTIONS
+       ============================================ */
+    
+    .explore-btn-bento {
+      margin-top: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 2rem !important;
+      height: 50px !important;
+      border-radius: 25px !important;
+      background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%) !important;
+      color: #2d2416 !important;
+      font-weight: 700 !important;
+      font-size: 1rem !important;
+      box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4) !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      border: none !important;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .bento-item:hover .explore-btn-bento {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .explore-btn-bento:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 10px 32px rgba(212, 175, 55, 0.6) !important;
+    }
+    
+    .explore-btn-bento mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s;
+    }
+    
+    .explore-btn-bento:hover mat-icon {
+      transform: translateX(5px);
+    }
+    
+    .quick-view-btn {
+      background: rgba(255, 255, 255, 0.95) !important;
+      color: #8b6c50 !important;
+      width: 48px !important;
+      height: 48px !important;
+      border: 2px solid rgba(139, 108, 80, 0.2) !important;
+      transition: all 0.3s !important;
+      flex-shrink: 0;
+    }
+    
+    .quick-view-btn:hover {
+      background: #d4af37 !important;
+      color: #2d2416 !important;
+      border-color: #d4af37 !important;
+      transform: rotate(45deg) scale(1.1) !important;
+    }
+    
+    .quick-view-btn mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+    
+    /* ============================================
+       VIEW ALL BUTTON
+       ============================================ */
+    
+    .view-all-wrapper {
+      text-align: center;
+      margin-top: 4rem;
+    }
+    
+    .view-all-destinations-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 3rem !important;
+      height: 56px !important;
+      border-radius: 28px !important;
+      background: linear-gradient(135deg, #8b6c50 0%, #6d5d4b 100%) !important;
+      color: white !important;
+      font-weight: 700 !important;
+      font-size: 1.05rem !important;
+      box-shadow: 0 8px 28px rgba(139, 108, 80, 0.3) !important;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      border: none !important;
+    }
+    
+    .view-all-destinations-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(139, 108, 80, 0.4) !important;
+    }
+    
+    .view-all-destinations-btn mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      transition: transform 0.3s;
+    }
+    
+    .view-all-destinations-btn:hover mat-icon {
+      transform: translateX(5px);
+    }
+    
+    /* ============================================
+       RESPONSIVE DESIGN
+       ============================================ */
+    
+    @media (max-width: 1200px) {
+      .bento-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+      
+      .large-featured {
+        grid-column: span 6;
+        grid-row: span 2;
+      }
+      
+      .tall-card {
+        grid-column: span 3;
+        grid-row: span 1;
+      }
+      
+      .wide-card {
+        grid-column: span 3;
+        grid-row: span 1;
+      }
+      
+      .medium-card,
+      .small-card {
+        grid-column: span 3;
+        grid-row: span 1;
+      }
+      
+      .tall-card .bento-image-wrapper {
+        min-height: 300px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .destinations-bento-gallery {
+        padding: 3rem 0 4rem;
+      }
+      
+      .bento-container {
+        padding: 0 1rem;
+      }
+      
+      .bento-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .large-featured,
+      .tall-card,
+      .wide-card,
+      .medium-card,
+      .small-card {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+      
+      .bento-image-wrapper,
+      .large-featured .bento-image-wrapper,
+      .tall-card .bento-image-wrapper {
+        min-height: 280px;
+      }
+      
+      .wide-card .bento-image-wrapper,
+      .small-card .bento-image-wrapper {
+        min-height: 220px;
+      }
+      
+      .destination-title {
+        font-size: 1.75rem;
+      }
+      
+      .destination-title.medium {
+        font-size: 1.5rem;
+      }
+      
+      .bento-content {
+        padding: 1.5rem;
+      }
+      
+      .bento-content.large {
+        padding: 1.75rem;
+      }
+      
+      .explore-btn-bento {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .view-all-wrapper {
+        margin-top: 2.5rem;
+      }
+      
+      .view-all-destinations-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* Accessibility: Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .bento-item,
+      .bento-image,
+      .explore-btn-bento,
+      .quick-view-btn {
+        animation: none;
+        transition: none;
+      }
+      
+      .featured-tag,
+      .trending-indicator {
+        animation: none;
+      }
+    }
+
     .destinations-gallery-premium {
       padding: 0 0 80px;
       background: #f8f6f3;
